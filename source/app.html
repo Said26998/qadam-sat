@@ -626,14 +626,16 @@ function vMe(){
     <label class="switch" for="snd"><span>Sound effects</span><input type="checkbox" id="snd" ${S.sound?'checked':''}></label>
     <label class="switch" for="opn"><span>Open all lessons (skip ahead)</span><input type="checkbox" id="opn" ${S.openAll?'checked':''}></label>
     ${window.QADAM_SIGNOUT?`<p class="muted" style="margin:0;font-size:14px">Signed in as ${esc((window.QADAM_PROFILE||{}).email||'')}</p><button class="btn ghost" id="sgo">Sign out</button>`:''}
+    <button class="btn ghost" id="wlc">Why “Qadam”?</button>
     <button class="btn ghost" id="rst" style="color:var(--bad)">Reset my progress</button>
    </div></div>`;
   let nt; document.getElementById('nick').oninput=e=>{ clearTimeout(nt); nt=setTimeout(()=>{ S.nick=e.target.value.trim(); save(); },700); };
   document.getElementById('goalSeg').onclick=e=>{ const b=e.target.closest('[data-g]'); if(!b)return; S.goal=+b.dataset.g; save(); vMe(); paintSync(); };
   document.getElementById('snd').onchange=e=>{ S.sound=e.target.checked; save(); };
   document.getElementById('opn').onchange=e=>{ S.openAll=e.target.checked; save(); };
+  document.getElementById('wlc').onclick=welcome;
   const sg=document.getElementById('sgo'); if(sg) sg.onclick=()=>window.QADAM_SIGNOUT();
-  document.getElementById('rst').onclick=()=>{ openModal(`<h2>Reset all progress?</h2><p class="muted">This clears your XP, streak, lessons, words and stats, here and in your teacher's class view. It cannot be undone.</p><div class="row"><button class="btn ghost" data-close>Cancel</button><button class="btn bad" id="mR">Reset</button></div>`); document.getElementById('mR').onclick=()=>{ const keep={sound:S.sound}; S=Object.assign(fresh(),keep); save(); closeModal(); TAB='learn'; render(); }; };
+  document.getElementById('rst').onclick=()=>{ openModal(`<h2>Reset all progress?</h2><p class="muted">This clears your XP, streak, lessons, words and stats, here and in your teacher's class view. It cannot be undone.</p><div class="row"><button class="btn ghost" data-close>Cancel</button><button class="btn bad" id="mR">Reset</button></div>`); document.getElementById('mR').onclick=()=>{ const keep={sound:S.sound, welcomed:true}; S=Object.assign(fresh(),keep); save(); closeModal(); TAB='learn'; render(); }; };
 }
 
 /* ---------- Class (teacher) ---------- */
@@ -673,8 +675,24 @@ function studentSheet(r){ if(!r) return; const s=r.s, st=r.st;
    <button class="btn ghost" data-close>Close</button>`);
 }
 
+/* ---------- welcome ---------- */
+function welcome(){
+  S.welcomed=true; save(false);
+  openModal(`<div style="text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center"><svg viewBox="0 0 24 24" width="64" height="64" aria-hidden="true" style="color:var(--cobalt)"><path fill="currentColor" d="M12 1.5l2.6 4.2 4.8-1.1-1.1 4.8 4.2 2.6-4.2 2.6 1.1 4.8-4.8-1.1L12 22.5l-2.6-4.2-4.8 1.1 1.1-4.8L1.5 12l4.2-2.6-1.1-4.8 4.8 1.1z"/><circle cx="12" cy="12" r="3.6" fill="var(--surface)"/></svg><h2>Welcome to Qadam</h2><p class="muted"><i>Qadam</i> means “step” in Uzbek.</p></div>
+  <p>Nobody climbs a mountain in one jump. You climb it one step at a time, and the SAT works the same way. A few focused minutes today and a few more tomorrow add up to a score you will be proud of.</p>
+  <div class="stack" style="gap:8px">
+   <div class="tipbox" style="--tone:var(--cobalt)"><b>Learn</b>Follow the path through every Reading and Writing skill, one short lesson at a time.</div>
+   <div class="tipbox" style="--tone:var(--jade)"><b>Words</b>Build your SAT vocabulary with word sets, flashcards, and a daily quiz.</div>
+   <div class="tipbox" style="--tone:var(--coral)"><b>Review</b>Every mistake is a lesson. Fix yours here and win your hearts back.</div>
+  </div>
+  <p>Set a daily goal and keep your streak alive. You do not have to be perfect. You just have to keep stepping forward.</p>
+  <p style="text-align:center;font-weight:800;color:var(--cobalt)">Har kuni bir qadam. One step every day.</p>
+  <button class="btn" data-close>Take my first step</button>`);
+}
+
 /* ---------- boot ---------- */
 render();
+if(!S.welcomed) welcome();
 setInterval(()=>{ if(LS.hidden) renderTop(); }, 60000);
 connect();
 try{ if(window.top===window && location.protocol==='https:' && !/claude\.ai|claudeusercontent/.test(location.host)){ const l=document.createElement('link'); l.rel='manifest'; l.href='manifest.webmanifest'; document.head.appendChild(l); if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{}); } }catch(e){}
