@@ -625,7 +625,7 @@ function vMe(){
     <div><p style="margin:0 0 8px;font-weight:700">Daily goal</p><div class="seg" id="goalSeg">${[[10,'Casual'],[20,'Regular'],[30,'Serious'],[50,'Intense']].map(([g,l])=>`<button data-g="${g}" aria-pressed="${S.goal===g}">${l} · ${g} XP</button>`).join('')}</div></div>
     <label class="switch" for="snd"><span>Sound effects</span><input type="checkbox" id="snd" ${S.sound?'checked':''}></label>
     <label class="switch" for="opn"><span>Open all lessons (skip ahead)</span><input type="checkbox" id="opn" ${S.openAll?'checked':''}></label>
-    ${window.QADAM_SIGNOUT?`<p class="muted" style="margin:0;font-size:14px">Signed in as ${esc((window.QADAM_PROFILE||{}).email||'')}</p><button class="btn ghost" id="sgo">Sign out</button>`:''}
+    ${window.QADAM_SIGNOUT?`<p class="muted" style="margin:0;font-size:14px">Signed in as ${esc((window.QADAM_PROFILE||{}).email||'')}${window.QADAM_VERIFIED===false?' · email not verified yet':''}${OWNER?' · teacher':''}</p>${window.QADAM_VERIFIED===false?'<button class="btn ghost" id="vfy">Send verification email</button>':''}<button class="btn ghost" id="sgo">Sign out</button>`:''}
     <button class="btn ghost" id="wlc">Why “Qadam”?</button>
     <button class="btn ghost" id="rst" style="color:var(--bad)">Reset my progress</button>
    </div></div>`;
@@ -634,6 +634,7 @@ function vMe(){
   document.getElementById('snd').onchange=e=>{ S.sound=e.target.checked; save(); };
   document.getElementById('opn').onchange=e=>{ S.openAll=e.target.checked; save(); };
   document.getElementById('wlc').onclick=welcome;
+  const vf=document.getElementById('vfy'); if(vf) vf.onclick=()=>{ window.QADAM_VERIFY().then(()=>{vf.textContent='Sent. Open the link in your inbox, then sign in again.';vf.disabled=true;},()=>{vf.textContent='Could not send. Try again in a few minutes.';}); };
   const sg=document.getElementById('sgo'); if(sg) sg.onclick=()=>window.QADAM_SIGNOUT();
   document.getElementById('rst').onclick=()=>{ openModal(`<h2>Reset all progress?</h2><p class="muted">This clears your XP, streak, lessons, words and stats, here and in your teacher's class view. It cannot be undone.</p><div class="row"><button class="btn ghost" data-close>Cancel</button><button class="btn bad" id="mR">Reset</button></div>`); document.getElementById('mR').onclick=()=>{ const keep={sound:S.sound, welcomed:true}; S=Object.assign(fresh(),keep); save(); closeModal(); TAB='learn'; render(); }; };
 }

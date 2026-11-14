@@ -46,7 +46,7 @@
     if (mode === 'up') {
       if (!nm) { msg('Enter your name so your teacher knows who you are.', true); busy(false); return; }
       signingUp = true;
-      auth.createUserWithEmailAndPassword(em, pw).then(c => c.user.updateProfile({ displayName: nm }).then(() => { signingUp = false; start(auth.currentUser); })).catch(e => { signingUp = false; fail(e); });
+      auth.createUserWithEmailAndPassword(em, pw).then(c => c.user.updateProfile({ displayName: nm }).then(() => c.user.sendEmailVerification().catch(() => {})).then(() => { signingUp = false; start(auth.currentUser); })).catch(e => { signingUp = false; fail(e); });
     } else auth.signInWithEmailAndPassword(em, pw).catch(fail);
   };
   $('gReset').onclick = () => {
@@ -61,9 +61,13 @@
     if (started) return; started = true;
     window.QADAM_UID = u.uid;
     window.QADAM_PROFILE = { name: u.displayName || '', email: u.email || '' };
+    window.QADAM_VERIFIED = !!u.emailVerified;
+    window.QADAM_VERIFY = () => u.sendEmailVerification();
     window.QADAM_SIGNOUT = () => auth.signOut().then(() => location.reload());
     // The teacher is whoever the database rules let read the whole class list; no email is stored in the site.
-    const teacherCheck = fs.collection('students').limit(1).get({ source: 'server' }).then(() => true, () => false);
+    // Refresh the sign-in token first so a just-verified email counts.
+    const teacherCheck = u.reload().catch(() => {}).then(() => u.getIdToken(true)).catch(() => {})
+      .then(() => fs.collection('students').limit(1).get({ source: 'server' })).then(() => true, () => false);
     const clean = o => JSON.parse(JSON.stringify(o));
     const userNs = { isOwner: () => teacherCheck, id: async () => u.uid, profiles: async () => ({}) };
     const dbNs = {
