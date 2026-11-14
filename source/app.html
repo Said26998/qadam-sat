@@ -1,0 +1,643 @@
+<title>Qadam SAT</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#1F45C8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Layout: one phone-width column; sticky stats bar, scrolling skill path, fixed tab bar. Lessons open as a full-screen sheet.
+   Palette: Rishtan ceramic cobalt + turquoise on porcelain, saffron for streak/XP. */
+:root{
+  --bg:#F2F4FA; --surface:#FFFFFF; --sunk:#E7EBF5; --ink:#141B46; --muted:#59618A; --line:#D7DDEE;
+  --cobalt:#1F45C8; --cobalt-d:#14309A; --turq:#0E9C97; --turq-d:#0A716E; --saffron:#E89A12; --saffron-d:#B8770A;
+  --plum:#8A3FB8; --plum-d:#682C8C; --coral:#D9503F; --coral-d:#A83A2C;
+  --good:#17905A; --good-bg:#DDF5E8; --bad:#C93A33; --bad-bg:#FBE3E1; --heart:#E2434B; --on:#FFFFFF;
+  --s1:var(--cobalt); --s1d:var(--cobalt-d); --s2:var(--turq); --s2d:var(--turq-d); --s3:var(--plum); --s3d:var(--plum-d); --s4:var(--coral); --s4d:var(--coral-d);
+  --f-disp:"Bricolage Grotesque", "Figtree", system-ui, sans-serif;
+  --f-ui:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-read:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1128; --surface:#161C3A; --sunk:#1E2549; --ink:#E9EDFB; --muted:#9AA3C9; --line:#2B3360;
+  --cobalt:#5B7CFF; --cobalt-d:#3653CC; --turq:#26C2BA; --turq-d:#178F89; --saffron:#F4B13E; --saffron-d:#C1861F;
+  --plum:#B47AE0; --plum-d:#8752AE; --coral:#F07462; --coral-d:#BE5141;
+  --good:#3CCB84; --good-bg:#123A2A; --bad:#FF7468; --bad-bg:#45191A; --heart:#FF5A62; --on:#FFFFFF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1128; --surface:#161C3A; --sunk:#1E2549; --ink:#E9EDFB; --muted:#9AA3C9; --line:#2B3360;
+  --cobalt:#5B7CFF; --cobalt-d:#3653CC; --turq:#26C2BA; --turq-d:#178F89; --saffron:#F4B13E; --saffron-d:#C1861F;
+  --plum:#B47AE0; --plum-d:#8752AE; --coral:#F07462; --coral-d:#BE5141;
+  --good:#3CCB84; --good-bg:#123A2A; --bad:#FF7468; --bad-bg:#45191A; --heart:#FF5A62; --on:#FFFFFF; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--saffron);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-disp);text-wrap:balance;margin:0;letter-spacing:-.01em}
+.app{max-width:560px;margin:0 auto;min-height:100%;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+
+/* top stats bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);display:flex;align-items:center;gap:8px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:2px solid var(--line)}
+.brand{font-family:var(--f-disp);font-weight:800;font-size:22px;color:var(--cobalt);margin-right:auto;display:flex;align-items:center;gap:6px}
+.brand svg{width:24px;height:24px}
+.chip{display:flex;align-items:center;gap:4px;font-weight:800;font-variant-numeric:tabular-nums;background:none;border:0;padding:6px 6px;border-radius:10px}
+.chip svg{width:22px;height:22px}
+.chip.streak{color:var(--saffron)} .chip.streak.off{color:var(--muted)}
+.chip.xp{color:var(--cobalt)} .chip.hearts{color:var(--heart)}
+.chip:hover{background:var(--sunk)}
+
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px}
+.stack{display:flex;flex-direction:column;gap:14px}
+
+/* daily goal */
+.goal{display:flex;gap:14px;align-items:center;background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:14px}
+.ring{width:58px;height:58px;flex:none}
+.ring circle{fill:none;stroke-width:7}
+.ring .bgc{stroke:var(--sunk)} .ring .fgc{stroke:var(--saffron);stroke-linecap:round;transition:stroke-dashoffset .6s}
+.goal b{font-family:var(--f-disp);font-size:18px;display:block}
+.goal p{margin:2px 0 0;color:var(--muted);font-size:14px}
+
+/* path */
+.unit{border-radius:var(--r);color:var(--on);padding:14px 16px;display:flex;gap:12px;align-items:center;background:var(--tone);box-shadow:0 4px 0 var(--toned)}
+.unit .k{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+.unit h2{font-size:20px;color:var(--on)}
+.unit .guide{margin-left:auto;flex:none;border:2px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:var(--on);border-radius:12px;padding:8px 10px;font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.sechead{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:10px;padding-inline:2px}
+.sechead h3{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-family:var(--f-ui);font-weight:800}
+.sechead span{font-size:12px;color:var(--muted)}
+.nodes{display:flex;flex-direction:column;align-items:center;gap:18px;padding-block:18px 8px}
+.node{position:relative;width:76px;height:70px;border-radius:50%;border:0;background:var(--tone);box-shadow:0 7px 0 var(--toned);display:grid;place-items:center;color:var(--on);transition:transform .08s}
+.node:active{transform:translateY(5px);box-shadow:0 2px 0 var(--toned)}
+.node svg{width:34px;height:34px}
+.node.locked{background:var(--sunk);box-shadow:0 7px 0 var(--line);color:var(--muted)}
+.node.done{background:var(--saffron);box-shadow:0 7px 0 var(--saffron-d)}
+.node .ringc{position:absolute;inset:-9px;border-radius:50%;border:4px solid var(--tone);opacity:.35;pointer-events:none}
+.bubble{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);background:var(--surface);color:var(--tone);border:2px solid var(--line);font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px;border-radius:10px;white-space:nowrap;animation:bob 1.6s ease-in-out infinite}
+.bubble::after{content:"";position:absolute;top:100%;left:50%;margin-left:-7px;border:7px solid transparent;border-top-color:var(--line)}
+@keyframes bob{50%{transform:translate(-50%,-5px)}}
+
+/* bottom nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:2px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.nav .in{max-width:560px;margin:0 auto;display:flex}
+.nav button{flex:1;background:none;border:0;padding:8px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:700;color:var(--muted)}
+.nav button svg{width:26px;height:26px}
+.nav button[aria-current="page"]{color:var(--cobalt)}
+.nav button[aria-current="page"] .ic{background:var(--sunk);border-radius:12px}
+.nav .ic{padding:3px 12px;display:grid;place-items:center}
+
+/* buttons */
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:14px 18px;font-weight:800;font-size:16px;letter-spacing:.05em;text-transform:uppercase;background:var(--cobalt);color:var(--on);box-shadow:0 4px 0 var(--cobalt-d);transition:transform .06s}
+.btn:active{transform:translateY(4px);box-shadow:none}
+.btn[disabled]{background:var(--sunk);color:var(--muted);box-shadow:0 4px 0 var(--line);cursor:default}
+.btn.good{background:var(--good);box-shadow:0 4px 0 color-mix(in srgb,var(--good) 70%,#000)}
+.btn.bad{background:var(--bad);box-shadow:0 4px 0 color-mix(in srgb,var(--bad) 70%,#000)}
+.btn.ghost{background:var(--surface);color:var(--cobalt);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)}
+.btn.saff{background:var(--saffron);box-shadow:0 4px 0 var(--saffron-d)}
+.row{display:flex;gap:10px}.row>*{flex:1}
+
+/* cards and tiles */
+.card{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:16px}
+.card h2{font-size:20px}
+.muted{color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tile{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:12px;display:flex;gap:10px;align-items:center;min-width:0}
+.tile svg{width:28px;height:28px;flex:none}
+.tile b{display:block;font-family:var(--f-disp);font-size:22px;font-variant-numeric:tabular-nums;line-height:1.1}
+.tile span{font-size:13px;color:var(--muted)}
+.lbl{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.week{display:flex;gap:8px;align-items:flex-end;height:120px;padding-top:18px}
+.week .d{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;min-width:0}
+.week .d i{display:block;width:100%;max-width:34px;background:var(--cobalt);border-radius:6px 6px 2px 2px;min-height:3px}
+.week .d.today i{background:var(--saffron)}
+.week .d span{font-size:12px;color:var(--muted);font-weight:700}
+.week .d em{font-style:normal;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.skill{display:grid;grid-template-columns:minmax(0,1fr) 90px 42px;gap:10px;align-items:center;padding-block:6px;font-size:14px}
+.skill .tr{height:10px;border-radius:6px;background:var(--sunk);overflow:hidden}
+.skill .tr i{display:block;height:100%;border-radius:6px}
+.skill .pct{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.skill .nm{min-width:0;line-height:1.25}
+.log{list-style:none;margin:0;padding:0}
+.log li{display:flex;gap:10px;padding-block:9px;border-top:1px solid var(--line);font-size:14px;align-items:center}
+.log li:first-child{border-top:0}
+.log .what{min-width:0;flex:1}
+.log .what small{display:block;color:var(--muted)}
+.log .xpv{font-weight:800;color:var(--cobalt);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{display:inline-block;font-size:12px;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--sunk);color:var(--muted)}
+.pill.good{background:var(--good-bg);color:var(--good)} .pill.bad{background:var(--bad-bg);color:var(--bad)}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 12px;font-weight:700}
+.seg button[aria-pressed="true"]{border-color:var(--cobalt);color:var(--cobalt);background:var(--sunk)}
+.field{width:100%;font:inherit;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink)}
+.switch{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:8px}
+.switch input{width:22px;height:22px;accent-color:var(--cobalt)}
+.sync{font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}
+.sync.ok i{background:var(--good)} .sync.err i{background:var(--bad)}
+
+/* class dashboard */
+.roster{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.roster th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:right;padding:8px 6px;font-weight:800;white-space:nowrap}
+.roster th:first-child{text-align:left}
+.roster td{padding:10px 6px;border-top:1px solid var(--line);text-align:right;white-space:nowrap}
+.roster td:first-child{text-align:left;white-space:normal}
+.roster tr.click{cursor:pointer}
+.roster tr.click:hover td{background:var(--sunk)}
+.who{display:flex;gap:8px;align-items:center;min-width:0}
+.av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;color:var(--on);flex:none;background:var(--cobalt)}
+.tblscroll{overflow-x:auto;margin-inline:-4px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+/* lesson sheet */
+.ls{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.ls .hd{display:flex;align-items:center;gap:12px;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:640px;width:100%;margin:0 auto}
+.x{background:none;border:0;padding:4px;color:var(--muted)} .x svg{width:28px;height:28px}
+.prog{flex:1;height:16px;border-radius:10px;background:var(--sunk);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--good);border-radius:10px;transition:width .35s;box-shadow:inset 0 -4px 0 rgba(0,0,0,.08)}
+.ls .bd{flex:1;overflow-y:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px 24px}
+.ls .bd>.in{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.ls .ft{border-top:2px solid var(--line);padding-block:14px calc(14px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--bg)}
+.ls .ft>.in{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.ls .ft.good{background:var(--good-bg);border-color:transparent} .ls .ft.bad{background:var(--bad-bg);border-color:transparent}
+.fb h3{font-size:22px;display:flex;align-items:center;gap:8px}
+.ft.good .fb h3{color:var(--good)} .ft.bad .fb h3{color:var(--bad)}
+.fb p{margin:4px 0 0;font-size:15px}
+.fb .ans{font-weight:700}
+.qtype{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--tone)}
+.passage{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:16px;font-family:var(--f-read);font-size:17px;line-height:1.6}
+.passage p{margin:0 0 10px}.passage p:last-child{margin:0}
+.passage u{text-decoration-thickness:2px;text-underline-offset:3px;text-decoration-color:var(--saffron)}
+.blank{display:inline-block;min-width:64px;border-bottom:3px solid var(--ink);margin-inline:2px;transform:translateY(-3px)}
+.qtext{font-weight:700;font-size:17px}
+.choices{display:flex;flex-direction:column;gap:10px}
+.choice{display:flex;gap:12px;align-items:flex-start;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:0 3px 0 var(--line);font-size:16px}
+.choice .letter{flex:none;width:28px;height:28px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;font-weight:800;font-size:13px;color:var(--muted)}
+.choice[aria-pressed="true"]{border-color:var(--cobalt);background:color-mix(in srgb,var(--cobalt) 9%,var(--surface));box-shadow:0 3px 0 var(--cobalt)}
+.choice[aria-pressed="true"] .letter{border-color:var(--cobalt);color:var(--cobalt)}
+.choice.right{border-color:var(--good);box-shadow:0 3px 0 var(--good)} .choice.right .letter{border-color:var(--good);color:var(--good)}
+.choice.wrong{border-color:var(--bad);box-shadow:0 3px 0 var(--bad)} .choice.wrong .letter{border-color:var(--bad);color:var(--bad)}
+.choice:disabled{cursor:default}
+.data{margin:0 0 10px;font-family:var(--f-ui)}
+.data figcaption{font-weight:700;font-size:14px;margin-bottom:8px}
+.tblwrap{overflow-x:auto}
+.data table{border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums;min-width:100%}
+.data th,.data td{border:1px solid var(--line);padding:6px 10px;text-align:center}
+.data thead th{background:var(--sunk)}
+.bars{display:flex;gap:6px;height:150px;align-items:stretch}
+.bar{flex:1;display:flex;flex-direction:column;min-width:0}
+.bar .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:2px;padding-top:16px}
+.bar .col i{display:block;width:80%;background:var(--turq);border-radius:4px 4px 0 0}
+.bar .bv{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
+.bar .bl{font-size:11px;text-align:center;color:var(--muted);border-top:1px solid var(--line);padding-top:3px}
+.axis{font-size:11px;color:var(--muted);margin-top:4px}
+.notes{margin:6px 0 0;padding-left:20px}.notes li{margin-bottom:4px}
+.lead{font-family:var(--f-ui);font-size:14px;color:var(--muted);margin:0 0 4px}
+.tokens{display:flex;flex-wrap:wrap;gap:8px;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:16px;font-family:var(--f-read);font-size:19px}
+.tok{border:2px solid transparent;background:var(--sunk);border-radius:10px;padding:4px 9px}
+.tok[aria-pressed="true"]{border-color:var(--cobalt);background:color-mix(in srgb,var(--cobalt) 14%,var(--surface))}
+.tok.right{border-color:var(--good);background:var(--good-bg)} .tok.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.match{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:10px}
+.match .colm{display:flex;flex-direction:column;gap:10px}
+.mt{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:12px;box-shadow:0 3px 0 var(--line);text-align:left;font-size:15px;min-height:56px}
+.mt.w{font-weight:800;font-family:var(--f-disp);font-size:17px}
+.mt[aria-pressed="true"]{border-color:var(--cobalt);box-shadow:0 3px 0 var(--cobalt)}
+.mt.ok{opacity:.35;border-color:var(--good);box-shadow:none}
+.mt.no{border-color:var(--bad);box-shadow:0 3px 0 var(--bad);animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.tipbox{background:var(--sunk);border-radius:14px;padding:14px;font-size:15px}
+.tipbox b{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--tone);margin-bottom:4px}
+
+/* finish */
+.done-hero{text-align:center;padding-top:24px;display:flex;flex-direction:column;gap:8px;align-items:center}
+.done-hero h1{font-size:34px;color:var(--saffron)}
+.star{width:120px;height:120px;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.3) rotate(-30deg);opacity:0}}
+.res{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px;width:100%}
+.res div{border:2px solid var(--c);border-radius:14px;overflow:hidden;text-align:center}
+.res span{display:block;background:var(--c);color:var(--on);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px}
+.res b{display:block;padding:10px 4px;font-family:var(--f-disp);font-size:22px;color:var(--c);font-variant-numeric:tabular-nums}
+
+/* modal sheet */
+.scrim{position:fixed;inset:0;z-index:60;background:rgba(10,14,40,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:560px;background:var(--surface);border-radius:22px 22px 0 0;padding-block:20px calc(20px + env(safe-area-inset-bottom,0px));padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px;animation:up .22s ease-out;max-height:88vh;overflow-y:auto}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.sheet h2{font-size:22px}
+.sheet p{margin:0}
+
+/* flashcards */
+.fc{perspective:1200px;height:300px}
+.fc .inner{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.fc.flip .inner{transform:rotateY(180deg)}
+.fc .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:20px;border:2px solid var(--line);background:var(--surface);box-shadow:0 5px 0 var(--line);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:22px;text-align:center;gap:10px}
+.fc .back{transform:rotateY(180deg)}
+.fc .wd{font-family:var(--f-disp);font-weight:800;font-size:38px;color:var(--cobalt)}
+.fc .pos{font-style:italic;color:var(--muted)}
+.fc .df{font-size:20px;font-weight:700}
+.fc .ex{font-family:var(--f-read);font-size:17px;color:var(--muted)}
+.wl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.wl div{background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:8px 10px;display:flex;justify-content:space-between;gap:6px;align-items:center;min-width:0}
+.wl div b{overflow:hidden;text-overflow:ellipsis}
+.lv{display:flex;gap:2px}.lv i{width:6px;height:12px;border-radius:2px;background:var(--sunk)}.lv i.on{background:var(--turq)}
+.empty{text-align:center;padding:28px 12px;color:var(--muted)}
+.empty svg{width:56px;height:56px;color:var(--line)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 1.5l2.6 4.2 4.8-1.1-1.1 4.8 4.2 2.6-4.2 2.6 1.1 4.8-4.8-1.1L12 22.5l-2.6-4.2-4.8 1.1 1.1-4.8L1.5 12l4.2-2.6-1.1-4.8 4.8 1.1z"/><circle cx="12" cy="12" r="3.6" fill="var(--bg)"/></svg>Qadam</div>
+    <button class="chip streak" id="cStreak" aria-label="Streak"></button>
+    <button class="chip xp" id="cXp" aria-label="Total XP"></button>
+    <button class="chip hearts" id="cHearts" aria-label="Hearts"></button>
+  </header>
+  <main id="view"></main>
+</div>
+<nav class="nav" aria-label="Main"><div class="in" id="nav"></div></nav>
+<div id="lesson" class="ls" hidden></div>
+<div id="modal" hidden></div>
+
+<script>
+/*CONTENT*/
+</script>
+<script>
+(function(){
+'use strict';
+/* ---------- icons ---------- */
+const I = {
+  flame:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.6 1.8c.6 3.6 4.9 5.8 4.9 11.1a5.5 5.5 0 0 1-11 0c0-2.4 1.2-4.1 2.5-5.3.1 2 1 3.2 2.2 3.5-.8-3.3.3-6.6 1.4-9.3z"/></svg>',
+  bolt:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.5 1.5 4 13.6h6.6L9.4 22.5 19.5 10h-6.7z"/></svg>',
+  heart:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21.2s-7.6-4.6-9.7-9.3C.9 8.7 3.1 4.9 6.7 4.9c2.1 0 3.7 1.1 5.3 3.1 1.6-2 3.2-3.1 5.3-3.1 3.6 0 5.8 3.8 4.4 7-2.1 4.7-9.7 9.3-9.7 9.3z"/></svg>',
+  star:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.2l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>',
+  check:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.5l5 5L19.5 7"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 10V7.5a5 5 0 0 1 10 0V10h1a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 18 21H6a1.5 1.5 0 0 1-1.5-1.5v-8A1.5 1.5 0 0 1 6 10zm2.5 0h5V7.5a2.5 2.5 0 0 0-5 0z"/></svg>',
+  x:'<svg viewBox="0 0 24 24" aria-hidden="true"><path stroke="currentColor" stroke-width="2.6" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></svg>',
+  learn:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+  cards:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="6" y="3" width="13" height="16" rx="2"/><path d="M3.5 7v12.5A1.5 1.5 0 0 0 5 21h10"/></g></svg>',
+  redo:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M20 12a8 8 0 1 1-2.4-5.7M20 4v4.5h-4.5"/></svg>',
+  me:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path stroke-linecap="round" d="M4 21c1.2-4 4.3-6 8-6s6.8 2 8 6"/></g></svg>',
+  cls:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.8-3.4 3.2-5 6-5s5.2 1.6 6 5"/><path d="M16 5.2a3 3 0 0 1 0 5.6M18 15c1.6.6 2.6 2.2 3 5"/></g></svg>',
+  book:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 3h11a3 3 0 0 1 3 3v15H7a2 2 0 0 1-2-2zm2 14v2h10v-2z"/></svg>',
+  target:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></g></svg>',
+  clock:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></svg>',
+};
+
+/* ---------- content index ---------- */
+const LESSONS = []; const ITEM = {};
+UNITS.forEach((u,ui)=>{ u.n = ui; u.lessons.forEach((items,li)=>{
+  const id = u.id+'-'+(li+1);
+  items.forEach((it,k)=>{ it.id = id+'-'+(k+1); it.unit = u.id; ITEM[it.id]=it; });
+  LESSONS.push({id, unit:u, li, items, n:LESSONS.length});
+});});
+const UNIT = Object.fromEntries(UNITS.map(u=>[u.id,u]));
+const LESSON = Object.fromEntries(LESSONS.map(l=>[l.id,l]));
+
+/* ---------- state ---------- */
+const KEY='qadam-sat-v1'+(window.QADAM_UID?'-'+window.QADAM_UID:''), MAXH=5, REGEN=30*60*1000, INTV=[0,1,3,7,14,30];
+function fresh(){ return {v:1, nick:'', xp:0, hist:{}, streak:0, lastDay:'', best:0, hearts:MAXH, heartTs:Date.now(), goal:20,
+  lessons:{}, unit:{}, ans:0, right:0, secs:0, mistakes:[], cards:{}, log:[], sound:true, openAll:false, updatedAt:0}; }
+let S = fresh();
+try{ const raw = localStorage.getItem(KEY); if(raw) S = Object.assign(fresh(), JSON.parse(raw)); }catch(e){}
+function save(sync=true){ S.updatedAt = Date.now(); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} if(sync) push(); }
+
+const pad=n=>String(n).padStart(2,'0');
+const dkey=(d=new Date())=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>dkey(); const yday=()=>{const d=new Date();d.setDate(d.getDate()-1);return dkey(d)};
+function streakNow(st=S){ return (st.lastDay===today()||st.lastDay===yday()) ? st.streak : 0; }
+function todayXp(st=S){ return st.hist[today()]||0; }
+function regen(){ if(S.hearts>=MAXH){S.heartTs=Date.now();return;} const n=Math.floor((Date.now()-S.heartTs)/REGEN); if(n>0){S.hearts=Math.min(MAXH,S.hearts+n); S.heartTs+=n*REGEN; if(S.hearts>=MAXH)S.heartTs=Date.now(); save(false);} }
+function nextHeartMin(){ return Math.max(1,Math.ceil((REGEN-(Date.now()-S.heartTs))/60000)); }
+function addXp(n){ const t=today(); let bumped=false; if(S.lastDay!==t){ S.streak = (S.lastDay===yday()) ? S.streak+1 : 1; S.lastDay=t; bumped=true; S.best=Math.max(S.best,S.streak);} S.xp+=n; S.hist[t]=(S.hist[t]||0)+n; return bumped; }
+function logEvent(e){ S.log.unshift(Object.assign({ts:Date.now()},e)); S.log=S.log.slice(0,60); }
+function unlocked(l){ return S.openAll || l.n===0 || !!S.lessons[LESSONS[l.n-1].id]; }
+function currentLesson(){ return LESSONS.find(l=>!S.lessons[l.id]) || null; }
+function mastered(st=S){ return Object.values(st.cards||{}).filter(c=>c.box>=4).length; }
+function accPct(r,n){ return n? Math.round(r/n*100) : null; }
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=s=>s.replace(/_{3,}/g,'<span class="blank" aria-label="blank"></span>');
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const toneOf=u=>SECTIONS[u.sec].tone;
+const ago=ts=>{ if(!ts) return 'never'; const m=Math.round((Date.now()-ts)/60000); if(m<1)return 'just now'; if(m<60)return m+' min ago'; const h=Math.round(m/60); if(h<24)return h+' h ago'; const d=Math.round(h/24); return d===1?'yesterday':d+' days ago'; };
+
+/* ---------- sound ---------- */
+let AC=null;
+function tone(seq){ if(!S.sound) return; try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); let t=AC.currentTime; seq.forEach(([f,d,type])=>{ const o=AC.createOscillator(), g=AC.createGain(); o.type=type||'sine'; o.frequency.value=f; g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.18,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+d); o.connect(g).connect(AC.destination); o.start(t); o.stop(t+d+.02); t+=d*.8; }); }catch(e){} }
+const sfx={ good:()=>tone([[660,.12],[880,.18]]), bad:()=>tone([[220,.22,'triangle'],[180,.25,'triangle']]), done:()=>tone([[523,.12],[659,.12],[784,.12],[1047,.3]]), tap:()=>tone([[520,.05]]) };
+
+/* ---------- shared tracking (claude.ai db) ---------- */
+let DB=null, USER=null, UID=null, OWNER=false, SYNC='local', CLASS=null, CLASS_ERR='', CLASS_NAMES={};
+let writing=false, again=false;
+function summary(){ const wk=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return S.hist[dkey(d)]||0}).reduce((a,b)=>a+b,0);
+  return {xp:S.xp, streak:S.streak, lastDay:S.lastDay, best:S.best, weekXp:wk, lessonsDone:Object.keys(S.lessons).length, lessonsTotal:LESSONS.length,
+    ans:S.ans, right:S.right, secs:S.secs, words:mastered(), mistakes:S.mistakes.length, nick:S.nick||''}; }
+async function push(){ if(!DB||!UID) return; if(writing){again=true;return;} writing=true;
+  try{ const doc={summary:summary(), state:S, updatedAt:S.updatedAt}; if(window.QADAM_PROFILE) doc.profile=window.QADAM_PROFILE; await DB.doc('students/'+UID).set(doc); SYNC='ok'; }
+  catch(e){ SYNC='err'; }
+  writing=false; paintSync(); if(again){again=false; push();} }
+function paintSync(){ document.querySelectorAll('[data-sync]').forEach(el=>{ el.className='sync '+(SYNC==='ok'?'ok':SYNC==='err'?'err':''); el.lastElementChild.textContent = SYNC==='ok'?'Progress saved to your teacher\'s class':SYNC==='err'?'Could not save to the class. Progress is kept on this device.':'Progress is kept on this device only'; }); }
+async function connect(){
+  if(!window.claude || !window.claude.use) return;
+  try{
+    USER = await window.claude.use('user');
+    if(USER){ OWNER = await USER.isOwner().catch(()=>false); UID = await USER.id().catch(()=>null); }
+    DB = await window.claude.use('db');
+    if(!DB || !UID){ paintSync(); if(OWNER) renderNav(); return; }
+    const snap = await DB.doc('students/'+UID).get();
+    if(snap.exists){ const d=snap.data(); if(d && d.state && (d.updatedAt||0) > (S.updatedAt||0)){ S = Object.assign(fresh(), JSON.parse(JSON.stringify(d.state))); save(false); render(); } else push(); SYNC='ok'; }
+    else { await push(); }
+    paintSync();
+    if(OWNER){ renderNav(); watchClass(); }
+  }catch(e){ SYNC='err'; paintSync(); }
+}
+function watchClass(){
+  const timer=setTimeout(()=>{ if(!CLASS){ CLASS_ERR='The class data is taking a while to load.'; if(TAB==='class') render(); } },10000);
+  DB.collection('students').onSnapshot(async snap=>{
+    clearTimeout(timer); CLASS_ERR='';
+    CLASS = snap.docs.map(d=>Object.assign({id:d.id}, d.data()));
+    try{ const ps = await USER.profiles(CLASS.map(c=>c.id)); CLASS_NAMES = {}; for(const c of CLASS){ CLASS_NAMES[c.id] = (ps[c.id]&&ps[c.id].name) || (c.profile&&c.profile.name) || (c.summary&&c.summary.nick) || (c.profile&&c.profile.email) || 'Student'; } }catch(e){}
+    if(TAB==='class') render();
+  }, err=>{ clearTimeout(timer); CLASS_ERR='Class data could not be loaded right now.'; if(TAB==='class') render(); });
+}
+
+/* ---------- shell ---------- */
+let TAB='learn';
+const view=document.getElementById('view');
+function renderTop(){
+  regen();
+  const st=streakNow();
+  const cs=document.getElementById('cStreak'); cs.className='chip streak'+(todayXp()>0?'':' off'); cs.innerHTML=I.flame+st; cs.setAttribute('aria-label',st+' day streak');
+  document.getElementById('cXp').innerHTML=I.bolt+S.xp;
+  document.getElementById('cHearts').innerHTML=I.heart+S.hearts;
+}
+function renderNav(){
+  const tabs=[['learn','Learn',I.learn],['words','Words',I.cards],['review','Review',I.redo],['me','My stats',I.me]];
+  if(OWNER) tabs.push(['class','Class',I.cls]);
+  document.getElementById('nav').innerHTML = tabs.map(([k,l,ic])=>`<button data-tab="${k}" ${TAB===k?'aria-current="page"':''}><span class="ic">${ic}</span>${l}</button>`).join('');
+}
+document.getElementById('nav').addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(!b)return; TAB=b.dataset.tab; render(); window.scrollTo(0,0); });
+document.getElementById('cHearts').onclick=()=>heartsSheet();
+document.getElementById('cStreak').onclick=()=>{ const st=streakNow(); openModal(`<h2>${st} day streak</h2><p class="muted">${todayXp()>0?'You have practiced today. Come back tomorrow to keep it going.':'Earn XP today to extend your streak.'} Longest streak: ${S.best} days.</p><button class="btn" data-close>Got it</button>`); };
+document.getElementById('cXp').onclick=()=>{ TAB='me'; render(); };
+function render(){ renderTop(); renderNav(); ({learn:vLearn,words:vWords,review:vReview,me:vMe,class:vClass}[TAB]||vLearn)(); paintSync(); }
+
+/* ---------- modal ---------- */
+const modal=document.getElementById('modal');
+function openModal(html){ modal.hidden=false; modal.innerHTML=`<div class="scrim" data-close-scrim><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`; const f=modal.querySelector('button'); if(f) f.focus(); }
+function closeModal(){ modal.hidden=true; modal.innerHTML=''; }
+modal.addEventListener('click',e=>{ if(e.target.hasAttribute('data-close-scrim')||e.target.closest('[data-close]')) closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !modal.hidden) closeModal(); });
+function heartsSheet(){ regen(); openModal(`<h2 style="color:var(--heart)">${S.hearts} of ${MAXH} hearts</h2><p class="muted">You lose a heart for each wrong answer in a lesson. ${S.hearts<MAXH?`Next heart in about ${nextHeartMin()} min.`:'Your hearts are full.'} Finish a practice round in Review to earn one back right away.</p><div class="row"><button class="btn ghost" data-close>Close</button>${S.hearts<MAXH?'<button class="btn" id="mPractice">Practice</button>':''}</div>`);
+  const p=document.getElementById('mPractice'); if(p) p.onclick=()=>{closeModal(); startPractice();}; }
+
+/* ---------- Learn ---------- */
+function goalCard(){ const x=todayXp(), g=S.goal, f=Math.min(1,x/g), C=2*Math.PI*24;
+  return `<div class="goal"><svg class="ring" viewBox="0 0 58 58" aria-hidden="true"><circle class="bgc" cx="29" cy="29" r="24"/><circle class="fgc" cx="29" cy="29" r="24" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-f)}" transform="rotate(-90 29 29)"/></svg><div><b>${x>=g?'Daily goal complete':'Daily goal'} · ${x} / ${g} XP</b><p>${x>=g?'Great work. Anything extra counts toward your weekly total.':streakNow()>0&&x===0?`Finish one lesson to keep your ${streakNow()}-day streak.`:'One lesson is about 10 to 15 XP.'}</p></div></div>`; }
+function vLearn(){
+  const cur=currentLesson(); let html=`<div class="wrap stack">${goalCard()}`; let lastSec=-1, k=0;
+  const offs=[0,-70,-100,-70,0,70,100,70];
+  UNITS.forEach(u=>{
+    if(u.sec!==lastSec){ lastSec=u.sec; const s=SECTIONS[u.sec]; html+=`<div class="sechead"><h3>Section ${u.sec+1} · ${s.name}</h3><span>${s.share}</span></div>`; }
+    const t=toneOf(u);
+    html+=`<section style="--tone:var(--${t});--toned:var(--${t}d)"><div class="unit"><div style="min-width:0"><div class="k">Unit ${u.n+1}</div><h2>${u.title}</h2></div><button class="guide" data-guide="${u.id}">Guide</button></div><div class="nodes">`;
+    LESSONS.filter(l=>l.unit===u).forEach(l=>{
+      const done=!!S.lessons[l.id], open=unlocked(l), isCur=cur&&cur.id===l.id;
+      const off=offs[k++%offs.length];
+      html+=`<button class="node ${done?'done':open?'':'locked'}" style="transform:translateX(${off}px)" data-lesson="${l.id}" aria-label="${u.title}, lesson ${l.li+1}${done?', completed':open?'':', locked'}">${isCur?'<span class="ringc"></span><span class="bubble">Start</span>':''}${done?I.check:open?I.star:I.lock}</button>`;
+    });
+    html+=`</div></section>`;
+  });
+  html+=`<p class="muted" style="text-align:center;font-size:14px">${LESSONS.length} lessons · ${Object.keys(ITEM).length} original SAT-style questions</p></div>`;
+  view.innerHTML=html;
+  view.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>lessonSheet(LESSON[b.dataset.lesson]));
+  view.querySelectorAll('[data-guide]').forEach(b=>b.onclick=()=>{ const u=UNIT[b.dataset.guide]; const st=S.unit[u.id]; openModal(`<div style="--tone:var(--${toneOf(u)})"><div class="qtype">Unit ${u.n+1} guide</div></div><h2>${u.title}</h2><p>${u.tip}</p>${st&&st.n?`<p class="muted">Your accuracy here: ${accPct(st.r,st.n)}% over ${st.n} questions.</p>`:''}<button class="btn" data-close>Got it</button>`); });
+}
+function lessonSheet(l){
+  const done=!!S.lessons[l.id];
+  if(!unlocked(l)){ openModal(`<h2>Locked</h2><p class="muted">Finish the lessons before this one to unlock it.</p><button class="btn ghost" data-close>OK</button>`); return; }
+  regen();
+  if(S.hearts<=0){ heartsSheet(); return; }
+  const r=S.lessons[l.id];
+  openModal(`<div style="--tone:var(--${toneOf(l.unit)})"><div class="qtype">Unit ${l.unit.n+1} · Lesson ${l.li+1} of ${l.unit.lessons.length}</div></div><h2>${l.unit.title}</h2><div class="tipbox" style="--tone:var(--${toneOf(l.unit)})"><b>Strategy</b>${l.unit.tip}</div><p class="muted">${l.items.length} questions${r?` · best score ${r.best}%`:''}</p><button class="btn" id="mStart">${done?'Practice again +5 XP':'Start +10 XP'}</button>`);
+  document.getElementById('mStart').onclick=()=>{ closeModal(); startSession('lesson', l.items, l); };
+}
+
+/* ---------- session engine ---------- */
+let SES=null; const LS=document.getElementById('lesson');
+function startSession(mode, items, lesson){
+  SES={mode, lesson, queue:items.slice(), total:items.length, done:0, firstTry:0, tries:0, wrongOnce:new Set(), start:Date.now(), sel:null, checked:false, hearts0:S.hearts};
+  if(mode!=='lesson') SES.queue=shuffle(SES.queue);
+  LS.hidden=false; document.body.style.overflow='hidden'; showItem();
+}
+function startPractice(){
+  const pool = LESSONS.filter(l=>S.lessons[l.id]).flatMap(l=>l.items);
+  const src = pool.length>=6 ? pool : LESSONS.slice(0,2).flatMap(l=>l.items);
+  startSession('practice', shuffle(src).slice(0,6));
+}
+function startMistakes(){ const items=S.mistakes.map(id=>ITEM[id]).filter(Boolean).slice(0,8); if(items.length) startSession('mistakes', items); }
+function closeSession(){ LS.hidden=true; LS.innerHTML=''; document.body.style.overflow=''; SES=null; render(); }
+function head(){ const pct=Math.round(SES.done/SES.total*100);
+  return `<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${SES.mode==='lesson'?`<span class="chip hearts">${I.heart}${S.hearts}</span>`:`<span class="pill">${SES.mode==='mistakes'?'Mistakes':'Practice'}</span>`}</div>`; }
+function showItem(){
+  const it=SES.queue[0]; SES.sel=null; SES.checked=false; SES.item=it;
+  const u=UNIT[it.unit]; const tone=toneOf(u);
+  let body='';
+  if(it.t==='m'){
+    SES.left=shuffle(it.pairs.map((p,i)=>i)); SES.right=shuffle(it.pairs.map((p,i)=>i)); SES.matched=new Set(); SES.mL=null; SES.mR=null; SES.mMiss=0;
+    body=`<div class="qtype">${u.title} · Vocabulary</div><h2 style="font-size:22px">Match each word to its meaning</h2><div class="match"><div class="colm">${SES.left.map(i=>`<button class="mt w" data-l="${i}">${esc(it.pairs[i][0])}</button>`).join('')}</div><div class="colm">${SES.right.map(i=>`<button class="mt" data-r="${i}">${esc(it.pairs[i][1])}</button>`).join('')}</div></div>`;
+  } else if(it.t==='tap'){
+    SES.tokens=it.s.split(' '); SES.ans=SES.tokens.findIndex(w=>w.includes('*')); SES.tokens=SES.tokens.map(w=>w.replace(/\*/g,''));
+    body=`<div class="qtype">${u.title}</div><div class="qtext">${Q_TAP}</div><div class="tokens">${SES.tokens.map((w,i)=>`<button class="tok" data-t="${i}" aria-pressed="false">${esc(w)}</button>`).join('')}</div>`;
+  } else {
+    SES.order=shuffle([0,1,2,3]);
+    body=`<div class="qtype">${u.title}</div>${it.p?`<div class="passage">${it.p.startsWith('<')?fmt(it.p):'<p>'+fmt(it.p)+'</p>'}</div>`:''}<div class="qtext">${it.q}</div><div class="choices">${SES.order.map((ci,k)=>`<button class="choice" data-k="${k}" aria-pressed="false"><span class="letter">${'ABCD'[k]}</span><span>${esc(it.c[ci])}</span></button>`).join('')}</div>`;
+  }
+  LS.innerHTML=head()+`<div class="bd"><div class="in" style="--tone:var(--${tone})">${body}</div></div><div class="ft" id="lsFt"><div class="in">${it.t==='m'?'<p class="muted" style="margin:0;text-align:center">Tap a word, then its meaning.</p>':'<button class="btn" id="lsCheck" disabled>Check</button>'}</div></div>`;
+  LS.querySelector('.bd').scrollTop=0;
+  document.getElementById('lsX').onclick=quitAsk;
+  if(it.t==='m') bindMatch(it);
+  else {
+    LS.querySelectorAll('.choice,.tok').forEach(b=>b.onclick=()=>{ if(SES.checked) return; LS.querySelectorAll('.choice,.tok').forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); SES.sel=+(b.dataset.k??b.dataset.t); document.getElementById('lsCheck').disabled=false; sfx.tap(); });
+    document.getElementById('lsCheck').onclick=check;
+  }
+}
+function bindMatch(it){
+  const pick=()=>{ if(SES.mL==null||SES.mR==null) return; const L=LS.querySelector(`[data-l="${SES.mL}"]`), R=LS.querySelector(`[data-r="${SES.mR}"]`);
+    if(SES.mL===SES.mR){ [L,R].forEach(x=>{x.classList.add('ok');x.disabled=true;x.setAttribute('aria-pressed','false');}); SES.matched.add(SES.mL); sfx.tap(); }
+    else { SES.mMiss++; [L,R].forEach(x=>{x.classList.add('no');x.setAttribute('aria-pressed','false');setTimeout(()=>x.classList.remove('no'),350);}); sfx.bad(); }
+    SES.mL=SES.mR=null;
+    if(SES.matched.size===it.pairs.length) setTimeout(()=>feedback(true, SES.mMiss?`Matched with ${SES.mMiss} miss${SES.mMiss>1?'es':''}. Review these words in the Words tab.`:'All four matched on the first try.'), 250);
+  };
+  LS.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{ LS.querySelectorAll('[data-l]').forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); SES.mL=+b.dataset.l; pick(); });
+  LS.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{ LS.querySelectorAll('[data-r]').forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); SES.mR=+b.dataset.r; pick(); });
+}
+function check(){
+  if(SES.sel==null||SES.checked) return; SES.checked=true; const it=SES.item; let ok, ansText='';
+  if(it.t==='tap'){ ok=SES.sel===SES.ans; LS.querySelectorAll('.tok').forEach((b,i)=>{ b.disabled=true; if(i===SES.ans)b.classList.add('right'); else if(i===SES.sel)b.classList.add('wrong'); }); ansText='The error is "'+SES.tokens[SES.ans]+'".'; }
+  else { ok=SES.order[SES.sel]===0; LS.querySelectorAll('.choice').forEach((b,k)=>{ b.disabled=true; if(SES.order[k]===0)b.classList.add('right'); else if(k===SES.sel)b.classList.add('wrong'); }); ansText='Correct answer: '+it.c[0]; }
+  feedback(ok, it.e, ok?'':ansText);
+}
+function feedback(ok, expl, ansText){
+  const it=SES.item; const first=!SES.wrongOnce.has(it.id);
+  // stats: only first attempts count toward accuracy
+  if(first && it.t!=='m'){ S.ans++; const us=S.unit[it.unit]||(S.unit[it.unit]={r:0,n:0}); us.n++; if(ok){S.right++;us.r++;} }
+  if(ok){ sfx.good(); if(first) SES.firstTry++; SES.done++; SES.queue.shift();
+    if(SES.mode==='mistakes'||first){ const mi=S.mistakes.indexOf(it.id); if(mi>-1) S.mistakes.splice(mi,1); }
+  } else { sfx.bad(); SES.wrongOnce.add(it.id); SES.queue.push(SES.queue.shift()); if(!S.mistakes.includes(it.id)) S.mistakes.unshift(it.id); S.mistakes=S.mistakes.slice(0,60);
+    if(SES.mode==='lesson'){ if(S.hearts>=MAXH) S.heartTs=Date.now(); S.hearts=Math.max(0,S.hearts-1); }
+  }
+  SES.tries++;
+  save(false);
+  const ft=document.getElementById('lsFt'); ft.className='ft '+(ok?'good':'bad');
+  const praise=['Nice!','Correct!','Well done!','Exactly!','Great reading!'];
+  ft.innerHTML=`<div class="in"><div class="fb" role="status"><h3>${ok?I.check.replace('<svg','<svg width="26" height="26"'):I.x.replace('<svg','<svg width="26" height="26"')}${ok?praise[SES.tries%praise.length]:'Not quite'}</h3>${ansText?`<p class="ans">${esc(ansText)}</p>`:''}<p>${esc(expl||'')}</p></div><button class="btn ${ok?'good':'bad'}" id="lsNext">Continue</button></div>`;
+  LS.querySelector('.hd').outerHTML=head(); document.getElementById('lsX').onclick=quitAsk;
+  const nb=document.getElementById('lsNext'); nb.focus({preventScroll:true});
+  nb.onclick=()=>{ if(SES.mode==='lesson' && S.hearts<=0){ outOfHearts(); return; } if(SES.queue.length) showItem(); else finish(); };
+}
+function quitAsk(){ openModal(`<h2>Leave this ${SES.mode==='lesson'?'lesson':'round'}?</h2><p class="muted">Your progress in this ${SES.mode==='lesson'?'lesson':'round'} will be lost. Hearts you lost stay lost.</p><div class="row"><button class="btn ghost" id="mQuit">Quit</button><button class="btn" data-close>Keep going</button></div>`); document.getElementById('mQuit').onclick=()=>{ closeModal(); logEvent({k:SES.mode,l:SES.lesson?SES.lesson.unit.title+' · L'+(SES.lesson.li+1):'Practice',xp:0,acc:null,quit:true}); save(); closeSession(); }; }
+function outOfHearts(){
+  logEvent({k:'lesson',l:SES.lesson.unit.title+' · L'+(SES.lesson.li+1),xp:0,acc:accPct(SES.firstTry,SES.tries),quit:true}); save();
+  LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><div style="color:var(--heart);width:110px">${I.heart}</div><h1 style="color:var(--heart)">Out of hearts</h1><p class="muted">Your next heart arrives in about ${nextHeartMin()} minutes. A practice round has no hearts to lose and earns one back.</p></div></div></div><div class="ft"><div class="in"><button class="btn" id="oP">Practice to earn a heart</button><button class="btn ghost" id="oQ">Back to path</button></div></div>`;
+  document.getElementById('oP').onclick=()=>{ LS.hidden=true; SES=null; startPractice(); };
+  document.getElementById('oQ').onclick=closeSession;
+}
+function finish(){
+  const secs=Math.round((Date.now()-SES.start)/1000); S.secs+=secs;
+  const scored=SES.total-SES.queue.length; const acc=Math.round(SES.firstTry/Math.max(1,SES.total)*100);
+  let xp=5, note='';
+  if(SES.mode==='lesson'){ const l=SES.lesson; const prev=S.lessons[l.id]; xp = prev?5:10; if(acc===100) {xp+=5; note='Perfect lesson bonus +5 XP';}
+    S.lessons[l.id]={best:Math.max(prev?prev.best:0,acc), n:(prev?prev.n:0)+1, last:Date.now()}; }
+  else { if(S.hearts<MAXH){ S.hearts++; note='You earned a heart back'; } }
+  const before=todayXp(); const bumped=addXp(xp); const hitGoal=before<S.goal && todayXp()>=S.goal;
+  logEvent({k:SES.mode, l:SES.mode==='lesson'?SES.lesson.unit.title+' · L'+(SES.lesson.li+1):SES.mode==='mistakes'?'Fixed mistakes':'Mixed practice', xp, acc, dur:secs});
+  save(); sfx.done();
+  const mm=Math.floor(secs/60)+':'+pad(secs%60);
+  LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--saffron)" d="M12 1.5l2.6 4.2 4.8-1.1-1.1 4.8 4.2 2.6-4.2 2.6 1.1 4.8-4.8-1.1L12 22.5l-2.6-4.2-4.8 1.1 1.1-4.8L1.5 12l4.2-2.6-1.1-4.8 4.8 1.1z"/><circle cx="12" cy="12" r="4" fill="var(--bg)"/></svg>
+    <h1>${SES.mode==='lesson'?'Lesson complete!':'Round complete!'}</h1>${note?`<p class="muted" style="margin:0">${note}</p>`:''}
+    <div class="res"><div style="--c:var(--saffron)"><span>Total XP</span><b>+${xp}</b></div><div style="--c:var(--good)"><span>Accuracy</span><b>${acc}%</b></div><div style="--c:var(--cobalt)"><span>Time</span><b>${mm}</b></div></div>
+    ${bumped?`<p style="color:var(--saffron);font-weight:800;display:flex;gap:6px;align-items:center;margin:8px 0 0"><span style="width:24px;display:inline-block">${I.flame}</span>${S.streak}-day streak!</p>`:''}
+    ${hitGoal?`<p style="font-weight:800;color:var(--good);margin:0">Daily goal reached</p>`:''}
+  </div></div></div><div class="ft"><div class="in"><button class="btn" id="fC">Continue</button></div></div>`;
+  document.getElementById('fC').onclick=closeSession;
+}
+
+/* ---------- Words ---------- */
+function cardState(w){ return S.cards[w]||{box:0,due:'',seen:0}; }
+function dueCards(){ const t=today(); const seen=WORDS.filter(w=>S.cards[w[0]] && S.cards[w[0]].due<=t); const fresh=WORDS.filter(w=>!S.cards[w[0]]); return seen.concat(fresh); }
+function vWords(){
+  const due=dueCards(); const learning=WORDS.filter(w=>S.cards[w[0]]&&S.cards[w[0]].box<4).length; const m=mastered();
+  view.innerHTML=`<div class="wrap stack"><div><h1 style="font-size:28px">Words</h1><p class="muted" style="margin:4px 0 0">High-frequency SAT vocabulary with spaced review. Words you know come back less often.</p></div>
+  <div class="tiles"><div class="tile" style="color:var(--turq)">${I.cards}<div><b style="color:var(--ink)">${m} / ${WORDS.length}</b><span>words mastered</span></div></div><div class="tile" style="color:var(--saffron)">${I.clock}<div><b style="color:var(--ink)">${Math.min(10,due.length)}</b><span>ready to review</span></div></div></div>
+  <button class="btn" id="wGo" ${due.length?'':'disabled'}>${due.length?'Study '+Math.min(10,due.length)+' cards +5 XP':'All caught up for today'}</button>
+  <div class="card"><p class="lbl">Your deck · ${learning} learning</p><div class="wl">${WORDS.map(w=>{const c=cardState(w[0]);return `<div><b>${w[0]}</b><span class="lv" aria-label="level ${c.box} of 5">${[1,2,3,4,5].map(i=>`<i class="${c.box>=i?'on':''}"></i>`).join('')}</span></div>`}).join('')}</div></div></div>`;
+  const b=document.getElementById('wGo'); if(b) b.onclick=()=>cardSession(due.slice(0,10));
+}
+function cardSession(list){
+  let q=list.slice(), n=0, total=list.length, reviewed=0; const start=Date.now(); const again=new Set();
+  LS.hidden=false; document.body.style.overflow='hidden';
+  const draw=()=>{
+    if(!q.length){ const secs=Math.round((Date.now()-start)/1000); S.secs+=secs; const bumped=addXp(5); logEvent({k:'words',l:'Vocabulary cards ('+total+')',xp:5,acc:Math.round((total-again.size)/total*100),dur:secs}); save(); sfx.done();
+      LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><div style="width:110px;color:var(--turq)">${I.cards}</div><h1 style="color:var(--turq)">Deck reviewed</h1><p class="muted">${total-again.size} of ${total} known on the first try.${bumped?` ${S.streak}-day streak!`:''}</p><div class="res"><div style="--c:var(--saffron)"><span>XP</span><b>+5</b></div><div style="--c:var(--turq)"><span>Mastered</span><b>${mastered()}</b></div><div style="--c:var(--cobalt)"><span>Cards</span><b>${total}</b></div></div></div></div></div><div class="ft"><div class="in"><button class="btn" id="fC">Continue</button></div></div>`;
+      document.getElementById('fC').onclick=()=>{LS.hidden=true;LS.innerHTML='';document.body.style.overflow='';render();}; return; }
+    const w=q[0]; const pct=Math.round(n/ (total+again.size) *100);
+    LS.innerHTML=`<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog"><i style="width:${pct}%"></i></div><span class="pill">${q.length} left</span></div>
+      <div class="bd"><div class="in"><p class="muted" style="margin:0;text-align:center">Say the meaning out loud, then tap the card.</p><div class="fc" id="fc" role="button" tabindex="0" aria-label="Flip card"><div class="inner"><div class="face"><div class="wd">${w[0]}</div><div class="pos">${w[1]}</div></div><div class="face back"><div class="pos">${w[0]} · ${w[1]}</div><div class="df">${esc(w[2])}</div><div class="ex">“${esc(w[3])}”</div></div></div></div></div></div>
+      <div class="ft"><div class="in"><div class="row" id="fcBtns" hidden><button class="btn bad" id="fA">Still learning</button><button class="btn good" id="fK">I knew it</button></div><button class="btn" id="fF">Show meaning</button></div></div>`;
+    const fc=document.getElementById('fc'); const flip=()=>{ fc.classList.add('flip'); document.getElementById('fcBtns').hidden=false; document.getElementById('fF').hidden=true; };
+    fc.onclick=flip; fc.onkeydown=e=>{ if(e.key===' '||e.key==='Enter'){e.preventDefault();flip();} }; document.getElementById('fF').onclick=flip;
+    document.getElementById('lsX').onclick=()=>{ save(); LS.hidden=true; LS.innerHTML=''; document.body.style.overflow=''; render(); };
+    const grade=(knew)=>{ const c=Object.assign({box:0,due:'',seen:0}, S.cards[w[0]]); c.seen++; n++;
+      if(knew && !again.has(w[0])){ c.box=Math.min(5,c.box+1); sfx.good(); } else if(!knew){ c.box=0; again.add(w[0]); q.push(w); sfx.bad(); } else { sfx.good(); }
+      const d=new Date(); d.setDate(d.getDate()+INTV[c.box]); c.due=dkey(d); S.cards[w[0]]=c; q.shift(); reviewed++; save(false); draw(); };
+    document.getElementById('fA').onclick=()=>grade(false); document.getElementById('fK').onclick=()=>grade(true);
+  };
+  draw();
+}
+
+/* ---------- Review ---------- */
+function vReview(){
+  const m=S.mistakes.filter(id=>ITEM[id]); const byUnit={}; m.forEach(id=>{const u=ITEM[id].unit; byUnit[u]=(byUnit[u]||0)+1;});
+  view.innerHTML=`<div class="wrap stack"><div><h1 style="font-size:28px">Review</h1><p class="muted" style="margin:4px 0 0">Practice rounds cost no hearts. Each round you finish earns a heart back and 5 XP.</p></div>
+   <div class="card stack" style="gap:10px"><p class="lbl" style="margin:0">Your mistakes</p>${m.length?`<p style="margin:0"><b style="font-family:var(--f-disp);font-size:26px">${m.length}</b> question${m.length>1?'s':''} to fix</p><div class="seg">${Object.entries(byUnit).map(([u,c])=>`<span class="pill">${UNIT[u].title} · ${c}</span>`).join('')}</div><button class="btn bad" id="rM">Fix my mistakes</button>`:`<div class="empty">${I.check}<p>No mistakes waiting. Questions you miss will collect here.</p></div>`}</div>
+   <div class="card stack" style="gap:10px"><p class="lbl" style="margin:0">Mixed practice</p><p style="margin:0" class="muted">Six questions drawn from lessons you have finished.</p><button class="btn" id="rP">Start practice</button></div></div>`;
+  const a=document.getElementById('rM'); if(a) a.onclick=startMistakes; document.getElementById('rP').onclick=startPractice;
+}
+
+/* ---------- My stats ---------- */
+function weekBars(hist){ const days=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-6+i);return d;}); const vals=days.map(d=>hist[dkey(d)]||0); const mx=Math.max(20,...vals);
+  return `<div class="week">${days.map((d,i)=>`<div class="d ${i===6?'today':''}"><em>${vals[i]||''}</em><i style="height:${Math.round(vals[i]/mx*100)}%"></i><span>${'SMTWTFS'[d.getDay()]}</span></div>`).join('')}</div>`; }
+function skillRows(unitStats){ return UNITS.map(u=>{ const s=unitStats[u.id]; const p=s&&s.n?accPct(s.r,s.n):null; const col=p==null?'var(--line)':p>=80?'var(--good)':p>=60?'var(--saffron)':'var(--bad)';
+  return `<div class="skill"><span class="nm">${u.title}</span><span class="tr"><i style="width:${p||0}%;background:${col}"></i></span><span class="pct">${p==null?'–':p+'%'}</span></div>`; }).join(''); }
+function logRows(log, n=12){ if(!log||!log.length) return `<div class="empty"><p>No activity yet. Finish a lesson and it will show up here.</p></div>`;
+  return `<ul class="log">${log.slice(0,n).map(e=>`<li><span class="what">${esc(e.l)}<small>${ago(e.ts)}${e.dur?' · '+Math.max(1,Math.round(e.dur/60))+' min':''}${e.quit?' · left early':''}</small></span>${e.acc!=null?`<span class="pill ${e.acc>=80?'good':e.acc<60?'bad':''}">${e.acc}%</span>`:''}<span class="xpv">+${e.xp} XP</span></li>`).join('')}</ul>`; }
+function vMe(){
+  const sm=summary(); const acc=accPct(S.right,S.ans);
+  view.innerHTML=`<div class="wrap stack"><div><h1 style="font-size:28px">My stats</h1><div class="sync" data-sync><i></i><span></span></div></div>
+   <div class="tiles">
+    <div class="tile" style="color:var(--saffron)">${I.flame}<div><b style="color:var(--ink)">${streakNow()}</b><span>day streak · best ${S.best}</span></div></div>
+    <div class="tile" style="color:var(--cobalt)">${I.bolt}<div><b style="color:var(--ink)">${S.xp}</b><span>total XP · ${sm.weekXp} this week</span></div></div>
+    <div class="tile" style="color:var(--turq)">${I.book}<div><b style="color:var(--ink)">${sm.lessonsDone} / ${LESSONS.length}</b><span>lessons done</span></div></div>
+    <div class="tile" style="color:var(--good)">${I.target}<div><b style="color:var(--ink)">${acc==null?'–':acc+'%'}</b><span>first-try accuracy</span></div></div>
+   </div>
+   <div class="card"><p class="lbl">XP, last 7 days</p>${weekBars(S.hist)}</div>
+   <div class="card"><p class="lbl">Accuracy by skill</p>${skillRows(S.unit)}<p class="muted" style="font-size:13px;margin:8px 0 0">Green 80%+, amber 60–79%, red below 60%. First tries only.</p></div>
+   <div class="card"><p class="lbl">Recent activity</p>${logRows(S.log)}</div>
+   <div class="card stack" style="gap:12px"><p class="lbl" style="margin:0">Settings</p>
+    <label for="nick" style="font-weight:700">Nickname shown to your teacher if your name is unavailable</label><input class="field" id="nick" maxlength="40" value="${esc(S.nick)}" placeholder="e.g. Aziza K.">
+    <div><p style="margin:0 0 8px;font-weight:700">Daily goal</p><div class="seg" id="goalSeg">${[[10,'Casual'],[20,'Regular'],[30,'Serious'],[50,'Intense']].map(([g,l])=>`<button data-g="${g}" aria-pressed="${S.goal===g}">${l} · ${g} XP</button>`).join('')}</div></div>
+    <label class="switch" for="snd"><span>Sound effects</span><input type="checkbox" id="snd" ${S.sound?'checked':''}></label>
+    <label class="switch" for="opn"><span>Open all lessons (skip ahead)</span><input type="checkbox" id="opn" ${S.openAll?'checked':''}></label>
+    ${window.QADAM_SIGNOUT?`<p class="muted" style="margin:0;font-size:14px">Signed in as ${esc((window.QADAM_PROFILE||{}).email||'')}</p><button class="btn ghost" id="sgo">Sign out</button>`:''}
+    <button class="btn ghost" id="rst" style="color:var(--bad)">Reset my progress</button>
+   </div></div>`;
+  let nt; document.getElementById('nick').oninput=e=>{ clearTimeout(nt); nt=setTimeout(()=>{ S.nick=e.target.value.trim(); save(); },700); };
+  document.getElementById('goalSeg').onclick=e=>{ const b=e.target.closest('[data-g]'); if(!b)return; S.goal=+b.dataset.g; save(); vMe(); paintSync(); };
+  document.getElementById('snd').onchange=e=>{ S.sound=e.target.checked; save(); };
+  document.getElementById('opn').onchange=e=>{ S.openAll=e.target.checked; save(); };
+  const sg=document.getElementById('sgo'); if(sg) sg.onclick=()=>window.QADAM_SIGNOUT();
+  document.getElementById('rst').onclick=()=>{ openModal(`<h2>Reset all progress?</h2><p class="muted">This clears your XP, streak, lessons, words and stats, here and in your teacher's class view. It cannot be undone.</p><div class="row"><button class="btn ghost" data-close>Cancel</button><button class="btn bad" id="mR">Reset</button></div>`); document.getElementById('mR').onclick=()=>{ const keep={sound:S.sound}; S=Object.assign(fresh(),keep); save(); closeModal(); TAB='learn'; render(); }; };
+}
+
+/* ---------- Class (teacher) ---------- */
+let CSORT='active';
+function vClass(){
+  if(!OWNER){ TAB='learn'; return vLearn(); }
+  if(!CLASS){ view.innerHTML=`<div class="wrap stack"><h1 style="font-size:28px">Class</h1><div class="card"><p class="muted" style="margin:0">${CLASS_ERR||'Loading your students…'}</p></div></div>`; return; }
+  const t=today(), y=yday(); const rows=CLASS.filter(c=>c.id!==UID).map(c=>{ const s=c.summary||{}; return {id:c.id, name:CLASS_NAMES[c.id]||s.nick||'Student', s, st:c.state||{}, upd:c.updatedAt||0, acc:accPct(s.right||0,s.ans||0), live:(s.lastDay===t||s.lastDay===y)?s.streak:0}; });
+  const sorters={active:(a,b)=>b.upd-a.upd, xp:(a,b)=>(b.s.weekXp||0)-(a.s.weekXp||0), acc:(a,b)=>(a.acc??101)-(b.acc??101), name:(a,b)=>a.name.localeCompare(b.name)};
+  rows.sort(sorters[CSORT]);
+  const activeToday=rows.filter(r=>r.s.lastDay===t).length;
+  const tot=rows.reduce((a,r)=>{a.r+=r.s.right||0;a.n+=r.s.ans||0;a.l+=r.s.lessonsDone||0;a.w+=r.s.weekXp||0;return a;},{r:0,n:0,l:0,w:0});
+  const classUnit={}; rows.forEach(r=>{ Object.entries(r.st.unit||{}).forEach(([u,v])=>{ const c=classUnit[u]||(classUnit[u]={r:0,n:0}); c.r+=v.r; c.n+=v.n; }); });
+  const weakest=UNITS.map(u=>({u, p:classUnit[u.id]&&classUnit[u.id].n>=5?accPct(classUnit[u.id].r,classUnit[u.id].n):null})).filter(x=>x.p!=null).sort((a,b)=>a.p-b.p)[0];
+  const colors=['var(--cobalt)','var(--turq)','var(--plum)','var(--coral)','var(--saffron)'];
+  view.innerHTML=`<div class="wrap stack"><div><h1 style="font-size:28px">Class</h1><p class="muted" style="margin:4px 0 0">Everyone who opens this app with your link appears here, live. Only you can see this tab.</p></div>
+   <div class="tiles">
+    <div class="tile" style="color:var(--cobalt)">${I.cls}<div><b style="color:var(--ink)">${rows.length}</b><span>students</span></div></div>
+    <div class="tile" style="color:var(--saffron)">${I.flame}<div><b style="color:var(--ink)">${activeToday}</b><span>practiced today</span></div></div>
+    <div class="tile" style="color:var(--good)">${I.target}<div><b style="color:var(--ink)">${accPct(tot.r,tot.n)??'–'}${tot.n?'%':''}</b><span>class accuracy</span></div></div>
+    <div class="tile" style="color:var(--turq)">${I.bolt}<div><b style="color:var(--ink)">${tot.w}</b><span>class XP this week</span></div></div>
+   </div>
+   ${weakest?`<div class="card" style="border-color:var(--bad)"><p class="lbl" style="color:var(--bad)">Weakest skill right now</p><p style="margin:0"><b>${weakest.u.title}</b> at ${weakest.p}% class accuracy. A good candidate for your next lesson warm-up.</p></div>`:''}
+   <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><p class="lbl" style="margin:0">Students</p><div class="seg" id="cSort">${[['active','Recent'],['xp','Week XP'],['acc','Lowest accuracy'],['name','Name']].map(([k,l])=>`<button data-s="${k}" aria-pressed="${CSORT===k}" style="padding:5px 9px;font-size:13px">${l}</button>`).join('')}</div></div>
+    ${rows.length?`<div class="tblscroll"><table class="roster"><thead><tr><th>Student</th><th>Last active</th><th>Streak</th><th>Week XP</th><th>Lessons</th><th>Accuracy</th></tr></thead><tbody>${rows.map((r,i)=>`<tr class="click" data-st="${esc(r.id)}" tabindex="0"><td><span class="who"><span class="av" style="background:${colors[i%colors.length]}">${esc((r.name[0]||'?').toUpperCase())}</span><span>${esc(r.name)}</span></span></td><td>${ago(r.upd)}</td><td>${r.live}</td><td>${r.s.weekXp||0}</td><td>${r.s.lessonsDone||0}/${LESSONS.length}</td><td>${r.acc==null?'–':`<span class="pill ${r.acc>=80?'good':r.acc<60?'bad':''}">${r.acc}%</span>`}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty"><p>No students yet. Share this app's link with your students. Each one appears here after their first lesson.</p></div>`}
+   </div>
+   <div class="card"><p class="lbl">Class accuracy by skill</p>${skillRows(classUnit)}</div></div>`;
+  document.getElementById('cSort').onclick=e=>{const b=e.target.closest('[data-s]'); if(!b)return; CSORT=b.dataset.s; vClass();};
+  view.querySelectorAll('[data-st]').forEach(tr=>{ const go=()=>studentSheet(rows.find(r=>r.id===tr.dataset.st)); tr.onclick=go; tr.onkeydown=e=>{if(e.key==='Enter')go();}; });
+}
+function studentSheet(r){ if(!r) return; const s=r.s, st=r.st;
+  openModal(`<h2>${esc(r.name)}</h2><p class="muted">Last active ${ago(r.upd)} · ${Math.round((s.secs||0)/60)} min practiced in total</p>
+   <div class="tiles"><div class="tile" style="color:var(--saffron)">${I.flame}<div><b style="color:var(--ink)">${r.live}</b><span>streak · best ${s.best||0}</span></div></div><div class="tile" style="color:var(--cobalt)">${I.bolt}<div><b style="color:var(--ink)">${s.xp||0}</b><span>XP · ${s.weekXp||0} this week</span></div></div><div class="tile" style="color:var(--turq)">${I.cards}<div><b style="color:var(--ink)">${s.words||0}</b><span>words mastered</span></div></div><div class="tile" style="color:var(--bad)">${I.redo}<div><b style="color:var(--ink)">${s.mistakes||0}</b><span>open mistakes</span></div></div></div>
+   <div><p class="lbl">XP, last 7 days</p>${weekBars(st.hist||{})}</div>
+   <div><p class="lbl">Accuracy by skill</p>${skillRows(st.unit||{})}</div>
+   <div><p class="lbl">Recent activity</p>${logRows(st.log,15)}</div>
+   <button class="btn ghost" data-close>Close</button>`);
+}
+
+/* ---------- boot ---------- */
+render();
+setInterval(()=>{ if(LS.hidden) renderTop(); }, 60000);
+connect();
+try{ if(window.top===window && location.protocol==='https:' && !/claude\.ai|claudeusercontent/.test(location.host)){ const l=document.createElement('link'); l.rel='manifest'; l.href='manifest.webmanifest'; document.head.appendChild(l); if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{}); } }catch(e){}
+})();
+</script>

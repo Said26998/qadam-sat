@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Replace the email below with the teacher's Google email (lower case) before pasting into Firebase.
+    function isTeacher() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() in ['teacher-email@gmail.com'];
+    }
+    // One document per student, written only by that student.
+    match /students/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || isTeacher());
+      allow create, update: if request.auth != null && request.auth.uid == uid;
+      allow delete: if isTeacher();
+    }
+  }
+}

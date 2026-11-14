@@ -1,0 +1,39 @@
+<style>
+.gate{min-height:100%;display:flex;align-items:center;justify-content:center;padding-block:32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.gate .gin{width:100%;max-width:400px;display:flex;flex-direction:column;gap:16px}
+.gate .glogo{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.gate .glogo svg{width:72px;height:72px;color:var(--cobalt)}
+.gate h1{font-size:34px;color:var(--cobalt)}
+.gate .gsub{color:var(--muted);margin:0}
+.gate label{font-weight:700;font-size:14px;display:block;margin-bottom:6px}
+.gate form{display:flex;flex-direction:column;gap:12px}
+.gate .gor{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.gate .gor::before,.gate .gor::after{content:"";flex:1;height:2px;background:var(--line)}
+.gate .glink{background:none;border:0;color:var(--cobalt);font-weight:700;padding:6px;text-decoration:underline;text-underline-offset:3px}
+.gate .glinks{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.gmsg{margin:0;font-size:14px;min-height:1em}.gmsg.bad{color:var(--bad);font-weight:600}
+.gate .gg{display:flex;align-items:center;justify-content:center;gap:10px;text-transform:none;letter-spacing:0}
+.gate .gg svg{width:20px;height:20px}
+</style>
+<div class="gate" id="gate">
+  <div class="gin">
+    <div class="glogo">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 1.5l2.6 4.2 4.8-1.1-1.1 4.8 4.2 2.6-4.2 2.6 1.1 4.8-4.8-1.1L12 22.5l-2.6-4.2-4.8 1.1 1.1-4.8L1.5 12l4.2-2.6-1.1-4.8 4.8 1.1z"/><circle cx="12" cy="12" r="3.6" fill="var(--bg)"/></svg>
+      <h1>Qadam SAT</h1>
+      <p class="gsub">A few minutes of SAT Reading &amp; Writing every day.</p>
+    </div>
+    <p class="muted" id="gLoading" style="text-align:center;margin:0">Loading…</p>
+    <div id="gBox" class="stack" hidden>
+      <button class="btn ghost gg" id="gGoogle" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.5 12.3c0-.8-.1-1.5-.2-2.2H12v4.2h5.9a5 5 0 0 1-2.2 3.3v2.7h3.5c2.1-1.9 3.3-4.7 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.2-2.7l-3.5-2.7c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.2v2.8A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.2a6.6 6.6 0 0 1 0-4.3V7.1H2.2a11 11 0 0 0 0 9.9z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.1-3.1A11 11 0 0 0 2.2 7.1l3.6 2.8C6.7 7.3 9.1 5.4 12 5.4z"/></svg>Continue with Google</button>
+      <div class="gor" id="gOr">or use email</div>
+      <form id="gForm" novalidate>
+        <div id="gNameRow" hidden><label for="gName">Your full name</label><input class="field" id="gName" autocomplete="name" placeholder="e.g. Aziza Karimova"></div>
+        <div><label for="gEmail">Email</label><input class="field" id="gEmail" type="email" autocomplete="email" inputmode="email" required></div>
+        <div><label for="gPw">Password</label><input class="field" id="gPw" type="password" autocomplete="current-password" minlength="6" required></div>
+        <button class="btn" id="gSubmit" type="submit">Sign in</button>
+        <div class="glinks"><button class="glink" id="gSwap" type="button">Create an account</button><button class="glink" id="gReset" type="button">Forgot password</button></div>
+      </form>
+    </div>
+    <p class="gmsg" id="gMsg" role="status"></p>
+  </div>
+</div>
