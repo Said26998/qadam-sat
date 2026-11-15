@@ -67,7 +67,7 @@
     // The teacher is whoever the database rules let read the whole class list; no email is stored in the site.
     // Refresh the sign-in token first so a just-verified email counts.
     const teacherCheck = u.reload().catch(() => {}).then(() => u.getIdToken(true)).catch(() => {})
-      .then(() => fs.collection('students').limit(1).get({ source: 'server' })).then(() => true, () => false);
+      .then(() => fs.collection('students').limit(1).get({ source: 'server' })).then(() => { window.QADAM_TEACHER_ERR = ''; return true; }, e => { window.QADAM_TEACHER_ERR = (e && e.code) || 'unknown'; return false; });
     const clean = o => JSON.parse(JSON.stringify(o));
     const userNs = { isOwner: () => teacherCheck, id: async () => u.uid, profiles: async () => ({}) };
     const dbNs = {

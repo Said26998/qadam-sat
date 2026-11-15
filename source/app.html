@@ -377,7 +377,7 @@ function watchClass(){
     CLASS = snap.docs.map(d=>Object.assign({id:d.id}, d.data()));
     try{ const ps = await USER.profiles(CLASS.map(c=>c.id)); CLASS_NAMES = {}; for(const c of CLASS){ CLASS_NAMES[c.id] = (ps[c.id]&&ps[c.id].name) || (c.profile&&c.profile.name) || (c.summary&&c.summary.nick) || (c.profile&&c.profile.email) || 'Student'; } }catch(e){}
     if(TAB==='class') render();
-  }, err=>{ clearTimeout(timer); CLASS_ERR='Class data could not be loaded right now.'; if(TAB==='class') render(); });
+  }, err=>{ clearTimeout(timer); CLASS_ERR='Class data could not be loaded right now ('+((err&&err.code)||'unknown error')+').'; if(TAB==='class') render(); });
 }
 
 /* ---------- shell ---------- */
@@ -625,7 +625,7 @@ function vMe(){
     <div><p style="margin:0 0 8px;font-weight:700">Daily goal</p><div class="seg" id="goalSeg">${[[10,'Casual'],[20,'Regular'],[30,'Serious'],[50,'Intense']].map(([g,l])=>`<button data-g="${g}" aria-pressed="${S.goal===g}">${l} · ${g} XP</button>`).join('')}</div></div>
     <label class="switch" for="snd"><span>Sound effects</span><input type="checkbox" id="snd" ${S.sound?'checked':''}></label>
     <label class="switch" for="opn"><span>Open all lessons (skip ahead)</span><input type="checkbox" id="opn" ${S.openAll?'checked':''}></label>
-    ${window.QADAM_SIGNOUT?`<p class="muted" style="margin:0;font-size:14px">Signed in as ${esc((window.QADAM_PROFILE||{}).email||'')}${window.QADAM_VERIFIED===false?' · email not verified yet':''}${OWNER?' · teacher':''}</p>${window.QADAM_VERIFIED===false?'<button class="btn ghost" id="vfy">Send verification email</button>':''}<button class="btn ghost" id="sgo">Sign out</button>`:''}
+    ${window.QADAM_SIGNOUT?`<p class="muted" style="margin:0;font-size:14px">Signed in as ${esc((window.QADAM_PROFILE||{}).email||'')}${window.QADAM_VERIFIED===false?' · email not verified yet':''}</p><p style="margin:0;font-size:14px;font-weight:700;color:${OWNER?'var(--good)':'var(--muted)'}">Teacher access: ${OWNER?'yes':'no'}${!OWNER&&window.QADAM_TEACHER_ERR?' ('+esc(window.QADAM_TEACHER_ERR)+')':''}</p>${window.QADAM_VERIFIED===false?'<button class="btn ghost" id="vfy">Send verification email</button>':''}<button class="btn ghost" id="sgo">Sign out</button>`:''}
     <button class="btn ghost" id="wlc">Why “Qadam”?</button>
     <button class="btn ghost" id="rst" style="color:var(--bad)">Reset my progress</button>
    </div></div>`;
