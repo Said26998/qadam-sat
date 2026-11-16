@@ -44,8 +44,19 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .chip{display:flex;align-items:center;gap:4px;font-weight:800;font-variant-numeric:tabular-nums;background:none;border:0;padding:6px 6px;border-radius:10px}
 .chip svg{width:22px;height:22px}
 .chip.streak{color:var(--saffron)} .chip.streak.off{color:var(--muted)}
-.chip.xp{color:var(--cobalt)} .chip.hearts{color:var(--heart)}
+.chip.xp{color:var(--cobalt)} .chip.energy{color:var(--turq)} .chip.score{color:var(--plum)} .chip.energy.low{color:var(--bad)}
+.timer{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--muted);margin:0 0 12px;font-variant-numeric:tabular-nums}
+.timer .tb{flex:1;height:6px;border-radius:99px;background:var(--sunk);overflow:hidden}.timer .tb i{display:block;height:100%;background:var(--turq);transition:width .25s linear}
+.timer.low .tb i{background:var(--saffron)} .timer.over{color:var(--bad)} .timer.over .tb i{background:var(--bad)}
+.dbadge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;padding:1px 7px;border-radius:99px;margin-left:6px;border:1.5px solid currentColor;vertical-align:1px}
+.dbadge.d1{color:var(--good)} .dbadge.d2{color:var(--cobalt)} .dbadge.d3{color:var(--plum)}
+.fb .meta{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 0}.fb .meta span{font-size:13px;font-weight:800;padding:3px 9px;border-radius:99px;background:var(--surface);color:var(--ink)}
+.scard .big{font-family:var(--f-disp);font-size:46px;line-height:1;color:var(--plum);font-variant-numeric:tabular-nums}.scard .big small{font-size:16px;color:var(--muted);margin-left:6px}
+.scale{position:relative;height:10px;border-radius:99px;background:linear-gradient(90deg,var(--sunk),var(--plum));margin:16px 0 4px}.scale b{position:absolute;top:-5px;width:6px;height:20px;margin-left:-3px;border-radius:3px;background:var(--ink)}
+.scale-l{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:700}
+.nextbox{background:var(--sunk);border-radius:12px;padding:10px 12px;margin-top:12px;font-size:14px}
 .chip:hover{background:var(--sunk)}
+@media (max-width:430px){.top .brand{font-size:0;gap:0}.top .chip{padding:6px 3px;gap:3px}.top .chip svg{width:20px;height:20px}}
 
 .wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px}
 .stack{display:flex;flex-direction:column;gap:14px}
@@ -263,7 +274,8 @@ details.deck[open] summary{margin-bottom:10px}
     <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 1.5l2.6 4.2 4.8-1.1-1.1 4.8 4.2 2.6-4.2 2.6 1.1 4.8-4.8-1.1L12 22.5l-2.6-4.2-4.8 1.1 1.1-4.8L1.5 12l4.2-2.6-1.1-4.8 4.8 1.1z"/><circle cx="12" cy="12" r="3.6" fill="var(--bg)"/></svg>Qadam</div>
     <button class="chip streak" id="cStreak" aria-label="Streak"></button>
     <button class="chip xp" id="cXp" aria-label="Total XP"></button>
-    <button class="chip hearts" id="cHearts" aria-label="Hearts"></button>
+    <button class="chip score" id="cScore" aria-label="Estimated SAT score"></button>
+    <button class="chip energy" id="cEnergy" aria-label="Energy"></button>
   </header>
   <main id="view"></main>
 </div>
@@ -282,6 +294,8 @@ const I = {
   flame:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.6 1.8c.6 3.6 4.9 5.8 4.9 11.1a5.5 5.5 0 0 1-11 0c0-2.4 1.2-4.1 2.5-5.3.1 2 1 3.2 2.2 3.5-.8-3.3.3-6.6 1.4-9.3z"/></svg>',
   bolt:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.5 1.5 4 13.6h6.6L9.4 22.5 19.5 10h-6.7z"/></svg>',
   heart:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21.2s-7.6-4.6-9.7-9.3C.9 8.7 3.1 4.9 6.7 4.9c2.1 0 3.7 1.1 5.3 3.1 1.6-2 3.2-3.1 5.3-3.1 3.6 0 5.8 3.8 4.4 7-2.1 4.7-9.7 9.3-9.7 9.3z"/></svg>',
+  battery:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 2h6v2h1.5A1.5 1.5 0 0 1 18 5.5v15a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 20.5v-15A1.5 1.5 0 0 1 7.5 4H9zm3.8 5.5L9 13.2h2.6l-1 4.8 4.4-6.2h-2.7z"/></svg>',
+  gauge:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3.5 17a8.5 8.5 0 1 1 17 0"/><path d="M12 17l4-5.5"/></g><circle cx="12" cy="17" r="2" fill="currentColor"/></svg>',
   star:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.2l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>',
   check:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.5l5 5L19.5 7"/></svg>',
   lock:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 10V7.5a5 5 0 0 1 10 0V10h1a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 18 21H6a1.5 1.5 0 0 1-1.5-1.5v-8A1.5 1.5 0 0 1 6 10zm2.5 0h5V7.5a2.5 2.5 0 0 0-5 0z"/></svg>',
@@ -314,8 +328,9 @@ const LESSON = Object.fromEntries(LESSONS.concat(VLESSONS).map(l=>[l.id,l]));
 const SKILLS = UNITS.concat([{id:'voc', title:'Vocabulary'}]);
 
 /* ---------- state ---------- */
-const KEY='qadam-sat-v1'+(window.QADAM_UID?'-'+window.QADAM_UID:''), MAXH=5, REGEN=30*60*1000, INTV=[0,1,3,7,14,30];
-function fresh(){ return {v:1, nick:'', xp:0, hist:{}, streak:0, lastDay:'', best:0, hearts:MAXH, heartTs:Date.now(), goal:20,
+const KEY='qadam-sat-v1'+(window.QADAM_UID?'-'+window.QADAM_UID:''), MAXE=25, EREGEN=6*60*1000, INTV=[0,1,3,7,14,30];
+const DR={1:450,2:580,3:700}, DNAME={1:'Easy',2:'Medium',3:'Hard'}, CAL=10;
+function fresh(){ return {v:1, nick:'', xp:0, hist:{}, streak:0, lastDay:'', best:0, energy:MAXE, energyTs:Date.now(), score:450, sN:0, sHist:{}, dstat:{}, relaxed:false, goal:20,
   lessons:{}, unit:{}, ans:0, right:0, secs:0, mistakes:[], cards:{}, log:[], sound:true, openAll:false, updatedAt:0}; }
 let S = fresh();
 try{ const raw = localStorage.getItem(KEY); if(raw) S = Object.assign(fresh(), JSON.parse(raw)); }catch(e){}
@@ -326,8 +341,26 @@ const dkey=(d=new Date())=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.get
 const today=()=>dkey(); const yday=()=>{const d=new Date();d.setDate(d.getDate()-1);return dkey(d)};
 function streakNow(st=S){ return (st.lastDay===today()||st.lastDay===yday()) ? st.streak : 0; }
 function todayXp(st=S){ return st.hist[today()]||0; }
-function regen(){ if(S.hearts>=MAXH){S.heartTs=Date.now();return;} const n=Math.floor((Date.now()-S.heartTs)/REGEN); if(n>0){S.hearts=Math.min(MAXH,S.hearts+n); S.heartTs+=n*REGEN; if(S.hearts>=MAXH)S.heartTs=Date.now(); save(false);} }
-function nextHeartMin(){ return Math.max(1,Math.ceil((REGEN-(Date.now()-S.heartTs))/60000)); }
+function regen(){ if(S.energy>=MAXE){S.energyTs=Date.now();return;} const n=Math.floor((Date.now()-S.energyTs)/EREGEN); if(n>0){S.energy=Math.min(MAXE,S.energy+n); S.energyTs+=n*EREGEN; if(S.energy>=MAXE)S.energyTs=Date.now(); save(false);} }
+function nextEnergyMin(){ return Math.max(1,Math.ceil((EREGEN-(Date.now()-S.energyTs))/60000)); }
+function useEnergy(n){ if(S.energy>=MAXE) S.energyTs=Date.now(); S.energy=Math.max(0,S.energy-n); }
+function addEnergy(n){ S.energy=Math.min(MAXE,S.energy+n); if(S.energy>=MAXE) S.energyTs=Date.now(); }
+/* ---------- estimated SAT R&W score (200-800) ---------- */
+const pRight=(th,R)=>.25+.75/(1+Math.pow(10,(R-th)/250));
+const kOf=n=>Math.max(10,40-.5*n);
+function scoreShown(st=S){ return (st.sN||0)>=CAL ? Math.round((st.score||450)/10)*10 : null; }
+function band(s){ return s==null?'Calibrating':s>=700?'Top tier':s>=600?'Strong':s>=500?'Solid':s>=400?'Building':'Getting started'; }
+function rate(it, ok){ if(!it.d || it.t==='m') return null; const before=scoreShown();
+  S.score=Math.max(200,Math.min(800,S.score+kOf(S.sN)*((ok?1:0)-pRight(S.score,DR[it.d])))); S.sN++;
+  const ds=S.dstat[it.d]||(S.dstat[it.d]={r:0,n:0}); ds.n++; if(ok) ds.r++;
+  S.sHist[today()]=Math.round(S.score); const k=Object.keys(S.sHist).sort(); if(k.length>90) delete S.sHist[k[0]];
+  const after=scoreShown(); return {before, after, d:before!=null&&after!=null?after-before:null}; }
+function nextStep(st=S){ const s=scoreShown(st); if(s==null||s>=800) return null; const target=Math.min(800,(Math.floor(st.score/50)+1)*50); let th=st.score, n=st.sN, c=0;
+  while(th<target-5 && c<80){ th+=kOf(n)*(1-pRight(th,DR[3])); n++; c++; } return c<80?{target,c}:null; }
+function trend(st=S){ const s=st.score; const ks=Object.keys(st.sHist||{}).sort(); const ago7=dkey(new Date(Date.now()-7*864e5)); const old=ks.filter(k=>k<=ago7).pop(); if(!old||scoreShown(st)==null) return null;
+  const g=s-st.sHist[old]; return {g:Math.round(g), proj:Math.min(800,Math.round((s+4*Math.max(0,g))/10)*10)}; }
+function limitOf(it){ return it.t==='tap'?40 : it.t==='m'?45 : it.word?40 : (it.p&&it.p.length>650?95:75); }
+const dBadge=it=>it.d?`<span class="dbadge d${it.d}">${DNAME[it.d]} · ${DR[it.d]}</span>`:'';
 function addXp(n){ const t=today(); let bumped=false; if(S.lastDay!==t){ S.streak = (S.lastDay===yday()) ? S.streak+1 : 1; S.lastDay=t; bumped=true; S.best=Math.max(S.best,S.streak);} S.xp+=n; S.hist[t]=(S.hist[t]||0)+n; return bumped; }
 function logEvent(e){ S.log.unshift(Object.assign({ts:Date.now()},e)); S.log=S.log.slice(0,60); }
 function unlocked(l){ if(l.vocab) return S.openAll || l.li===0 || !!S.lessons[VLESSONS[l.n-1].id]; return S.openAll || l.n===0 || !!S.lessons[LESSONS[l.n-1].id]; }
@@ -335,6 +368,7 @@ function currentLesson(){ return LESSONS.find(l=>!S.lessons[l.id]) || null; }
 function mastered(st=S){ return Object.values(st.cards||{}).filter(c=>c.box>=4).length; }
 function accPct(r,n){ return n? Math.round(r/n*100) : null; }
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const escI=s=>esc(s).replace(/&lt;(\/?)i&gt;/g,'<$1i>');
 const fmt=s=>s.replace(/_{3,}/g,'<span class="blank" aria-label="blank"></span>');
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 const toneOf=u=>SECTIONS[u.sec].tone;
@@ -350,7 +384,7 @@ let DB=null, USER=null, UID=null, OWNER=false, SYNC='local', CLASS=null, CLASS_E
 let writing=false, again=false;
 function summary(){ const wk=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return S.hist[dkey(d)]||0}).reduce((a,b)=>a+b,0);
   return {xp:S.xp, streak:S.streak, lastDay:S.lastDay, best:S.best, weekXp:wk, lessonsDone:LESSONS.filter(l=>S.lessons[l.id]).length, lessonsTotal:LESSONS.length, vocabDone:VLESSONS.filter(l=>S.lessons[l.id]).length,
-    ans:S.ans, right:S.right, secs:S.secs, words:mastered(), mistakes:S.mistakes.length, nick:S.nick||''}; }
+    ans:S.ans, right:S.right, secs:S.secs, words:mastered(), mistakes:S.mistakes.length, nick:S.nick||'', score:scoreShown(), sN:S.sN, dstat:S.dstat}; }
 async function push(){ if(!DB||!UID) return; if(writing){again=true;return;} writing=true;
   try{ const doc={summary:summary(), state:S, updatedAt:S.updatedAt}; if(window.QADAM_PROFILE) doc.profile=window.QADAM_PROFILE; await DB.doc('students/'+UID).set(doc); SYNC='ok'; }
   catch(e){ SYNC='err'; }
@@ -388,7 +422,8 @@ function renderTop(){
   const st=streakNow();
   const cs=document.getElementById('cStreak'); cs.className='chip streak'+(todayXp()>0?'':' off'); cs.innerHTML=I.flame+st; cs.setAttribute('aria-label',st+' day streak');
   document.getElementById('cXp').innerHTML=I.bolt+S.xp;
-  document.getElementById('cHearts').innerHTML=I.heart+S.hearts;
+  const sc=scoreShown(); const cS=document.getElementById('cScore'); cS.innerHTML=I.gauge+(sc==null?S.sN+'/'+CAL:sc); cS.setAttribute('aria-label',sc==null?'Score calibrating, '+S.sN+' of '+CAL+' questions':'Estimated SAT Reading and Writing score '+sc);
+  const cE=document.getElementById('cEnergy'); cE.className='chip energy'+(S.energy<5?' low':''); cE.innerHTML=I.battery+S.energy; cE.setAttribute('aria-label',S.energy+' of '+MAXE+' energy');
 }
 function renderNav(){
   const tabs=[['learn','Learn',I.learn],['words','Words',I.cards],['review','Review',I.redo],['me','My stats',I.me]];
@@ -396,7 +431,8 @@ function renderNav(){
   document.getElementById('nav').innerHTML = tabs.map(([k,l,ic])=>`<button data-tab="${k}" ${TAB===k?'aria-current="page"':''}><span class="ic">${ic}</span>${l}</button>`).join('');
 }
 document.getElementById('nav').addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(!b)return; TAB=b.dataset.tab; render(); window.scrollTo(0,0); });
-document.getElementById('cHearts').onclick=()=>heartsSheet();
+document.getElementById('cEnergy').onclick=()=>energySheet();
+document.getElementById('cScore').onclick=()=>scoreSheet();
 document.getElementById('cStreak').onclick=()=>{ const st=streakNow(); openModal(`<h2>${st} day streak</h2><p class="muted">${todayXp()>0?'You have practiced today. Come back tomorrow to keep it going.':'Earn XP today to extend your streak.'} Longest streak: ${S.best} days.</p><button class="btn" data-close>Got it</button>`); };
 document.getElementById('cXp').onclick=()=>{ TAB='me'; render(); };
 function render(){ renderTop(); renderNav(); ({learn:vLearn,words:vWords,review:vReview,me:vMe,class:vClass}[TAB]||vLearn)(); paintSync(); }
@@ -407,8 +443,13 @@ function openModal(html){ modal.hidden=false; modal.innerHTML=`<div class="scrim
 function closeModal(){ modal.hidden=true; modal.innerHTML=''; }
 modal.addEventListener('click',e=>{ if(e.target.hasAttribute('data-close-scrim')||e.target.closest('[data-close]')) closeModal(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !modal.hidden) closeModal(); });
-function heartsSheet(){ regen(); openModal(`<h2 style="color:var(--heart)">${S.hearts} of ${MAXH} hearts</h2><p class="muted">You lose a heart for each wrong answer in a lesson. ${S.hearts<MAXH?`Next heart in about ${nextHeartMin()} min.`:'Your hearts are full.'} Finish a practice round in Review to earn one back right away.</p><div class="row"><button class="btn ghost" data-close>Close</button>${S.hearts<MAXH?'<button class="btn" id="mPractice">Practice</button>':''}</div>`);
+function energySheet(){ regen(); openModal(`<h2 style="color:var(--turq)">${S.energy} of ${MAXE} energy</h2><p>Each lesson question costs 1 energy. Answer it <b>correctly and within the time</b> and you get it back. Get 5 right in a row for a bonus of +2.</p><p class="muted">${S.energy<MAXE?`Energy refills by 1 every 6 minutes. Next one in about ${nextEnergyMin()} min.`:'Your energy is full.'} A practice round in Review costs nothing and refills 5.</p><div class="row"><button class="btn ghost" data-close>Close</button>${S.energy<MAXE?'<button class="btn" id="mPractice">Practice</button>':''}</div>`);
   const p=document.getElementById('mPractice'); if(p) p.onclick=()=>{closeModal(); startPractice();}; }
+function scoreSheet(){ const s=scoreShown(); const ns=nextStep(); const tr=trend();
+  openModal(`<h2 style="color:var(--plum)">${s==null?'Finding your level':'Estimated score: '+s}</h2><p>This is an estimate of your <b>SAT Reading and Writing</b> score, on the real 200 to 800 scale, based on every first-try answer you give.</p>
+  <div class="stack" style="gap:6px">${[1,2,3].map(d=>`<div class="tipbox" style="--tone:var(--${['','good','cobalt','plum'][d]})"><b>${DNAME[d]} questions</b>Match a score of about ${DR[d]}. ${d===3?'Getting these right moves your score up the most.':d===1?'Missing these costs the most.':'The core of the test.'}</div>`).join('')}</div>
+  ${s==null?`<p class="muted">Answer ${CAL-S.sN} more question${CAL-S.sN===1?'':'s'} to see your first estimate.</p>`:`${ns?`<p><b>Next goal:</b> about ${ns.c} more correct Hard answer${ns.c>1?'s':''} would take you to ${ns.target}.</p>`:''}${tr?`<p class="muted">${tr.g>0?`Up ${tr.g} points in the last week. If you keep this pace, you could reach about ${tr.proj} in four weeks.`:`Steady this week. Hard questions move your score the fastest.`}</p>`:''}`}
+  <p class="muted" style="font-size:13px">It is a practice estimate, not an official College Board score. Your real result also depends on timing, stamina and test day.</p><button class="btn" data-close>Got it</button>`); }
 
 /* ---------- Learn ---------- */
 function goalCard(){ const x=todayXp(), g=S.goal, f=Math.min(1,x/g), C=2*Math.PI*24;
@@ -437,7 +478,7 @@ function lessonSheet(l){
   const done=!!S.lessons[l.id];
   if(!unlocked(l)){ openModal(`<h2>Locked</h2><p class="muted">Finish the lessons before this one to unlock it.</p><button class="btn ghost" data-close>OK</button>`); return; }
   regen();
-  if(S.hearts<=0){ heartsSheet(); return; }
+  if(S.energy<=0){ energySheet(); return; }
   const r=S.lessons[l.id];
   openModal(`<div style="--tone:var(--${toneOf(l.unit)})"><div class="qtype">${l.vocab?'Word set':'Unit'} ${l.unit.n+1} · ${l.vocab?'Part':'Lesson'} ${l.li+1} of ${l.unit.lessons.length}</div></div><h2>${l.unit.title}</h2><div class="tipbox" style="--tone:var(--${toneOf(l.unit)})"><b>Strategy</b>${l.unit.tip}</div><p class="muted">${l.items.length} questions${r?` · best score ${r.best}%`:''}</p><button class="btn" id="mStart">${done?'Practice again +5 XP':'Start +10 XP'}</button>`);
   document.getElementById('mStart').onclick=()=>{ closeModal(); startSession('lesson', l.items, l); };
@@ -446,7 +487,7 @@ function lessonSheet(l){
 /* ---------- session engine ---------- */
 let SES=null; const LS=document.getElementById('lesson');
 function startSession(mode, items, lesson){
-  SES={mode, lesson, queue:items.slice(), total:items.length, done:0, firstTry:0, tries:0, wrongOnce:new Set(), start:Date.now(), sel:null, checked:false, hearts0:S.hearts};
+  SES={mode, lesson, queue:items.slice(), total:items.length, done:0, firstTry:0, tries:0, wrongOnce:new Set(), start:Date.now(), sel:null, checked:false, energy0:S.energy, score0:scoreShown(), sN0:S.sN, run:0, eBonus:0};
   if(mode!=='lesson') SES.queue=shuffle(SES.queue);
   LS.hidden=false; document.body.style.overflow='hidden'; showItem();
 }
@@ -456,26 +497,31 @@ function startPractice(){
   startSession('practice', shuffle(src).slice(0,6));
 }
 function startMistakes(){ const items=S.mistakes.map(id=>ITEM[id]).filter(Boolean).slice(0,8); if(items.length) startSession('mistakes', items); }
-function closeSession(){ LS.hidden=true; LS.innerHTML=''; document.body.style.overflow=''; SES=null; render(); }
+function stopTimer(){ if(SES&&SES.tmr){ clearInterval(SES.tmr); SES.tmr=null; } }
+function closeSession(){ stopTimer(); LS.hidden=true; LS.innerHTML=''; document.body.style.overflow=''; SES=null; render(); }
 function head(){ const pct=Math.round(SES.done/SES.total*100);
-  return `<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${SES.mode==='lesson'?`<span class="chip hearts">${I.heart}${S.hearts}</span>`:`<span class="pill">${SES.mode==='mistakes'?'Mistakes':SES.mode==='quiz'?'Word quiz':'Practice'}</span>`}</div>`; }
+  return `<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${SES.mode==='lesson'?`<span class="chip energy${S.energy<5?' low':''}">${I.battery}${S.energy}</span>`:`<span class="pill">${SES.mode==='mistakes'?'Mistakes':SES.mode==='quiz'?'Word quiz':'Practice'}</span>`}</div>`; }
 function showItem(){
-  const it=SES.queue[0]; SES.sel=null; SES.checked=false; SES.item=it;
+  stopTimer(); const it=SES.queue[0]; SES.sel=null; SES.checked=false; SES.item=it; SES.qStart=Date.now(); SES.limit=limitOf(it);
   const u=UNIT[it.unit]; const tone=toneOf(u);
   let body='';
   if(it.t==='m'){
     SES.left=shuffle(it.pairs.map((p,i)=>i)); SES.right=shuffle(it.pairs.map((p,i)=>i)); SES.matched=new Set(); SES.mL=null; SES.mR=null; SES.mMiss=0;
-    body=`<div class="qtype">${u.title} · Vocabulary</div><h2 style="font-size:22px">Match each word to its meaning</h2><div class="match"><div class="colm">${SES.left.map(i=>`<button class="mt w" data-l="${i}">${esc(it.pairs[i][0])}</button>`).join('')}</div><div class="colm">${SES.right.map(i=>`<button class="mt" data-r="${i}">${esc(it.pairs[i][1])}</button>`).join('')}</div></div>`;
+    body=`<div class="qtype">${u.title} · Vocabulary${dBadge(it)}</div><h2 style="font-size:22px">Match each word to its meaning</h2><div class="match"><div class="colm">${SES.left.map(i=>`<button class="mt w" data-l="${i}">${esc(it.pairs[i][0])}</button>`).join('')}</div><div class="colm">${SES.right.map(i=>`<button class="mt" data-r="${i}">${esc(it.pairs[i][1])}</button>`).join('')}</div></div>`;
   } else if(it.t==='tap'){
     SES.tokens=it.s.split(' '); SES.ans=SES.tokens.findIndex(w=>w.includes('*')); SES.tokens=SES.tokens.map(w=>w.replace(/\*/g,''));
-    body=`<div class="qtype">${u.title}</div><div class="qtext">${Q_TAP}</div><div class="tokens">${SES.tokens.map((w,i)=>`<button class="tok" data-t="${i}" aria-pressed="false">${esc(w)}</button>`).join('')}</div>`;
+    body=`<div class="qtype">${u.title}${dBadge(it)}</div><div class="qtext">${Q_TAP}</div><div class="tokens">${SES.tokens.map((w,i)=>`<button class="tok" data-t="${i}" aria-pressed="false">${esc(w)}</button>`).join('')}</div>`;
   } else {
     SES.order=shuffle([0,1,2,3]);
-    body=`<div class="qtype">${u.title}</div>${it.p?`<div class="passage">${it.p.startsWith('<')?fmt(it.p):'<p>'+fmt(it.p)+'</p>'}</div>`:''}<div class="qtext">${it.q}</div><div class="choices">${SES.order.map((ci,k)=>`<button class="choice" data-k="${k}" aria-pressed="false"><span class="letter">${'ABCD'[k]}</span><span>${esc(it.c[ci])}</span></button>`).join('')}</div>`;
+    body=`<div class="qtype">${u.title}${dBadge(it)}</div>${it.p?`<div class="passage">${it.p.startsWith('<')?fmt(it.p):'<p>'+fmt(it.p)+'</p>'}</div>`:''}<div class="qtext">${it.q}</div><div class="choices">${SES.order.map((ci,k)=>`<button class="choice" data-k="${k}" aria-pressed="false"><span class="letter">${'ABCD'[k]}</span><span>${escI(it.c[ci])}</span></button>`).join('')}</div>`;
   }
-  LS.innerHTML=head()+`<div class="bd"><div class="in" style="--tone:var(--${tone})">${body}</div></div><div class="ft" id="lsFt"><div class="in">${it.t==='m'?'<p class="muted" style="margin:0;text-align:center">Tap a word, then its meaning.</p>':'<button class="btn" id="lsCheck" disabled>Check</button>'}</div></div>`;
+  LS.innerHTML=head()+`<div class="bd"><div class="in" style="--tone:var(--${tone})">${S.relaxed?'':`<div class="timer" id="tmr" role="timer"><span>${I.clock.replace('<svg','<svg width="18" height="18"')}</span><span class="tb"><i style="width:100%"></i></span><span id="tmrT"></span></div>`}${body}</div></div><div class="ft" id="lsFt"><div class="in">${it.t==='m'?'<p class="muted" style="margin:0;text-align:center">Tap a word, then its meaning.</p>':'<button class="btn" id="lsCheck" disabled>Check</button>'}</div></div>`;
   LS.querySelector('.bd').scrollTop=0;
   document.getElementById('lsX').onclick=quitAsk;
+  if(!S.relaxed){ const tick=()=>{ const el=document.getElementById('tmr'); if(!el||!SES){ stopTimer(); return; } const left=SES.limit-(Date.now()-SES.qStart)/1000;
+      el.className='timer'+(left<=0?' over':left<SES.limit*.25?' low':''); el.querySelector('i').style.width=Math.max(0,left/SES.limit*100)+'%';
+      document.getElementById('tmrT').textContent=left<=0?'Over time':Math.ceil(left)+'s'; if(left<=0) stopTimer(); };
+    tick(); SES.tmr=setInterval(tick,250); }
   if(it.t==='m') bindMatch(it);
   else {
     LS.querySelectorAll('.choice,.tok').forEach(b=>b.onclick=()=>{ if(SES.checked) return; LS.querySelectorAll('.choice,.tok').forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); SES.sel=+(b.dataset.k??b.dataset.t); document.getElementById('lsCheck').disabled=false; sfx.tap(); });
@@ -499,7 +545,14 @@ function check(){
   feedback(ok, it.e, ok?'':ansText);
 }
 function feedback(ok, expl, ansText){
-  const it=SES.item; const first=!SES.wrongOnce.has(it.id);
+  stopTimer(); const it=SES.item; const first=!SES.wrongOnce.has(it.id);
+  const secs=Math.round((Date.now()-SES.qStart)/1000); const onTime=S.relaxed||secs<=SES.limit; const meta=[];
+  const sc=first?rate(it,ok):null;
+  if(sc){ if(sc.d!=null) meta.push(`Score ${sc.d>=0?'+':''}${sc.d} → ${sc.after}`); else if(sc.after!=null) meta.push(`Your first score: ${sc.after}`); else meta.push(`Finding your level ${S.sN}/${CAL}`); }
+  if(SES.mode==='lesson'){ useEnergy(1);
+    if(ok){ SES.run++; if(onTime){ addEnergy(1); meta.push('Energy kept'); } else meta.push('Over time: −1 energy'); if(SES.run%5===0){ addEnergy(2); SES.eBonus+=2; meta.push('5 in a row: +2 energy'); } }
+    else { SES.run=0; meta.push('−1 energy'); } }
+  if(!S.relaxed) meta.push((onTime?'':'Over time · ')+Math.floor(secs/60)+':'+pad(secs%60));
   // stats: only first attempts count toward accuracy
   if(first && it.t!=='m'){ S.ans++; const sk=it.stat||it.unit; const us=S.unit[sk]||(S.unit[sk]={r:0,n:0}); us.n++; if(ok){S.right++;us.r++;} }
   if(it.word && !ok){ S.cards[it.word]=Object.assign({seen:0}, S.cards[it.word], {box:0, due:today()}); }
@@ -507,22 +560,21 @@ function feedback(ok, expl, ansText){
   if(ok){ sfx.good(); if(first) SES.firstTry++; SES.done++; SES.queue.shift();
     if(SES.mode==='mistakes'||first){ const mi=S.mistakes.indexOf(it.id); if(mi>-1) S.mistakes.splice(mi,1); }
   } else { sfx.bad(); SES.wrongOnce.add(it.id); SES.queue.push(SES.queue.shift()); if(!S.mistakes.includes(it.id)) S.mistakes.unshift(it.id); S.mistakes=S.mistakes.slice(0,60);
-    if(SES.mode==='lesson'){ if(S.hearts>=MAXH) S.heartTs=Date.now(); S.hearts=Math.max(0,S.hearts-1); }
   }
   SES.tries++;
   save(false);
   const ft=document.getElementById('lsFt'); ft.className='ft '+(ok?'good':'bad');
   const praise=['Nice!','Correct!','Well done!','Exactly!','Great reading!'];
-  ft.innerHTML=`<div class="in"><div class="fb" role="status"><h3>${ok?I.check.replace('<svg','<svg width="26" height="26"'):I.x.replace('<svg','<svg width="26" height="26"')}${ok?praise[SES.tries%praise.length]:'Not quite'}</h3>${ansText?`<p class="ans">${esc(ansText)}</p>`:''}<p>${esc(expl||'')}</p></div><button class="btn ${ok?'good':'bad'}" id="lsNext">Continue</button></div>`;
+  ft.innerHTML=`<div class="in"><div class="fb" role="status"><h3>${ok?I.check.replace('<svg','<svg width="26" height="26"'):I.x.replace('<svg','<svg width="26" height="26"')}${ok?praise[SES.tries%praise.length]:'Not quite'}</h3>${ansText?`<p class="ans">${escI(ansText)}</p>`:''}<p>${esc(expl||'')}</p>${meta.length?`<div class="meta">${meta.map(m=>`<span>${esc(m)}</span>`).join('')}</div>`:''}</div><button class="btn ${ok?'good':'bad'}" id="lsNext">Continue</button></div>`;
   LS.querySelector('.hd').outerHTML=head(); document.getElementById('lsX').onclick=quitAsk;
   const nb=document.getElementById('lsNext'); nb.focus({preventScroll:true});
-  nb.onclick=()=>{ if(SES.mode==='lesson' && S.hearts<=0){ outOfHearts(); return; } if(SES.queue.length) showItem(); else finish(); };
+  nb.onclick=()=>{ if(SES.mode==='lesson' && S.energy<=0){ outOfEnergy(); return; } if(SES.queue.length) showItem(); else finish(); };
 }
-function quitAsk(){ openModal(`<h2>Leave this ${SES.mode==='lesson'?'lesson':'round'}?</h2><p class="muted">Your progress in this ${SES.mode==='lesson'?'lesson':'round'} will be lost. Hearts you lost stay lost.</p><div class="row"><button class="btn ghost" id="mQuit">Quit</button><button class="btn" data-close>Keep going</button></div>`); document.getElementById('mQuit').onclick=()=>{ closeModal(); logEvent({k:SES.mode,l:SES.lesson?SES.lesson.unit.title+' · L'+(SES.lesson.li+1):'Practice',xp:0,acc:null,quit:true}); save(); closeSession(); }; }
-function outOfHearts(){
+function quitAsk(){ openModal(`<h2>Leave this ${SES.mode==='lesson'?'lesson':'round'}?</h2><p class="muted">Your progress in this ${SES.mode==='lesson'?'lesson':'round'} will be lost. Energy you used stays used.</p><div class="row"><button class="btn ghost" id="mQuit">Quit</button><button class="btn" data-close>Keep going</button></div>`); document.getElementById('mQuit').onclick=()=>{ closeModal(); logEvent({k:SES.mode,l:SES.lesson?SES.lesson.unit.title+' · L'+(SES.lesson.li+1):'Practice',xp:0,acc:null,quit:true}); save(); closeSession(); }; }
+function outOfEnergy(){
   logEvent({k:'lesson',l:SES.lesson.unit.title+' · L'+(SES.lesson.li+1),xp:0,acc:accPct(SES.firstTry,SES.tries),quit:true}); save();
-  LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><div style="color:var(--heart);width:110px">${I.heart}</div><h1 style="color:var(--heart)">Out of hearts</h1><p class="muted">Your next heart arrives in about ${nextHeartMin()} minutes. A practice round has no hearts to lose and earns one back.</p></div></div></div><div class="ft"><div class="in"><button class="btn" id="oP">Practice to earn a heart</button><button class="btn ghost" id="oQ">Back to path</button></div></div>`;
-  document.getElementById('oP').onclick=()=>{ LS.hidden=true; SES=null; startPractice(); };
+  LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><div style="color:var(--turq);width:110px">${I.battery}</div><h1 style="color:var(--turq)">Out of energy</h1><p class="muted">Energy refills by 1 every 6 minutes (next in about ${nextEnergyMin()} min). A practice round costs nothing and refills 5 right away.</p></div></div></div><div class="ft"><div class="in"><button class="btn" id="oP">Practice to refill energy</button><button class="btn ghost" id="oQ">Back to path</button></div></div>`;
+  document.getElementById('oP').onclick=()=>{ stopTimer(); LS.hidden=true; SES=null; startPractice(); };
   document.getElementById('oQ').onclick=closeSession;
 }
 function finish(){
@@ -531,14 +583,17 @@ function finish(){
   let xp=5, note='';
   if(SES.mode==='lesson'){ const l=SES.lesson; const prev=S.lessons[l.id]; xp = prev?5:10; if(acc===100) {xp+=5; note='Perfect lesson bonus +5 XP';}
     S.lessons[l.id]={best:Math.max(prev?prev.best:0,acc), n:(prev?prev.n:0)+1, last:Date.now()}; }
-  else { if(S.hearts<MAXH){ S.hearts++; note='You earned a heart back'; } }
+  else { if(S.energy<MAXE){ addEnergy(5); note='+5 energy refilled'; } }
+  if(SES.eBonus) note=(note?note+' · ':'')+'+'+SES.eBonus+' bonus energy';
+  const sNow=scoreShown(); const sD=(SES.score0!=null&&sNow!=null)?sNow-SES.score0:null;
   const before=todayXp(); const bumped=addXp(xp); const hitGoal=before<S.goal && todayXp()>=S.goal;
   logEvent({k:SES.mode, l:SES.mode==='lesson'?(SES.lesson.vocab?'Words: ':'')+SES.lesson.unit.title+' · Part '+(SES.lesson.li+1):SES.mode==='mistakes'?'Fixed mistakes':SES.mode==='quiz'?'Vocabulary quiz':'Mixed practice', xp, acc, dur:secs});
   save(); sfx.done();
   const mm=Math.floor(secs/60)+':'+pad(secs%60);
   LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--saffron)" d="M12 1.5l2.6 4.2 4.8-1.1-1.1 4.8 4.2 2.6-4.2 2.6 1.1 4.8-4.8-1.1L12 22.5l-2.6-4.2-4.8 1.1 1.1-4.8L1.5 12l4.2-2.6-1.1-4.8 4.8 1.1z"/><circle cx="12" cy="12" r="4" fill="var(--bg)"/></svg>
     <h1>${SES.mode==='lesson'?'Lesson complete!':'Round complete!'}</h1>${note?`<p class="muted" style="margin:0">${note}</p>`:''}
-    <div class="res"><div style="--c:var(--saffron)"><span>Total XP</span><b>+${xp}</b></div><div style="--c:var(--good)"><span>Accuracy</span><b>${acc}%</b></div><div style="--c:var(--cobalt)"><span>Time</span><b>${mm}</b></div></div>
+    <div class="res"><div style="--c:var(--saffron)"><span>Total XP</span><b>+${xp}</b></div><div style="--c:var(--good)"><span>Accuracy</span><b>${acc}%</b></div><div style="--c:var(--plum)"><span>SAT score</span><b>${sNow==null?S.sN+'/'+CAL:sNow}</b></div></div>
+    <p class="muted" style="margin:6px 0 0">${sNow==null?`Answer ${CAL-S.sN} more to unlock your estimated SAT score.`:`Estimated R&amp;W score ${sNow} (${band(sNow)})${sD?`, ${sD>0?'up':'down'} ${Math.abs(sD)} this round`:''}.`} Time ${mm}.</p>
     ${bumped?`<p style="color:var(--saffron);font-weight:800;display:flex;gap:6px;align-items:center;margin:8px 0 0"><span style="width:24px;display:inline-block">${I.flame}</span>${S.streak}-day streak!</p>`:''}
     ${hitGoal?`<p style="font-weight:800;color:var(--good);margin:0">Daily goal reached</p>`:''}
   </div></div></div><div class="ft"><div class="in"><button class="btn" id="fC">Continue</button></div></div>`;
@@ -595,7 +650,7 @@ function cardSession(list){
 /* ---------- Review ---------- */
 function vReview(){
   const m=S.mistakes.filter(id=>ITEM[id]); const byUnit={}; m.forEach(id=>{const u=ITEM[id].unit; byUnit[u]=(byUnit[u]||0)+1;});
-  view.innerHTML=`<div class="wrap stack"><div><h1 style="font-size:28px">Review</h1><p class="muted" style="margin:4px 0 0">Practice rounds cost no hearts. Each round you finish earns a heart back and 5 XP.</p></div>
+  view.innerHTML=`<div class="wrap stack"><div><h1 style="font-size:28px">Review</h1><p class="muted" style="margin:4px 0 0">Practice rounds cost no energy. Each round you finish refills 5 energy and earns 5 XP.</p></div>
    <div class="card stack" style="gap:10px"><p class="lbl" style="margin:0">Your mistakes</p>${m.length?`<p style="margin:0"><b style="font-family:var(--f-disp);font-size:26px">${m.length}</b> question${m.length>1?'s':''} to fix</p><div class="seg">${Object.entries(byUnit).map(([u,c])=>`<span class="pill">${UNIT[u].title} · ${c}</span>`).join('')}</div><button class="btn bad" id="rM">Fix my mistakes</button>`:`<div class="empty">${I.check}<p>No mistakes waiting. Questions you miss will collect here.</p></div>`}</div>
    <div class="card stack" style="gap:10px"><p class="lbl" style="margin:0">Mixed practice</p><p style="margin:0" class="muted">Six questions drawn from lessons you have finished.</p><button class="btn" id="rP">Start practice</button></div></div>`;
   const a=document.getElementById('rM'); if(a) a.onclick=startMistakes; document.getElementById('rP').onclick=startPractice;
@@ -608,9 +663,19 @@ function skillRows(unitStats){ return SKILLS.map(u=>{ const s=unitStats[u.id]; c
   return `<div class="skill"><span class="nm">${u.title}</span><span class="tr"><i style="width:${p||0}%;background:${col}"></i></span><span class="pct">${p==null?'–':p+'%'}</span></div>`; }).join(''); }
 function logRows(log, n=12){ if(!log||!log.length) return `<div class="empty"><p>No activity yet. Finish a lesson and it will show up here.</p></div>`;
   return `<ul class="log">${log.slice(0,n).map(e=>`<li><span class="what">${esc(e.l)}<small>${ago(e.ts)}${e.dur?' · '+Math.max(1,Math.round(e.dur/60))+' min':''}${e.quit?' · left early':''}</small></span>${e.acc!=null?`<span class="pill ${e.acc>=80?'good':e.acc<60?'bad':''}">${e.acc}%</span>`:''}<span class="xpv">+${e.xp} XP</span></li>`).join('')}</ul>`; }
+function diffRows(ds){ return [1,2,3].map(d=>{ const s=(ds||{})[d]; const p=s&&s.n?accPct(s.r,s.n):null; const col=p==null?'var(--line)':p>=80?'var(--good)':p>=60?'var(--saffron)':'var(--bad)';
+  return `<div class="skill"><span class="nm">${DNAME[d]} <span class="muted" style="font-weight:600">(${DR[d]}-level)</span></span><span class="tr"><i style="width:${p||0}%;background:${col}"></i></span><span class="pct">${p==null?'–':p+'%'}</span></div>`; }).join(''); }
+function scoreCard(st, mine=true){ const s=scoreShown(st); const ns=nextStep(st); const tr=trend(st); const pos=s==null?0:(s-200)/6;
+  return `<div class="card scard"><p class="lbl">Estimated SAT Reading and Writing</p><div class="big">${s==null?'–':s}<small>${s==null?`calibrating · ${st.sN||0}/${CAL} answers`:'/ 800 · '+band(s)}</small></div>
+   ${s!=null?`<div class="scale" aria-hidden="true"><b style="left:${pos}%"></b></div><div class="scale-l"><span>200</span><span>500</span><span>800</span></div>`:''}
+   ${mine&&s!=null&&(ns||tr)?`<div class="nextbox">${ns?`<b>If you keep going:</b> about ${ns.c} more correct Hard answer${ns.c>1?'s':''} would take you to <b>${ns.target}</b>.`:''}${tr?` ${tr.g>0?`You are up ${tr.g} points this week; at this pace, about <b>${tr.proj}</b> in four weeks.`:'Steady this week. Hard questions move your score the fastest.'}`:''}</div>`:''}
+   ${!mine&&tr?`<p class="muted" style="margin:8px 0 0;font-size:14px">${tr.g>=0?'+':''}${tr.g} points over the last week</p>`:''}
+   <div style="margin-top:12px">${diffRows(st.dstat)}</div>
+   ${mine?`<p class="muted" style="font-size:13px;margin:8px 0 0">A practice estimate from your first-try answers, not an official score. <button class="linkbtn" id="scWhy" style="background:none;border:0;padding:0;color:var(--cobalt);font-weight:700;text-decoration:underline">How it works</button></p>`:''}</div>`; }
 function vMe(){
   const sm=summary(); const acc=accPct(S.right,S.ans);
   view.innerHTML=`<div class="wrap stack"><div><h1 style="font-size:28px">My stats</h1><div class="sync" data-sync><i></i><span></span></div></div>
+   ${scoreCard(S)}
    <div class="tiles">
     <div class="tile" style="color:var(--saffron)">${I.flame}<div><b style="color:var(--ink)">${streakNow()}</b><span>day streak · best ${S.best}</span></div></div>
     <div class="tile" style="color:var(--cobalt)">${I.bolt}<div><b style="color:var(--ink)">${S.xp}</b><span>total XP · ${sm.weekXp} this week</span></div></div>
@@ -624,6 +689,7 @@ function vMe(){
     <label for="nick" style="font-weight:700">Nickname shown to your teacher if your name is unavailable</label><input class="field" id="nick" maxlength="40" value="${esc(S.nick)}" placeholder="e.g. Aziza K.">
     <div><p style="margin:0 0 8px;font-weight:700">Daily goal</p><div class="seg" id="goalSeg">${[[10,'Casual'],[20,'Regular'],[30,'Serious'],[50,'Intense']].map(([g,l])=>`<button data-g="${g}" aria-pressed="${S.goal===g}">${l} · ${g} XP</button>`).join('')}</div></div>
     <label class="switch" for="snd"><span>Sound effects</span><input type="checkbox" id="snd" ${S.sound?'checked':''}></label>
+    <label class="switch" for="rlx"><span>Relaxed mode (no question timer)</span><input type="checkbox" id="rlx" ${S.relaxed?'checked':''}></label>
     <label class="switch" for="opn"><span>Open all lessons (skip ahead)</span><input type="checkbox" id="opn" ${S.openAll?'checked':''}></label>
     ${window.QADAM_SIGNOUT?`<p class="muted" style="margin:0;font-size:14px">Signed in as ${esc((window.QADAM_PROFILE||{}).email||'')}${window.QADAM_VERIFIED===false?' · email not verified yet':''}</p><p style="margin:0;font-size:14px;font-weight:700;color:${OWNER?'var(--good)':'var(--muted)'}">Teacher access: ${OWNER?'yes':'no'}${!OWNER&&window.QADAM_TEACHER_ERR?' ('+esc(window.QADAM_TEACHER_ERR)+')':''}</p>${window.QADAM_VERIFIED===false?'<button class="btn ghost" id="vfy">Send verification email</button>':''}<button class="btn ghost" id="sgo">Sign out</button>`:''}
     <button class="btn ghost" id="wlc">Why “Qadam”?</button>
@@ -634,6 +700,8 @@ function vMe(){
   document.getElementById('snd').onchange=e=>{ S.sound=e.target.checked; save(); };
   document.getElementById('opn').onchange=e=>{ S.openAll=e.target.checked; save(); };
   document.getElementById('wlc').onclick=welcome;
+  document.getElementById('scWhy').onclick=scoreSheet;
+  document.getElementById('rlx').onchange=e=>{ S.relaxed=e.target.checked; save(); };
   const vf=document.getElementById('vfy'); if(vf) vf.onclick=()=>{ window.QADAM_VERIFY().then(()=>{vf.textContent='Sent. Open the link in your inbox, then sign in again.';vf.disabled=true;},()=>{vf.textContent='Could not send. Try again in a few minutes.';}); };
   const sg=document.getElementById('sgo'); if(sg) sg.onclick=()=>window.QADAM_SIGNOUT();
   document.getElementById('rst').onclick=()=>{ openModal(`<h2>Reset all progress?</h2><p class="muted">This clears your XP, streak, lessons, words and stats, here and in your teacher's class view. It cannot be undone.</p><div class="row"><button class="btn ghost" data-close>Cancel</button><button class="btn bad" id="mR">Reset</button></div>`); document.getElementById('mR').onclick=()=>{ const keep={sound:S.sound, welcomed:true}; S=Object.assign(fresh(),keep); save(); closeModal(); TAB='learn'; render(); }; };
@@ -644,10 +712,10 @@ let CSORT='active';
 function vClass(){
   if(!OWNER){ TAB='learn'; return vLearn(); }
   if(!CLASS){ view.innerHTML=`<div class="wrap stack"><h1 style="font-size:28px">Class</h1><div class="card"><p class="muted" style="margin:0">${CLASS_ERR||'Loading your students…'}</p></div></div>`; return; }
-  const t=today(), y=yday(); const rows=CLASS.filter(c=>c.id!==UID).map(c=>{ const s=c.summary||{}; return {id:c.id, name:CLASS_NAMES[c.id]||s.nick||'Student', s, st:c.state||{}, upd:c.updatedAt||0, acc:accPct(s.right||0,s.ans||0), live:(s.lastDay===t||s.lastDay===y)?s.streak:0}; });
-  const sorters={active:(a,b)=>b.upd-a.upd, xp:(a,b)=>(b.s.weekXp||0)-(a.s.weekXp||0), acc:(a,b)=>(a.acc??101)-(b.acc??101), name:(a,b)=>a.name.localeCompare(b.name)};
+  const t=today(), y=yday(); const rows=CLASS.filter(c=>c.id!==UID).map(c=>{ const s=c.summary||{}; return {id:c.id, name:CLASS_NAMES[c.id]||s.nick||'Student', s, st:c.state||{}, upd:c.updatedAt||0, acc:accPct(s.right||0,s.ans||0), sc:(s.score??scoreShown(c.state||{})), live:(s.lastDay===t||s.lastDay===y)?s.streak:0}; });
+  const sorters={active:(a,b)=>b.upd-a.upd, xp:(a,b)=>(b.s.weekXp||0)-(a.s.weekXp||0), acc:(a,b)=>(a.acc??101)-(b.acc??101), score:(a,b)=>(b.sc??0)-(a.sc??0), name:(a,b)=>a.name.localeCompare(b.name)};
   rows.sort(sorters[CSORT]);
-  const activeToday=rows.filter(r=>r.s.lastDay===t).length;
+  const activeToday=rows.filter(r=>r.s.lastDay===t).length; const scs=rows.map(r=>r.sc).filter(x=>x!=null); const avgSc=scs.length?Math.round(scs.reduce((a,b)=>a+b,0)/scs.length/10)*10:null;
   const tot=rows.reduce((a,r)=>{a.r+=r.s.right||0;a.n+=r.s.ans||0;a.l+=r.s.lessonsDone||0;a.w+=r.s.weekXp||0;return a;},{r:0,n:0,l:0,w:0});
   const classUnit={}; rows.forEach(r=>{ Object.entries(r.st.unit||{}).forEach(([u,v])=>{ const c=classUnit[u]||(classUnit[u]={r:0,n:0}); c.r+=v.r; c.n+=v.n; }); });
   const weakest=SKILLS.map(u=>({u, p:classUnit[u.id]&&classUnit[u.id].n>=5?accPct(classUnit[u.id].r,classUnit[u.id].n):null})).filter(x=>x.p!=null).sort((a,b)=>a.p-b.p)[0];
@@ -657,11 +725,11 @@ function vClass(){
     <div class="tile" style="color:var(--cobalt)">${I.cls}<div><b style="color:var(--ink)">${rows.length}</b><span>students</span></div></div>
     <div class="tile" style="color:var(--saffron)">${I.flame}<div><b style="color:var(--ink)">${activeToday}</b><span>practiced today</span></div></div>
     <div class="tile" style="color:var(--good)">${I.target}<div><b style="color:var(--ink)">${accPct(tot.r,tot.n)??'–'}${tot.n?'%':''}</b><span>class accuracy</span></div></div>
-    <div class="tile" style="color:var(--turq)">${I.bolt}<div><b style="color:var(--ink)">${tot.w}</b><span>class XP this week</span></div></div>
+    <div class="tile" style="color:var(--plum)">${I.gauge}<div><b style="color:var(--ink)">${avgSc??'–'}</b><span>average est. SAT R&amp;W</span></div></div>
    </div>
    ${weakest?`<div class="card" style="border-color:var(--bad)"><p class="lbl" style="color:var(--bad)">Weakest skill right now</p><p style="margin:0"><b>${weakest.u.title}</b> at ${weakest.p}% class accuracy. A good candidate for your next lesson warm-up.</p></div>`:''}
-   <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><p class="lbl" style="margin:0">Students</p><div class="seg" id="cSort">${[['active','Recent'],['xp','Week XP'],['acc','Lowest accuracy'],['name','Name']].map(([k,l])=>`<button data-s="${k}" aria-pressed="${CSORT===k}" style="padding:5px 9px;font-size:13px">${l}</button>`).join('')}</div></div>
-    ${rows.length?`<div class="tblscroll"><table class="roster"><thead><tr><th>Student</th><th>Last active</th><th>Streak</th><th>Week XP</th><th>Lessons</th><th>Words</th><th>Accuracy</th></tr></thead><tbody>${rows.map((r,i)=>`<tr class="click" data-st="${esc(r.id)}" tabindex="0"><td><span class="who"><span class="av" style="background:${colors[i%colors.length]}">${esc((r.name[0]||'?').toUpperCase())}</span><span>${esc(r.name)}</span></span></td><td>${ago(r.upd)}</td><td>${r.live}</td><td>${r.s.weekXp||0}</td><td>${r.s.lessonsDone||0}/${LESSONS.length}</td><td>${r.s.words||0}</td><td>${r.acc==null?'–':`<span class="pill ${r.acc>=80?'good':r.acc<60?'bad':''}">${r.acc}%</span>`}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty"><p>No students yet. Share this app's link with your students. Each one appears here after their first lesson.</p></div>`}
+   <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><p class="lbl" style="margin:0">Students</p><div class="seg" id="cSort">${[['active','Recent'],['score','Score'],['xp','Week XP'],['acc','Lowest accuracy'],['name','Name']].map(([k,l])=>`<button data-s="${k}" aria-pressed="${CSORT===k}" style="padding:5px 9px;font-size:13px">${l}</button>`).join('')}</div></div>
+    ${rows.length?`<div class="tblscroll"><table class="roster"><thead><tr><th>Student</th><th>Est. score</th><th>Last active</th><th>Streak</th><th>Week XP</th><th>Lessons</th><th>Words</th><th>Accuracy</th></tr></thead><tbody>${rows.map((r,i)=>`<tr class="click" data-st="${esc(r.id)}" tabindex="0"><td><span class="who"><span class="av" style="background:${colors[i%colors.length]}">${esc((r.name[0]||'?').toUpperCase())}</span><span>${esc(r.name)}</span></span></td><td><b>${r.sc??'–'}</b></td><td>${ago(r.upd)}</td><td>${r.live}</td><td>${r.s.weekXp||0}</td><td>${r.s.lessonsDone||0}/${LESSONS.length}</td><td>${r.s.words||0}</td><td>${r.acc==null?'–':`<span class="pill ${r.acc>=80?'good':r.acc<60?'bad':''}">${r.acc}%</span>`}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty"><p>No students yet. Share this app's link with your students. Each one appears here after their first lesson.</p></div>`}
    </div>
    <div class="card"><p class="lbl">Class accuracy by skill</p>${skillRows(classUnit)}</div></div>`;
   document.getElementById('cSort').onclick=e=>{const b=e.target.closest('[data-s]'); if(!b)return; CSORT=b.dataset.s; vClass();};
@@ -670,6 +738,7 @@ function vClass(){
 function studentSheet(r){ if(!r) return; const s=r.s, st=r.st;
   openModal(`<h2>${esc(r.name)}</h2><p class="muted">Last active ${ago(r.upd)} · ${Math.round((s.secs||0)/60)} min practiced in total</p>
    <div class="tiles"><div class="tile" style="color:var(--saffron)">${I.flame}<div><b style="color:var(--ink)">${r.live}</b><span>streak · best ${s.best||0}</span></div></div><div class="tile" style="color:var(--cobalt)">${I.bolt}<div><b style="color:var(--ink)">${s.xp||0}</b><span>XP · ${s.weekXp||0} this week</span></div></div><div class="tile" style="color:var(--turq)">${I.cards}<div><b style="color:var(--ink)">${s.words||0}</b><span>words mastered</span></div></div><div class="tile" style="color:var(--bad)">${I.redo}<div><b style="color:var(--ink)">${s.mistakes||0}</b><span>open mistakes</span></div></div></div>
+   ${scoreCard(Object.assign({score:450,sN:0,sHist:{},dstat:{}},st),false)}
    <div><p class="lbl">XP, last 7 days</p>${weekBars(st.hist||{})}</div>
    <div><p class="lbl">Accuracy by skill</p>${skillRows(st.unit||{})}</div>
    <div><p class="lbl">Recent activity</p>${logRows(st.log,15)}</div>
@@ -684,7 +753,8 @@ function welcome(){
   <div class="stack" style="gap:8px">
    <div class="tipbox" style="--tone:var(--cobalt)"><b>Learn</b>Follow the path through every Reading and Writing skill, one short lesson at a time.</div>
    <div class="tipbox" style="--tone:var(--jade)"><b>Words</b>Build your SAT vocabulary with word sets, flashcards, and a daily quiz.</div>
-   <div class="tipbox" style="--tone:var(--coral)"><b>Review</b>Every mistake is a lesson. Fix yours here and win your hearts back.</div>
+   <div class="tipbox" style="--tone:var(--coral)"><b>Review</b>Every mistake is a lesson. Fix yours here and refill your energy.</div>
+   <div class="tipbox" style="--tone:var(--plum)"><b>Your SAT score</b>Every answer updates your estimated SAT Reading and Writing score, out of 800. Beat the timer to keep your energy.</div>
   </div>
   <p>Set a daily goal and keep your streak alive. You do not have to be perfect. You just have to keep stepping forward.</p>
   <p style="text-align:center;font-weight:800;color:var(--cobalt)">Har kuni bir qadam. One step every day.</p>
