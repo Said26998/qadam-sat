@@ -169,6 +169,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .ls .bd>.in{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 .ls .ft{border-top:2px solid var(--line);padding-block:14px calc(14px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--bg)}
 .ls .ft>.in{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.ls .ft .fb{max-height:42vh;overflow-y:auto}
 .ls .ft.good{background:var(--good-bg);border-color:transparent} .ls .ft.bad{background:var(--bad-bg);border-color:transparent}
 .fb h3{font-size:22px;display:flex;align-items:center;gap:8px}
 .ft.good .fb h3{color:var(--good)} .ft.bad .fb h3{color:var(--bad)}
@@ -382,6 +383,7 @@ const sfx={ good:()=>tone([[660,.12],[880,.18]]), bad:()=>tone([[220,.22,'triang
 /* ---------- shared tracking (claude.ai db) ---------- */
 let DB=null, USER=null, UID=null, OWNER=false, SYNC='local', CLASS=null, CLASS_ERR='', CLASS_NAMES={};
 let writing=false, again=false;
+let BANK=null, ACCESS=null, BANK_MSG='';
 function summary(){ const wk=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return S.hist[dkey(d)]||0}).reduce((a,b)=>a+b,0);
   return {xp:S.xp, streak:S.streak, lastDay:S.lastDay, best:S.best, weekXp:wk, lessonsDone:LESSONS.filter(l=>S.lessons[l.id]).length, lessonsTotal:LESSONS.length, vocabDone:VLESSONS.filter(l=>S.lessons[l.id]).length,
     ans:S.ans, right:S.right, secs:S.secs, words:mastered(), mistakes:S.mistakes.length, nick:S.nick||'', score:scoreShown(), sN:S.sN, dstat:S.dstat}; }
@@ -401,9 +403,26 @@ async function connect(){
     if(snap.exists){ const d=snap.data(); if(d && d.state && (d.updatedAt||0) > (S.updatedAt||0)){ S = Object.assign(fresh(), JSON.parse(JSON.stringify(d.state))); save(false); render(); } else push(); SYNC='ok'; }
     else { await push(); }
     paintSync();
-    if(OWNER){ renderNav(); watchClass(); }
+    if(OWNER){ renderNav(); watchClass(); loadAccess(); }
+    loadBank();
   }catch(e){ SYNC='err'; paintSync(); }
 }
+const clean=s=>String(s||'').replace(/<\/?(script|iframe|object|embed|style|link|meta)[^>]*>/gi,'').replace(/\son\w+\s*=/gi,' data-x=');
+async function loadBank(){ const col=DB&&DB.collection('bank'); if(!col||!col.get) return;
+  try{ const s=await col.get(); const items=s.docs.map(d=>Object.assign({},d.data(),{id:d.id})).filter(x=>x.c&&x.c.length===4&&UNIT[x.unit]).sort((a,b)=>(a.n||0)-(b.n||0));
+    items.forEach(it=>{ it.fixed=true; it.p=clean(it.p); ITEM[it.id]=it; }); BANK=items; }
+  catch(e){ BANK=null; }
+  if(!LS.hidden) return; render(); }
+async function loadAccess(){ const col=DB&&DB.collection('access'); if(!col||!col.get) return; try{ const s=await col.get(); ACCESS=new Set(s.docs.map(d=>d.id)); }catch(e){ ACCESS=null; } if(TAB==='class'&&LS.hidden) render(); }
+async function setAccess(uid,on){ try{ if(on) await DB.doc('access/'+uid).set({ok:true,at:Date.now()}); else await DB.doc('access/'+uid).delete(); ACCESS=ACCESS||new Set(); on?ACCESS.add(uid):ACCESS.delete(uid); return true; }catch(e){ BANK_MSG='Could not change access ('+((e&&e.code)||'error')+'). Check that the new database rules are pasted in Firebase.'; return false; } }
+async function importBank(file){
+  BANK_MSG='Reading the file…'; vClass();
+  try{ const j=JSON.parse(await file.text()); const items=(j.items||j).filter(x=>x&&x.id&&x.c&&x.c.length===4&&x.q&&UNIT[x.unit]);
+    if(!items.length) throw {code:'no questions found in this file'};
+    const list=items.map((x,n)=>[String(x.id).replace(/[^\w-]/g,''), {n, qid:x.qid||'', p:clean(x.p), q:x.q, c:x.c, a:+x.a||0, e:x.e||'', d:[1,2,3].includes(+x.d)?+x.d:2, unit:x.unit}]);
+    await DB.collection('bank').setMany(list); BANK_MSG=`Loaded ${list.length} questions.`; await loadBank(); }
+  catch(e){ BANK_MSG='Import failed: '+((e&&(e.code||e.message))||'unknown error')+'. If it says permission-denied, paste the new database rules in Firebase first.'; }
+  if(TAB==='class') vClass(); }
 function watchClass(){
   const timer=setTimeout(()=>{ if(!CLASS){ CLASS_ERR='The class data is taking a while to load.'; if(TAB==='class') render(); } },10000);
   DB.collection('students').onSnapshot(async snap=>{
@@ -500,7 +519,7 @@ function startMistakes(){ const items=S.mistakes.map(id=>ITEM[id]).filter(Boolea
 function stopTimer(){ if(SES&&SES.tmr){ clearInterval(SES.tmr); SES.tmr=null; } }
 function closeSession(){ stopTimer(); LS.hidden=true; LS.innerHTML=''; document.body.style.overflow=''; SES=null; render(); }
 function head(){ const pct=Math.round(SES.done/SES.total*100);
-  return `<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${SES.mode==='lesson'?`<span class="chip energy${S.energy<5?' low':''}">${I.battery}${S.energy}</span>`:`<span class="pill">${SES.mode==='mistakes'?'Mistakes':SES.mode==='quiz'?'Word quiz':'Practice'}</span>`}</div>`; }
+  return `<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${SES.mode==='lesson'?`<span class="chip energy${S.energy<5?' low':''}">${I.battery}${S.energy}</span>`:`<span class="pill">${SES.mode==='mistakes'?'Mistakes':SES.mode==='quiz'?'Word quiz':SES.mode==='official'?'Official SAT':'Practice'}</span>`}</div>`; }
 function showItem(){
   stopTimer(); const it=SES.queue[0]; SES.sel=null; SES.checked=false; SES.item=it; SES.qStart=Date.now(); SES.limit=limitOf(it);
   const u=UNIT[it.unit]; const tone=toneOf(u);
@@ -512,7 +531,7 @@ function showItem(){
     SES.tokens=it.s.split(' '); SES.ans=SES.tokens.findIndex(w=>w.includes('*')); SES.tokens=SES.tokens.map(w=>w.replace(/\*/g,''));
     body=`<div class="qtype">${u.title}${dBadge(it)}</div><div class="qtext">${Q_TAP}</div><div class="tokens">${SES.tokens.map((w,i)=>`<button class="tok" data-t="${i}" aria-pressed="false">${esc(w)}</button>`).join('')}</div>`;
   } else {
-    SES.order=shuffle([0,1,2,3]);
+    SES.order=it.fixed?[0,1,2,3]:shuffle([0,1,2,3]);
     body=`<div class="qtype">${u.title}${dBadge(it)}</div>${it.p?`<div class="passage">${it.p.startsWith('<')?fmt(it.p):'<p>'+fmt(it.p)+'</p>'}</div>`:''}<div class="qtext">${it.q}</div><div class="choices">${SES.order.map((ci,k)=>`<button class="choice" data-k="${k}" aria-pressed="false"><span class="letter">${'ABCD'[k]}</span><span>${escI(it.c[ci])}</span></button>`).join('')}</div>`;
   }
   LS.innerHTML=head()+`<div class="bd"><div class="in" style="--tone:var(--${tone})">${S.relaxed?'':`<div class="timer" id="tmr" role="timer"><span>${I.clock.replace('<svg','<svg width="18" height="18"')}</span><span class="tb"><i style="width:100%"></i></span><span id="tmrT"></span></div>`}${body}</div></div><div class="ft" id="lsFt"><div class="in">${it.t==='m'?'<p class="muted" style="margin:0;text-align:center">Tap a word, then its meaning.</p>':'<button class="btn" id="lsCheck" disabled>Check</button>'}</div></div>`;
@@ -541,7 +560,7 @@ function bindMatch(it){
 function check(){
   if(SES.sel==null||SES.checked) return; SES.checked=true; const it=SES.item; let ok, ansText='';
   if(it.t==='tap'){ ok=SES.sel===SES.ans; LS.querySelectorAll('.tok').forEach((b,i)=>{ b.disabled=true; if(i===SES.ans)b.classList.add('right'); else if(i===SES.sel)b.classList.add('wrong'); }); ansText='The error is "'+SES.tokens[SES.ans]+'".'; }
-  else { ok=SES.order[SES.sel]===0; LS.querySelectorAll('.choice').forEach((b,k)=>{ b.disabled=true; if(SES.order[k]===0)b.classList.add('right'); else if(k===SES.sel)b.classList.add('wrong'); }); ansText='Correct answer: '+it.c[0]; }
+  else { const A=it.a||0; ok=SES.order[SES.sel]===A; LS.querySelectorAll('.choice').forEach((b,k)=>{ b.disabled=true; if(SES.order[k]===A)b.classList.add('right'); else if(k===SES.sel)b.classList.add('wrong'); }); ansText='Correct answer: '+(it.fixed?'ABCD'[A]+'. ':'')+it.c[A]; }
   feedback(ok, it.e, ok?'':ansText);
 }
 function feedback(ok, expl, ansText){
@@ -555,6 +574,7 @@ function feedback(ok, expl, ansText){
   if(!S.relaxed) meta.push((onTime?'':'Over time · ')+Math.floor(secs/60)+':'+pad(secs%60));
   // stats: only first attempts count toward accuracy
   if(first && it.t!=='m'){ S.ans++; const sk=it.stat||it.unit; const us=S.unit[sk]||(S.unit[sk]={r:0,n:0}); us.n++; if(ok){S.right++;us.r++;} }
+  if(it.fixed && first){ S.bank=S.bank||{}; S.bank[it.id]=ok?1:0; }
   if(it.word && !ok){ S.cards[it.word]=Object.assign({seen:0}, S.cards[it.word], {box:0, due:today()}); }
   else if(it.word && ok && !S.cards[it.word]){ const d=new Date(); d.setDate(d.getDate()+1); S.cards[it.word]={box:1, due:dkey(d), seen:1}; }
   if(ok){ sfx.good(); if(first) SES.firstTry++; SES.done++; SES.queue.shift();
@@ -583,11 +603,11 @@ function finish(){
   let xp=5, note='';
   if(SES.mode==='lesson'){ const l=SES.lesson; const prev=S.lessons[l.id]; xp = prev?5:10; if(acc===100) {xp+=5; note='Perfect lesson bonus +5 XP';}
     S.lessons[l.id]={best:Math.max(prev?prev.best:0,acc), n:(prev?prev.n:0)+1, last:Date.now()}; }
-  else { if(S.energy<MAXE){ addEnergy(5); note='+5 energy refilled'; } }
+  else if(SES.mode!=='official'){ if(S.energy<MAXE){ addEnergy(5); note='+5 energy refilled'; } }
   if(SES.eBonus) note=(note?note+' · ':'')+'+'+SES.eBonus+' bonus energy';
   const sNow=scoreShown(); const sD=(SES.score0!=null&&sNow!=null)?sNow-SES.score0:null;
   const before=todayXp(); const bumped=addXp(xp); const hitGoal=before<S.goal && todayXp()>=S.goal;
-  logEvent({k:SES.mode, l:SES.mode==='lesson'?(SES.lesson.vocab?'Words: ':'')+SES.lesson.unit.title+' · Part '+(SES.lesson.li+1):SES.mode==='mistakes'?'Fixed mistakes':SES.mode==='quiz'?'Vocabulary quiz':'Mixed practice', xp, acc, dur:secs});
+  logEvent({k:SES.mode, l:SES.mode==='lesson'?(SES.lesson.vocab?'Words: ':'')+SES.lesson.unit.title+' · Part '+(SES.lesson.li+1):SES.mode==='mistakes'?'Fixed mistakes':SES.mode==='quiz'?'Vocabulary quiz':SES.mode==='official'?'Official SAT practice':'Mixed practice', xp, acc, dur:secs});
   save(); sfx.done();
   const mm=Math.floor(secs/60)+':'+pad(secs%60);
   LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--saffron)" d="M12 1.5l2.6 4.2 4.8-1.1-1.1 4.8 4.2 2.6-4.2 2.6 1.1 4.8-4.8-1.1L12 22.5l-2.6-4.2-4.8 1.1 1.1-4.8L1.5 12l4.2-2.6-1.1-4.8 4.8 1.1z"/><circle cx="12" cy="12" r="4" fill="var(--bg)"/></svg>
@@ -647,13 +667,29 @@ function cardSession(list){
   draw();
 }
 
+/* ---------- Official SAT practice (teacher-approved students only) ---------- */
+let OBD=0;
+function officialCard(){ if(!BANK||!BANK.length) return '';
+  const done=S.bank||{}; const units=[...new Set(BANK.map(x=>x.unit))];
+  const row=u=>{ const its=BANK.filter(x=>x.unit===u&&(!OBD||x.d===OBD)); if(!its.length) return ''; const n=its.filter(x=>x.id in done).length, r=its.filter(x=>done[x.id]===1).length;
+    return `<button class="vbtn" data-ob="${u}" style="justify-content:space-between;width:100%"><span>${UNIT[u].title}</span><span class="pill ${n&&r/n>=.8?'good':''}">${n}/${its.length}${n?` · ${Math.round(r/n*100)}%`:''}</span></button>`; };
+  return `<div class="card stack" style="gap:10px;border-color:var(--plum)"><p class="lbl" style="margin:0;color:var(--plum)">Official SAT practice</p><p style="margin:0" class="muted">${BANK.length} real questions from the College Board question bank, shared by your teacher. Five per round, in test order, with the official explanations.</p>
+   <div class="seg" id="obD">${[[0,'All'],[1,'Easy'],[2,'Medium'],[3,'Hard']].map(([d,l])=>`<button data-od="${d}" aria-pressed="${OBD===d}">${l}</button>`).join('')}</div>
+   <div class="stack" style="gap:8px">${units.map(row).join('')}</div></div>`; }
+function startOfficial(u){ const done=S.bank||{}; const pool=BANK.filter(x=>x.unit===u&&(!OBD||x.d===OBD));
+  const next=pool.filter(x=>!(x.id in done)).concat(pool.filter(x=>done[x.id]===0), pool.filter(x=>done[x.id]===1));
+  if(next.length) startSession('official', next.slice(0,5)); }
+
 /* ---------- Review ---------- */
 function vReview(){
   const m=S.mistakes.filter(id=>ITEM[id]); const byUnit={}; m.forEach(id=>{const u=ITEM[id].unit; byUnit[u]=(byUnit[u]||0)+1;});
   view.innerHTML=`<div class="wrap stack"><div><h1 style="font-size:28px">Review</h1><p class="muted" style="margin:4px 0 0">Practice rounds cost no energy. Each round you finish refills 5 energy and earns 5 XP.</p></div>
    <div class="card stack" style="gap:10px"><p class="lbl" style="margin:0">Your mistakes</p>${m.length?`<p style="margin:0"><b style="font-family:var(--f-disp);font-size:26px">${m.length}</b> question${m.length>1?'s':''} to fix</p><div class="seg">${Object.entries(byUnit).map(([u,c])=>`<span class="pill">${UNIT[u].title} · ${c}</span>`).join('')}</div><button class="btn bad" id="rM">Fix my mistakes</button>`:`<div class="empty">${I.check}<p>No mistakes waiting. Questions you miss will collect here.</p></div>`}</div>
+   ${officialCard()}
    <div class="card stack" style="gap:10px"><p class="lbl" style="margin:0">Mixed practice</p><p style="margin:0" class="muted">Six questions drawn from lessons you have finished.</p><button class="btn" id="rP">Start practice</button></div></div>`;
   const a=document.getElementById('rM'); if(a) a.onclick=startMistakes; document.getElementById('rP').onclick=startPractice;
+  view.querySelectorAll('[data-ob]').forEach(b=>b.onclick=()=>startOfficial(b.dataset.ob));
+  const od=document.getElementById('obD'); if(od) od.onclick=e=>{ const b=e.target.closest('[data-od]'); if(!b) return; OBD=+b.dataset.od; vReview(); };
 }
 
 /* ---------- My stats ---------- */
@@ -709,6 +745,13 @@ function vMe(){
 
 /* ---------- Class (teacher) ---------- */
 let CSORT='active';
+function bankCard(rows){ const n=rows.filter(r=>ACCESS&&ACCESS.has(r.id)).length;
+  return `<div class="card stack" style="gap:10px;border-color:var(--plum)"><p class="lbl" style="margin:0;color:var(--plum)">Official SAT questions (private)</p>
+   <p style="margin:0">${BANK&&BANK.length?`<b>${BANK.length}</b> questions loaded.`:'No questions loaded yet.'} ${ACCESS?`<b>${n}</b> of ${rows.length} students have access.`:''}</p>
+   <p class="muted" style="margin:0;font-size:14px">These stay in your Firebase database, not on the public website. Only students you allow can open them, in Review. Allow or remove one student from their row.</p>
+   <label class="btn ghost" style="text-align:center;cursor:pointer">${BANK&&BANK.length?'Import again (replaces matching questions)':'Import question file (.json)'}<input type="file" id="bFile" accept=".json,application/json" hidden></label>
+   ${rows.length?'<button class="btn" id="bAll">Allow all current students</button>':''}
+   ${BANK_MSG?`<p style="margin:0;font-weight:700">${esc(BANK_MSG)}</p>`:''}</div>`; }
 function vClass(){
   if(!OWNER){ TAB='learn'; return vLearn(); }
   if(!CLASS){ view.innerHTML=`<div class="wrap stack"><h1 style="font-size:28px">Class</h1><div class="card"><p class="muted" style="margin:0">${CLASS_ERR||'Loading your students…'}</p></div></div>`; return; }
@@ -731,7 +774,10 @@ function vClass(){
    <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><p class="lbl" style="margin:0">Students</p><div class="seg" id="cSort">${[['active','Recent'],['score','Score'],['xp','Week XP'],['acc','Lowest accuracy'],['name','Name']].map(([k,l])=>`<button data-s="${k}" aria-pressed="${CSORT===k}" style="padding:5px 9px;font-size:13px">${l}</button>`).join('')}</div></div>
     ${rows.length?`<div class="tblscroll"><table class="roster"><thead><tr><th>Student</th><th>Est. score</th><th>Last active</th><th>Streak</th><th>Week XP</th><th>Lessons</th><th>Words</th><th>Accuracy</th></tr></thead><tbody>${rows.map((r,i)=>`<tr class="click" data-st="${esc(r.id)}" tabindex="0"><td><span class="who"><span class="av" style="background:${colors[i%colors.length]}">${esc((r.name[0]||'?').toUpperCase())}</span><span>${esc(r.name)}</span></span></td><td><b>${r.sc??'–'}</b></td><td>${ago(r.upd)}</td><td>${r.live}</td><td>${r.s.weekXp||0}</td><td>${r.s.lessonsDone||0}/${LESSONS.length}</td><td>${r.s.words||0}</td><td>${r.acc==null?'–':`<span class="pill ${r.acc>=80?'good':r.acc<60?'bad':''}">${r.acc}%</span>`}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty"><p>No students yet. Share this app's link with your students. Each one appears here after their first lesson.</p></div>`}
    </div>
+   ${window.QADAM_SIGNOUT?bankCard(rows):''}
    <div class="card"><p class="lbl">Class accuracy by skill</p>${skillRows(classUnit)}</div></div>`;
+  const bf=document.getElementById('bFile'); if(bf) bf.onchange=e=>{ if(e.target.files[0]) importBank(e.target.files[0]); };
+  const ba=document.getElementById('bAll'); if(ba) ba.onclick=async()=>{ ba.disabled=true; for(const r of rows){ if(!(ACCESS&&ACCESS.has(r.id))) if(!await setAccess(r.id,true)) break; } BANK_MSG=BANK_MSG||'Every student on the list can now open the official questions.'; vClass(); };
   document.getElementById('cSort').onclick=e=>{const b=e.target.closest('[data-s]'); if(!b)return; CSORT=b.dataset.s; vClass();};
   view.querySelectorAll('[data-st]').forEach(tr=>{ const go=()=>studentSheet(rows.find(r=>r.id===tr.dataset.st)); tr.onclick=go; tr.onkeydown=e=>{if(e.key==='Enter')go();}; });
 }
@@ -742,7 +788,9 @@ function studentSheet(r){ if(!r) return; const s=r.s, st=r.st;
    <div><p class="lbl">XP, last 7 days</p>${weekBars(st.hist||{})}</div>
    <div><p class="lbl">Accuracy by skill</p>${skillRows(st.unit||{})}</div>
    <div><p class="lbl">Recent activity</p>${logRows(st.log,15)}</div>
+   ${window.QADAM_SIGNOUT&&ACCESS?`<button class="btn ${ACCESS.has(r.id)?'ghost':''}" id="sAcc">${ACCESS.has(r.id)?'Remove access to official questions':'Allow official questions'}</button>`:''}
    <button class="btn ghost" data-close>Close</button>`);
+  const sa=document.getElementById('sAcc'); if(sa) sa.onclick=async()=>{ sa.disabled=true; await setAccess(r.id,!ACCESS.has(r.id)); studentSheet(r); if(TAB==='class') vClass(); };
 }
 
 /* ---------- welcome ---------- */

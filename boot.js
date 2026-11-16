@@ -74,9 +74,12 @@
       doc: p => ({
         get: async () => { const s = await fs.doc(p).get(); return { exists: s.exists, data: () => s.data() }; },
         set: d => fs.doc(p).set(clean(d)),
+        delete: () => fs.doc(p).delete(),
       }),
       collection: p => ({
         onSnapshot: (next, err) => fs.collection(p).onSnapshot(s => next({ docs: s.docs.map(d => ({ id: d.id, data: () => d.data() })) }), err),
+        get: async () => { const s = await fs.collection(p).get({ source: 'server' }); return { docs: s.docs.map(d => ({ id: d.id, data: () => d.data() })) }; },
+        setMany: async list => { for (let i = 0; i < list.length; i += 400) { const b = fs.batch(); list.slice(i, i + 400).forEach(([id, d]) => b.set(fs.collection(p).doc(id), clean(d))); await b.commit(); } },
       }),
     };
     window.claude = { use: async n => n === 'user' ? userNs : n === 'db' ? dbNs : null };
