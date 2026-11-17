@@ -50,6 +50,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .timer.low .tb i{background:var(--saffron)} .timer.over{color:var(--bad)} .timer.over .tb i{background:var(--bad)}
 .dbadge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;padding:1px 7px;border-radius:99px;margin-left:6px;border:1.5px solid currentColor;vertical-align:1px}
 .dbadge.d1{color:var(--good)} .dbadge.d2{color:var(--cobalt)} .dbadge.d3{color:var(--plum)}
+.vword{font-size:22px;margin:0 0 6px}.vword span{font-size:14px;color:var(--muted);font-style:italic;margin-left:6px}
+.typein{font-size:20px;text-align:center;letter-spacing:.02em}
 .fb .meta{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 0}.fb .meta span{font-size:13px;font-weight:800;padding:3px 9px;border-radius:99px;background:var(--surface);color:var(--ink)}
 .scard .big{font-family:var(--f-disp);font-size:46px;line-height:1;color:var(--plum);font-variant-numeric:tabular-nums}.scard .big small{font-size:16px;color:var(--muted);margin-left:6px}
 .scale{position:relative;height:10px;border-radius:99px;background:linear-gradient(90deg,var(--sunk),var(--plum));margin:16px 0 4px}.scale b{position:absolute;top:-5px;width:6px;height:20px;margin-left:-3px;border-radius:3px;background:var(--ink)}
@@ -321,7 +323,7 @@ UNITS.forEach((u,ui)=>{ u.n = ui; u.lessons.forEach((items,li)=>{
 const VLESSONS = []; const CLOZE = {};
 VUNITS.forEach((u,ui)=>{ u.n = ui; u.lessons.forEach((items,li)=>{
   const id = u.id+'-'+(li+1);
-  items.forEach((it,k)=>{ it.id = id+'-'+(k+1); it.unit = u.id; it.stat = 'voc'; ITEM[it.id]=it; if(it.word) CLOZE[it.word]=it; });
+  items.forEach((it,k)=>{ it.id = id+'-'+(k+1); it.unit = u.id; it.stat = 'voc'; ITEM[it.id]=it; if(it.word && !it.t) CLOZE[it.word]=it; });
   VLESSONS.push({id, unit:u, li, items, n:VLESSONS.length, vocab:true});
 });});
 const UNIT = Object.fromEntries(UNITS.concat(VUNITS).map(u=>[u.id,u]));
@@ -351,7 +353,7 @@ const pRight=(th,R)=>.25+.75/(1+Math.pow(10,(R-th)/250));
 const kOf=n=>Math.max(10,40-.5*n);
 function scoreShown(st=S){ return (st.sN||0)>=CAL ? Math.round((st.score||450)/10)*10 : null; }
 function band(s){ return s==null?'Calibrating':s>=700?'Top tier':s>=600?'Strong':s>=500?'Solid':s>=400?'Building':'Getting started'; }
-function rate(it, ok){ if(!it.d || it.t==='m') return null; const before=scoreShown();
+function rate(it, ok){ if(!it.d || it.t==='m' || it.t==='mean' || it.t==='type') return null; const before=scoreShown();
   S.score=Math.max(200,Math.min(800,S.score+kOf(S.sN)*((ok?1:0)-pRight(S.score,DR[it.d])))); S.sN++;
   const ds=S.dstat[it.d]||(S.dstat[it.d]={r:0,n:0}); ds.n++; if(ok) ds.r++;
   S.sHist[today()]=Math.round(S.score); const k=Object.keys(S.sHist).sort(); if(k.length>90) delete S.sHist[k[0]];
@@ -360,7 +362,9 @@ function nextStep(st=S){ const s=scoreShown(st); if(s==null||s>=800) return null
   while(th<target-5 && c<80){ th+=kOf(n)*(1-pRight(th,DR[3])); n++; c++; } return c<80?{target,c}:null; }
 function trend(st=S){ const s=st.score; const ks=Object.keys(st.sHist||{}).sort(); const ago7=dkey(new Date(Date.now()-7*864e5)); const old=ks.filter(k=>k<=ago7).pop(); if(!old||scoreShown(st)==null) return null;
   const g=s-st.sHist[old]; return {g:Math.round(g), proj:Math.min(800,Math.round((s+4*Math.max(0,g))/10)*10)}; }
-function limitOf(it){ return it.t==='tap'?40 : it.t==='m'?45 : it.word?40 : (it.p&&it.p.length>650?95:75); }
+function spellOk(typed, w){ const t=String(typed).toLowerCase().replace(/[^a-z]/g,''); const e=w.replace(/e$/,''), y=w.replace(/y$/,'i');
+  return [w, w+'s', w+'es', w+'d', w+'ed', e+'ed', e+'ing', w+'ing', y+'es', y+'ed', w+'ly'].includes(t); }
+function limitOf(it){ return it.t==='type'?45 : it.t==='mean'?30 : it.t==='tap'?40 : it.t==='m'?45 : it.word?40 : (it.p&&it.p.length>650?95:75); }
 const dBadge=it=>it.d?`<span class="dbadge d${it.d}">${DNAME[it.d]} · ${DR[it.d]}</span>`:'';
 function addXp(n){ const t=today(); let bumped=false; if(S.lastDay!==t){ S.streak = (S.lastDay===yday()) ? S.streak+1 : 1; S.lastDay=t; bumped=true; S.best=Math.max(S.best,S.streak);} S.xp+=n; S.hist[t]=(S.hist[t]||0)+n; return bumped; }
 function logEvent(e){ S.log.unshift(Object.assign({ts:Date.now()},e)); S.log=S.log.slice(0,60); }
@@ -517,16 +521,20 @@ function startPractice(){
 }
 function startMistakes(){ const items=S.mistakes.map(id=>ITEM[id]).filter(Boolean).slice(0,8); if(items.length) startSession('mistakes', items); }
 function stopTimer(){ if(SES&&SES.tmr){ clearInterval(SES.tmr); SES.tmr=null; } }
-function closeSession(){ stopTimer(); LS.hidden=true; LS.innerHTML=''; document.body.style.overflow=''; SES=null; render(); }
+function stopAll(){ stopTimer(); if(SES){ clearInterval(SES.speedT); clearTimeout(SES.adv); } }
+function closeSession(){ stopAll(); LS.hidden=true; LS.innerHTML=''; document.body.style.overflow=''; SES=null; render(); }
 function head(){ const pct=Math.round(SES.done/SES.total*100);
-  return `<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${SES.mode==='lesson'?`<span class="chip energy${S.energy<5?' low':''}">${I.battery}${S.energy}</span>`:`<span class="pill">${SES.mode==='mistakes'?'Mistakes':SES.mode==='quiz'?'Word quiz':SES.mode==='official'?'Official SAT':'Practice'}</span>`}</div>`; }
+  return `<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${SES.mode==='speed'?`<span class="pill" id="spd" style="font-size:15px">${Math.max(0,Math.ceil((SES.deadline-Date.now())/1000))}s · ${SES.firstTry} ✓</span>`:SES.mode==='lesson'?`<span class="chip energy${S.energy<5?' low':''}">${I.battery}${S.energy}</span>`:`<span class="pill">${SES.mode==='mistakes'?'Mistakes':SES.mode==='quiz'?'Word quiz':SES.mode==='official'?'Official SAT':'Practice'}</span>`}</div>`; }
 function showItem(){
   stopTimer(); const it=SES.queue[0]; SES.sel=null; SES.checked=false; SES.item=it; SES.qStart=Date.now(); SES.limit=limitOf(it);
   const u=UNIT[it.unit]; const tone=toneOf(u);
   let body='';
+  if(SES.mode==='speed' && Date.now()>=SES.deadline){ finish(); return; }
   if(it.t==='m'){
     SES.left=shuffle(it.pairs.map((p,i)=>i)); SES.right=shuffle(it.pairs.map((p,i)=>i)); SES.matched=new Set(); SES.mL=null; SES.mR=null; SES.mMiss=0;
     body=`<div class="qtype">${u.title} · Vocabulary${dBadge(it)}</div><h2 style="font-size:22px">Match each word to its meaning</h2><div class="match"><div class="colm">${SES.left.map(i=>`<button class="mt w" data-l="${i}">${esc(it.pairs[i][0])}</button>`).join('')}</div><div class="colm">${SES.right.map(i=>`<button class="mt" data-r="${i}">${esc(it.pairs[i][1])}</button>`).join('')}</div></div>`;
+  } else if(it.t==='type'){
+    body=`<div class="qtype">${u.title} · Spell it${dBadge(it)}</div><div class="passage"><p>${fmt(esc(it.p))}</p></div><div class="qtext">${esc(it.q)}</div><input class="field typein" id="tIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Type the missing word">`;
   } else if(it.t==='tap'){
     SES.tokens=it.s.split(' '); SES.ans=SES.tokens.findIndex(w=>w.includes('*')); SES.tokens=SES.tokens.map(w=>w.replace(/\*/g,''));
     body=`<div class="qtype">${u.title}${dBadge(it)}</div><div class="qtext">${Q_TAP}</div><div class="tokens">${SES.tokens.map((w,i)=>`<button class="tok" data-t="${i}" aria-pressed="false">${esc(w)}</button>`).join('')}</div>`;
@@ -534,16 +542,19 @@ function showItem(){
     SES.order=it.fixed?[0,1,2,3]:shuffle([0,1,2,3]);
     body=`<div class="qtype">${u.title}${dBadge(it)}</div>${it.p?`<div class="passage">${it.p.startsWith('<')?fmt(it.p):'<p>'+fmt(it.p)+'</p>'}</div>`:''}<div class="qtext">${it.q}</div><div class="choices">${SES.order.map((ci,k)=>`<button class="choice" data-k="${k}" aria-pressed="false"><span class="letter">${'ABCD'[k]}</span><span>${escI(it.c[ci])}</span></button>`).join('')}</div>`;
   }
-  LS.innerHTML=head()+`<div class="bd"><div class="in" style="--tone:var(--${tone})">${S.relaxed?'':`<div class="timer" id="tmr" role="timer"><span>${I.clock.replace('<svg','<svg width="18" height="18"')}</span><span class="tb"><i style="width:100%"></i></span><span id="tmrT"></span></div>`}${body}</div></div><div class="ft" id="lsFt"><div class="in">${it.t==='m'?'<p class="muted" style="margin:0;text-align:center">Tap a word, then its meaning.</p>':'<button class="btn" id="lsCheck" disabled>Check</button>'}</div></div>`;
+  LS.innerHTML=head()+`<div class="bd"><div class="in" style="--tone:var(--${tone})">${S.relaxed||SES.mode==='speed'?'':`<div class="timer" id="tmr" role="timer"><span>${I.clock.replace('<svg','<svg width="18" height="18"')}</span><span class="tb"><i style="width:100%"></i></span><span id="tmrT"></span></div>`}${body}</div></div><div class="ft" id="lsFt"><div class="in">${it.t==='m'?'<p class="muted" style="margin:0;text-align:center">Tap a word, then its meaning.</p>':'<button class="btn" id="lsCheck" disabled>Check</button>'}</div></div>`;
   LS.querySelector('.bd').scrollTop=0;
   document.getElementById('lsX').onclick=quitAsk;
-  if(!S.relaxed){ const tick=()=>{ const el=document.getElementById('tmr'); if(!el||!SES){ stopTimer(); return; } const left=SES.limit-(Date.now()-SES.qStart)/1000;
+  if(!S.relaxed && SES.mode!=='speed'){ const tick=()=>{ const el=document.getElementById('tmr'); if(!el||!SES){ stopTimer(); return; } const left=SES.limit-(Date.now()-SES.qStart)/1000;
       el.className='timer'+(left<=0?' over':left<SES.limit*.25?' low':''); el.querySelector('i').style.width=Math.max(0,left/SES.limit*100)+'%';
       document.getElementById('tmrT').textContent=left<=0?'Over time':Math.ceil(left)+'s'; if(left<=0) stopTimer(); };
     tick(); SES.tmr=setInterval(tick,250); }
   if(it.t==='m') bindMatch(it);
+  else if(it.t==='type'){ const ti=document.getElementById('tIn'), cb=document.getElementById('lsCheck');
+    ti.oninput=()=>{ SES.sel=ti.value.trim()?0:null; cb.disabled=SES.sel==null; }; ti.onkeydown=e=>{ if(e.key==='Enter' && SES.sel!=null){ e.preventDefault(); check(); } };
+    cb.onclick=check; setTimeout(()=>ti.focus({preventScroll:true}),50); }
   else {
-    LS.querySelectorAll('.choice,.tok').forEach(b=>b.onclick=()=>{ if(SES.checked) return; LS.querySelectorAll('.choice,.tok').forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); SES.sel=+(b.dataset.k??b.dataset.t); document.getElementById('lsCheck').disabled=false; sfx.tap(); });
+    LS.querySelectorAll('.choice,.tok').forEach(b=>b.onclick=()=>{ if(SES.checked) return; LS.querySelectorAll('.choice,.tok').forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); SES.sel=+(b.dataset.k??b.dataset.t); document.getElementById('lsCheck').disabled=false; sfx.tap(); if(SES.mode==='speed') check(); });
     document.getElementById('lsCheck').onclick=check;
   }
 }
@@ -559,7 +570,8 @@ function bindMatch(it){
 }
 function check(){
   if(SES.sel==null||SES.checked) return; SES.checked=true; const it=SES.item; let ok, ansText='';
-  if(it.t==='tap'){ ok=SES.sel===SES.ans; LS.querySelectorAll('.tok').forEach((b,i)=>{ b.disabled=true; if(i===SES.ans)b.classList.add('right'); else if(i===SES.sel)b.classList.add('wrong'); }); ansText='The error is "'+SES.tokens[SES.ans]+'".'; }
+  if(it.t==='type'){ const ti=document.getElementById('tIn'); ti.disabled=true; ok=spellOk(ti.value, it.ans); ti.style.borderColor=ok?'var(--good)':'var(--bad)'; ansText=ok?'':'The word is "'+it.ans+'".'; }
+  else if(it.t==='tap'){ ok=SES.sel===SES.ans; LS.querySelectorAll('.tok').forEach((b,i)=>{ b.disabled=true; if(i===SES.ans)b.classList.add('right'); else if(i===SES.sel)b.classList.add('wrong'); }); ansText='The error is "'+SES.tokens[SES.ans]+'".'; }
   else { const A=it.a||0; ok=SES.order[SES.sel]===A; LS.querySelectorAll('.choice').forEach((b,k)=>{ b.disabled=true; if(SES.order[k]===A)b.classList.add('right'); else if(k===SES.sel)b.classList.add('wrong'); }); ansText='Correct answer: '+(it.fixed?'ABCD'[A]+'. ':'')+it.c[A]; }
   feedback(ok, it.e, ok?'':ansText);
 }
@@ -579,6 +591,7 @@ function feedback(ok, expl, ansText){
   else if(it.word && ok && !S.cards[it.word]){ const d=new Date(); d.setDate(d.getDate()+1); S.cards[it.word]={box:1, due:dkey(d), seen:1}; }
   if(ok){ sfx.good(); if(first) SES.firstTry++; SES.done++; SES.queue.shift();
     if(SES.mode==='mistakes'||first){ const mi=S.mistakes.indexOf(it.id); if(mi>-1) S.mistakes.splice(mi,1); }
+  } else if(SES.mode==='speed'){ sfx.bad(); SES.done++; SES.queue.shift(); if(!S.mistakes.includes(it.id)) S.mistakes.unshift(it.id); S.mistakes=S.mistakes.slice(0,60);
   } else { sfx.bad(); SES.wrongOnce.add(it.id); SES.queue.push(SES.queue.shift()); if(!S.mistakes.includes(it.id)) S.mistakes.unshift(it.id); S.mistakes=S.mistakes.slice(0,60);
   }
   SES.tries++;
@@ -588,7 +601,8 @@ function feedback(ok, expl, ansText){
   ft.innerHTML=`<div class="in"><div class="fb" role="status"><h3>${ok?I.check.replace('<svg','<svg width="26" height="26"'):I.x.replace('<svg','<svg width="26" height="26"')}${ok?praise[SES.tries%praise.length]:'Not quite'}</h3>${ansText?`<p class="ans">${escI(ansText)}</p>`:''}<p>${esc(expl||'')}</p>${meta.length?`<div class="meta">${meta.map(m=>`<span>${esc(m)}</span>`).join('')}</div>`:''}</div><button class="btn ${ok?'good':'bad'}" id="lsNext">Continue</button></div>`;
   LS.querySelector('.hd').outerHTML=head(); document.getElementById('lsX').onclick=quitAsk;
   const nb=document.getElementById('lsNext'); nb.focus({preventScroll:true});
-  nb.onclick=()=>{ if(SES.mode==='lesson' && S.energy<=0){ outOfEnergy(); return; } if(SES.queue.length) showItem(); else finish(); };
+  if(SES.mode==='speed'){ const s0=SES; SES.adv=setTimeout(()=>{ if(SES===s0 && !s0.ended) nb.click(); }, ok?650:1600); }
+  nb.onclick=()=>{ if(!SES||SES.ended) return; if(SES.mode==='lesson' && S.energy<=0){ outOfEnergy(); return; } if(SES.queue.length) showItem(); else finish(); };
 }
 function quitAsk(){ openModal(`<h2>Leave this ${SES.mode==='lesson'?'lesson':'round'}?</h2><p class="muted">Your progress in this ${SES.mode==='lesson'?'lesson':'round'} will be lost. Energy you used stays used.</p><div class="row"><button class="btn ghost" id="mQuit">Quit</button><button class="btn" data-close>Keep going</button></div>`); document.getElementById('mQuit').onclick=()=>{ closeModal(); logEvent({k:SES.mode,l:SES.lesson?SES.lesson.unit.title+' · L'+(SES.lesson.li+1):'Practice',xp:0,acc:null,quit:true}); save(); closeSession(); }; }
 function outOfEnergy(){
@@ -598,20 +612,23 @@ function outOfEnergy(){
   document.getElementById('oQ').onclick=closeSession;
 }
 function finish(){
+  if(SES.ended) return; SES.ended=true; stopAll();
+  if(SES.mode==='speed'){ SES.total=Math.max(1,SES.done); }
   const secs=Math.round((Date.now()-SES.start)/1000); S.secs+=secs;
   const scored=SES.total-SES.queue.length; const acc=Math.round(SES.firstTry/Math.max(1,SES.total)*100);
   let xp=5, note='';
   if(SES.mode==='lesson'){ const l=SES.lesson; const prev=S.lessons[l.id]; xp = prev?5:10; if(acc===100) {xp+=5; note='Perfect lesson bonus +5 XP';}
     S.lessons[l.id]={best:Math.max(prev?prev.best:0,acc), n:(prev?prev.n:0)+1, last:Date.now()}; }
+  else if(SES.mode==='speed'){ xp=5+Math.floor(SES.firstTry/2); const best=S.speedBest||0; S.speedBest=Math.max(best,SES.firstTry); note=`${SES.firstTry} right in 60 seconds${SES.firstTry>best&&best?' · new personal best!':` · best ${S.speedBest}`}`; }
   else if(SES.mode!=='official'){ if(S.energy<MAXE){ addEnergy(5); note='+5 energy refilled'; } }
   if(SES.eBonus) note=(note?note+' · ':'')+'+'+SES.eBonus+' bonus energy';
   const sNow=scoreShown(); const sD=(SES.score0!=null&&sNow!=null)?sNow-SES.score0:null;
   const before=todayXp(); const bumped=addXp(xp); const hitGoal=before<S.goal && todayXp()>=S.goal;
-  logEvent({k:SES.mode, l:SES.mode==='lesson'?(SES.lesson.vocab?'Words: ':'')+SES.lesson.unit.title+' · Part '+(SES.lesson.li+1):SES.mode==='mistakes'?'Fixed mistakes':SES.mode==='quiz'?'Vocabulary quiz':SES.mode==='official'?'Official SAT practice':'Mixed practice', xp, acc, dur:secs});
+  logEvent({k:SES.mode, l:SES.mode==='lesson'?(SES.lesson.vocab?'Words: ':'')+SES.lesson.unit.title+' · Part '+(SES.lesson.li+1):SES.mode==='mistakes'?'Fixed mistakes':SES.mode==='quiz'?'Vocabulary quiz':SES.mode==='official'?'Official SAT practice':SES.mode==='speed'?'Word speed round':'Mixed practice', xp, acc, dur:secs});
   save(); sfx.done();
   const mm=Math.floor(secs/60)+':'+pad(secs%60);
   LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--saffron)" d="M12 1.5l2.6 4.2 4.8-1.1-1.1 4.8 4.2 2.6-4.2 2.6 1.1 4.8-4.8-1.1L12 22.5l-2.6-4.2-4.8 1.1 1.1-4.8L1.5 12l4.2-2.6-1.1-4.8 4.8 1.1z"/><circle cx="12" cy="12" r="4" fill="var(--bg)"/></svg>
-    <h1>${SES.mode==='lesson'?'Lesson complete!':'Round complete!'}</h1>${note?`<p class="muted" style="margin:0">${note}</p>`:''}
+    <h1>${SES.mode==='lesson'?'Lesson complete!':SES.mode==='speed'?'Time!':'Round complete!'}</h1>${note?`<p class="muted" style="margin:0">${note}</p>`:''}
     <div class="res"><div style="--c:var(--saffron)"><span>Total XP</span><b>+${xp}</b></div><div style="--c:var(--good)"><span>Accuracy</span><b>${acc}%</b></div><div style="--c:var(--plum)"><span>SAT score</span><b>${sNow==null?S.sN+'/'+CAL:sNow}</b></div></div>
     <p class="muted" style="margin:6px 0 0">${sNow==null?`Answer ${CAL-S.sN} more to unlock your estimated SAT score.`:`Estimated R&amp;W score ${sNow} (${band(sNow)})${sD?`, ${sD>0?'up':'down'} ${Math.abs(sD)} this round`:''}.`} Time ${mm}.</p>
     ${bumped?`<p style="color:var(--saffron);font-weight:800;display:flex;gap:6px;align-items:center;margin:8px 0 0"><span style="width:24px;display:inline-block">${I.flame}</span>${S.streak}-day streak!</p>`:''}
@@ -630,6 +647,12 @@ function startQuiz(){
   const base=(seen.length>=6?seen:WORDS.slice(0,10)).slice(0,12);
   startSession('quiz', shuffle(base.map(w=>CLOZE[w[0]]).filter(Boolean)).slice(0,8));
 }
+const MEAN={}; VUNITS.forEach(u=>u.lessons[2].forEach(it=>{ if(it.t==='mean') MEAN[it.word]=it; }));
+function meanItem(w){ if(MEAN[w]) return MEAN[w]; const u=VUNITS.find(v=>VSETS[v.n].words.some(x=>x[0]===w)); const ws=VSETS[u.n].words; const i=ws.findIndex(x=>x[0]===w);
+  const it=u.meaning(ws[i],i); it.id=u.id+'-s-'+w; it.unit=u.id; it.stat='voc'; ITEM[it.id]=it; return MEAN[w]=it; }
+function startSpeed(){ const seen=WORDS.filter(w=>S.cards[w[0]]).map(w=>w[0]); const pool=(seen.length>=12?seen:WORDS.slice(0,40).map(w=>w[0]));
+  startSession('speed', shuffle(pool).slice(0,40).map(meanItem)); SES.deadline=Date.now()+60000;
+  SES.speedT=setInterval(()=>{ if(!SES||SES.mode!=='speed') return; const el=document.getElementById('spd'); const left=Math.max(0,Math.ceil((SES.deadline-Date.now())/1000)); if(el) el.textContent=left+'s · '+SES.firstTry+' ✓'; if(left<=0) finish(); },250); }
 function vWords(){
   const due=dueCards(); const learning=WORDS.filter(w=>S.cards[w[0]]&&S.cards[w[0]].box<4).length; const m=mastered();
   const sets=VUNITS.map(u=>{ const ls=VLESSONS.filter(l=>l.unit===u); const ws=VSETS[u.n].words; const mm=ws.filter(w=>(S.cards[w[0]]||{}).box>=4).length;
@@ -638,11 +661,13 @@ function vWords(){
   ${wotdCard(false)}
   <div class="tiles"><div class="tile" style="color:var(--jade)">${I.cards}<div><b style="color:var(--ink)">${m} / ${WORDS.length}</b><span>words mastered</span></div></div><div class="tile" style="color:var(--saffron)">${I.clock}<div><b style="color:var(--ink)">${Math.min(10,due.length)}</b><span>cards ready</span></div></div></div>
   <div class="row"><button class="btn" id="wGo" ${due.length?'':'disabled'}>${due.length?'Flashcards':'Cards done'}</button><button class="btn saff" id="wQ">Word quiz</button></div>
-  <p class="muted" style="margin:0;font-size:14px">The quiz picks the words you find hardest. Missed words go back into your flashcards for tomorrow.</p>
+  <button class="btn" id="wS" style="background:var(--plum);box-shadow:0 4px 0 var(--plum-d)">Speed round · 60 seconds${S.speedBest?` · best ${S.speedBest}`:''}</button>
+  <p class="muted" style="margin:0;font-size:14px">The speed round shows a word in a sentence: pick its meaning as fast as you can. The quiz picks the words you find hardest. Missed words go back into your flashcards for tomorrow.</p>
   <h2 style="font-size:20px;margin-top:6px">Word sets</h2>${sets}
   <details class="card deck"><summary>Your whole deck · ${learning} learning</summary><div class="wl">${WORDS.map(w=>{const c=cardState(w[0]);return `<div><b>${w[0]}</b><span class="lv" aria-label="level ${c.box} of 5">${[1,2,3,4,5].map(i=>`<i class="${c.box>=i?'on':''}"></i>`).join('')}</span></div>`}).join('')}</div></details></div>`;
   const b=document.getElementById('wGo'); if(b) b.onclick=()=>cardSession(due.slice(0,10));
   document.getElementById('wQ').onclick=startQuiz;
+  document.getElementById('wS').onclick=startSpeed;
   view.querySelectorAll('[data-vl]').forEach(x=>x.onclick=()=>lessonSheet(LESSON[x.dataset.vl]));
 }
 function cardSession(list){
