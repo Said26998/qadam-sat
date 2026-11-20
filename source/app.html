@@ -97,7 +97,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .nav button svg{width:26px;height:26px}
 .nav button[aria-current="page"]{color:var(--cobalt)}
 .nav button[aria-current="page"] .ic{background:var(--sunk);border-radius:12px}
-.nav .ic{padding:3px 12px;display:grid;place-items:center}
+.nav .ic{padding:3px 10px;display:grid;place-items:center}
 
 /* buttons */
 .btn{display:block;width:100%;border:0;border-radius:14px;padding:14px 18px;font-weight:800;font-size:16px;letter-spacing:.05em;text-transform:uppercase;background:var(--cobalt);color:var(--on);box-shadow:0 4px 0 var(--cobalt-d);transition:transform .06s}
@@ -180,6 +180,13 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .qtype{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--tone)}
 .passage{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:16px;font-family:var(--f-read);font-size:17px;line-height:1.6}
 .passage p{margin:0 0 10px}.passage p:last-child{margin:0}
+.look summary{cursor:pointer;font-family:var(--f-ui,inherit);font-weight:800;color:var(--cobalt);font-size:15px}.look[open] summary{margin-bottom:10px}
+.rtext{font-family:var(--f-read);font-size:18px;line-height:1.7}.rtext p{margin:0 0 14px}
+.rclock{font-variant-numeric:tabular-nums;font-weight:800;color:var(--muted)}
+.trow{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:12px 14px;font:inherit;color:inherit;cursor:pointer}
+.trow:hover{border-color:var(--tone,var(--cobalt))}.trow b{display:block;font-size:16px}.trow small{color:var(--muted);font-size:13px}
+.rulebox{border-left:4px solid var(--plum);background:var(--sunk);border-radius:0 12px 12px 0;padding:10px 12px;margin:0 0 8px;font-size:15px}.rulebox .rt{display:block;margin-bottom:2px;font-weight:800}
+.exbox{border:2px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 8px;font-size:15px}.exbox .w{color:var(--bad);text-decoration:line-through;text-decoration-thickness:1px}.exbox .r{color:var(--good);font-weight:700}.exbox p{margin:2px 0}
 .passage u{text-decoration-thickness:2px;text-underline-offset:3px;text-decoration-color:var(--saffron)}
 .blank{display:inline-block;min-width:64px;border-bottom:3px solid var(--ink);margin-inline:2px;transform:translateY(-3px)}
 .qtext{font-weight:700;font-size:17px}
@@ -299,6 +306,7 @@ const I = {
   heart:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21.2s-7.6-4.6-9.7-9.3C.9 8.7 3.1 4.9 6.7 4.9c2.1 0 3.7 1.1 5.3 3.1 1.6-2 3.2-3.1 5.3-3.1 3.6 0 5.8 3.8 4.4 7-2.1 4.7-9.7 9.3-9.7 9.3z"/></svg>',
   battery:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 2h6v2h1.5A1.5 1.5 0 0 1 18 5.5v15a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 20.5v-15A1.5 1.5 0 0 1 7.5 4H9zm3.8 5.5L9 13.2h2.6l-1 4.8 4.4-6.2h-2.7z"/></svg>',
   gauge:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3.5 17a8.5 8.5 0 1 1 17 0"/><path d="M12 17l4-5.5"/></g><circle cx="12" cy="17" r="2" fill="currentColor"/></svg>',
+  train:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z"/><path d="M12 6.5v13"/></g></svg>',
   star:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.2l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>',
   check:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.5l5 5L19.5 7"/></svg>',
   lock:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 10V7.5a5 5 0 0 1 10 0V10h1a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 18 21H6a1.5 1.5 0 0 1-1.5-1.5v-8A1.5 1.5 0 0 1 6 10zm2.5 0h5V7.5a2.5 2.5 0 0 0-5 0z"/></svg>',
@@ -329,6 +337,8 @@ VUNITS.forEach((u,ui)=>{ u.n = ui; u.lessons.forEach((items,li)=>{
 const UNIT = Object.fromEntries(UNITS.concat(VUNITS).map(u=>[u.id,u]));
 const LESSON = Object.fromEntries(LESSONS.concat(VLESSONS).map(l=>[l.id,l]));
 const SKILLS = UNITS.concat([{id:'voc', title:'Vocabulary'}]);
+GRAMMAR.forEach(g=>{ UNIT[g.id]=g; g.items.forEach(it=>ITEM[it.id]=it); });
+UNIT.rd={id:'rd', sec:1, title:'Reading Gym', tip:''}; READS.forEach(r=>r.qs.forEach(q=>ITEM[q.id]=q));
 
 /* ---------- state ---------- */
 const KEY='qadam-sat-v1'+(window.QADAM_UID?'-'+window.QADAM_UID:''), MAXE=25, EREGEN=6*60*1000, INTV=[0,1,3,7,14,30];
@@ -390,7 +400,7 @@ let writing=false, again=false;
 let BANK=null, ACCESS=null, BANK_MSG='';
 function summary(){ const wk=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return S.hist[dkey(d)]||0}).reduce((a,b)=>a+b,0);
   return {xp:S.xp, streak:S.streak, lastDay:S.lastDay, best:S.best, weekXp:wk, lessonsDone:LESSONS.filter(l=>S.lessons[l.id]).length, lessonsTotal:LESSONS.length, vocabDone:VLESSONS.filter(l=>S.lessons[l.id]).length,
-    ans:S.ans, right:S.right, secs:S.secs, words:mastered(), mistakes:S.mistakes.length, nick:S.nick||'', score:scoreShown(), sN:S.sN, dstat:S.dstat}; }
+    ans:S.ans, right:S.right, secs:S.secs, words:mastered(), mistakes:S.mistakes.length, nick:S.nick||'', score:scoreShown(), sN:S.sN, dstat:S.dstat, wpm:avgWpm(), reads:Object.keys(S.reads||{}).length, grammarDone:GRAMMAR.filter(g=>S.lessons['gr-'+g.id]).length}; }
 async function push(){ if(!DB||!UID) return; if(writing){again=true;return;} writing=true;
   try{ const doc={summary:summary(), state:S, updatedAt:S.updatedAt}; if(window.QADAM_PROFILE) doc.profile=window.QADAM_PROFILE; await DB.doc('students/'+UID).set(doc); SYNC='ok'; }
   catch(e){ SYNC='err'; }
@@ -449,7 +459,7 @@ function renderTop(){
   const cE=document.getElementById('cEnergy'); cE.className='chip energy'+(S.energy<5?' low':''); cE.innerHTML=I.battery+S.energy; cE.setAttribute('aria-label',S.energy+' of '+MAXE+' energy');
 }
 function renderNav(){
-  const tabs=[['learn','Learn',I.learn],['words','Words',I.cards],['review','Review',I.redo],['me','My stats',I.me]];
+  const tabs=[['learn','Learn',I.learn],['words','Words',I.cards],['train','Train',I.train],['review','Review',I.redo],['me','My stats',I.me]];
   if(OWNER) tabs.push(['class','Class',I.cls]);
   document.getElementById('nav').innerHTML = tabs.map(([k,l,ic])=>`<button data-tab="${k}" ${TAB===k?'aria-current="page"':''}><span class="ic">${ic}</span>${l}</button>`).join('');
 }
@@ -458,7 +468,7 @@ document.getElementById('cEnergy').onclick=()=>energySheet();
 document.getElementById('cScore').onclick=()=>scoreSheet();
 document.getElementById('cStreak').onclick=()=>{ const st=streakNow(); openModal(`<h2>${st} day streak</h2><p class="muted">${todayXp()>0?'You have practiced today. Come back tomorrow to keep it going.':'Earn XP today to extend your streak.'} Longest streak: ${S.best} days.</p><button class="btn" data-close>Got it</button>`); };
 document.getElementById('cXp').onclick=()=>{ TAB='me'; render(); };
-function render(){ renderTop(); renderNav(); ({learn:vLearn,words:vWords,review:vReview,me:vMe,class:vClass}[TAB]||vLearn)(); paintSync(); }
+function render(){ renderTop(); renderNav(); ({learn:vLearn,words:vWords,train:vTrain,review:vReview,me:vMe,class:vClass}[TAB]||vLearn)(); paintSync(); }
 
 /* ---------- modal ---------- */
 const modal=document.getElementById('modal');
@@ -511,7 +521,7 @@ function lessonSheet(l){
 let SES=null; const LS=document.getElementById('lesson');
 function startSession(mode, items, lesson){
   SES={mode, lesson, queue:items.slice(), total:items.length, done:0, firstTry:0, tries:0, wrongOnce:new Set(), start:Date.now(), sel:null, checked:false, energy0:S.energy, score0:scoreShown(), sN0:S.sN, run:0, eBonus:0};
-  if(mode!=='lesson') SES.queue=shuffle(SES.queue);
+  if(mode!=='lesson' && mode!=='reading') SES.queue=shuffle(SES.queue);
   LS.hidden=false; document.body.style.overflow='hidden'; showItem();
 }
 function startPractice(){
@@ -524,7 +534,7 @@ function stopTimer(){ if(SES&&SES.tmr){ clearInterval(SES.tmr); SES.tmr=null; } 
 function stopAll(){ stopTimer(); if(SES){ clearInterval(SES.speedT); clearTimeout(SES.adv); } }
 function closeSession(){ stopAll(); LS.hidden=true; LS.innerHTML=''; document.body.style.overflow=''; SES=null; render(); }
 function head(){ const pct=Math.round(SES.done/SES.total*100);
-  return `<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${SES.mode==='speed'?`<span class="pill" id="spd" style="font-size:15px">${Math.max(0,Math.ceil((SES.deadline-Date.now())/1000))}s · ${SES.firstTry} ✓</span>`:SES.mode==='lesson'?`<span class="chip energy${S.energy<5?' low':''}">${I.battery}${S.energy}</span>`:`<span class="pill">${SES.mode==='mistakes'?'Mistakes':SES.mode==='quiz'?'Word quiz':SES.mode==='official'?'Official SAT':'Practice'}</span>`}</div>`; }
+  return `<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${SES.mode==='speed'?`<span class="pill" id="spd" style="font-size:15px">${Math.max(0,Math.ceil((SES.deadline-Date.now())/1000))}s · ${SES.firstTry} ✓</span>`:SES.mode==='lesson'?`<span class="chip energy${S.energy<5?' low':''}">${I.battery}${S.energy}</span>`:`<span class="pill">${SES.mode==='mistakes'?'Mistakes':SES.mode==='quiz'?'Word quiz':SES.mode==='official'?'Official SAT':SES.mode==='reading'?'Reading':'Practice'}</span>`}</div>`; }
 function showItem(){
   stopTimer(); const it=SES.queue[0]; SES.sel=null; SES.checked=false; SES.item=it; SES.qStart=Date.now(); SES.limit=limitOf(it);
   const u=UNIT[it.unit]; const tone=toneOf(u);
@@ -537,7 +547,7 @@ function showItem(){
     body=`<div class="qtype">${u.title} · Spell it${dBadge(it)}</div><div class="passage"><p>${fmt(esc(it.p))}</p></div><div class="qtext">${esc(it.q)}</div><input class="field typein" id="tIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Type the missing word">`;
   } else if(it.t==='tap'){
     SES.tokens=it.s.split(' '); SES.ans=SES.tokens.findIndex(w=>w.includes('*')); SES.tokens=SES.tokens.map(w=>w.replace(/\*/g,''));
-    body=`<div class="qtype">${u.title}${dBadge(it)}</div><div class="qtext">${Q_TAP}</div><div class="tokens">${SES.tokens.map((w,i)=>`<button class="tok" data-t="${i}" aria-pressed="false">${esc(w)}</button>`).join('')}</div>`;
+    body=`<div class="qtype">${u.title}${dBadge(it)}</div><div class="qtext">${it.tq||Q_TAP}</div><div class="tokens">${SES.tokens.map((w,i)=>`<button class="tok" data-t="${i}" aria-pressed="false">${esc(w)}</button>`).join('')}</div>`;
   } else {
     SES.order=it.fixed?[0,1,2,3]:shuffle([0,1,2,3]);
     body=`<div class="qtype">${u.title}${dBadge(it)}</div>${it.p?`<div class="passage">${it.p.startsWith('<')?fmt(it.p):'<p>'+fmt(it.p)+'</p>'}</div>`:''}<div class="qtext">${it.q}</div><div class="choices">${SES.order.map((ci,k)=>`<button class="choice" data-k="${k}" aria-pressed="false"><span class="letter">${'ABCD'[k]}</span><span>${escI(it.c[ci])}</span></button>`).join('')}</div>`;
@@ -619,22 +629,63 @@ function finish(){
   let xp=5, note='';
   if(SES.mode==='lesson'){ const l=SES.lesson; const prev=S.lessons[l.id]; xp = prev?5:10; if(acc===100) {xp+=5; note='Perfect lesson bonus +5 XP';}
     S.lessons[l.id]={best:Math.max(prev?prev.best:0,acc), n:(prev?prev.n:0)+1, last:Date.now()}; }
+  else if(SES.mode==='reading'){ const r=SES.lesson.read, w=SES.lesson.wpm; const prev=(S.reads=S.reads||{})[r.id]; xp=prev?5:10;
+    S.reads[r.id]={wpm:w, acc, best:Math.max(prev?prev.best:0,w), n:(prev?prev.n:0)+1, at:Date.now()}; (S.wpmLog=S.wpmLog||[]).unshift({ts:Date.now(),wpm:w,acc,id:r.id}); S.wpmLog=S.wpmLog.slice(0,30);
+    note=`${w} words per minute · ${acc}% comprehension · effective speed ${Math.round(w*acc/100)}`; }
   else if(SES.mode==='speed'){ xp=5+Math.floor(SES.firstTry/2); const best=S.speedBest||0; S.speedBest=Math.max(best,SES.firstTry); note=`${SES.firstTry} right in 60 seconds${SES.firstTry>best&&best?' · new personal best!':` · best ${S.speedBest}`}`; }
   else if(SES.mode!=='official'){ if(S.energy<MAXE){ addEnergy(5); note='+5 energy refilled'; } }
   if(SES.eBonus) note=(note?note+' · ':'')+'+'+SES.eBonus+' bonus energy';
   const sNow=scoreShown(); const sD=(SES.score0!=null&&sNow!=null)?sNow-SES.score0:null;
   const before=todayXp(); const bumped=addXp(xp); const hitGoal=before<S.goal && todayXp()>=S.goal;
-  logEvent({k:SES.mode, l:SES.mode==='lesson'?(SES.lesson.vocab?'Words: ':'')+SES.lesson.unit.title+' · Part '+(SES.lesson.li+1):SES.mode==='mistakes'?'Fixed mistakes':SES.mode==='quiz'?'Vocabulary quiz':SES.mode==='official'?'Official SAT practice':SES.mode==='speed'?'Word speed round':'Mixed practice', xp, acc, dur:secs});
+  logEvent({k:SES.mode, l:SES.mode==='reading'?'Reading: '+SES.lesson.read.title+' ('+SES.lesson.wpm+' wpm)':SES.mode==='lesson'?(SES.lesson.grammar?'Grammar: '+SES.lesson.unit.title:(SES.lesson.vocab?'Words: ':'')+SES.lesson.unit.title+' · Part '+(SES.lesson.li+1)):SES.mode==='mistakes'?'Fixed mistakes':SES.mode==='quiz'?'Vocabulary quiz':SES.mode==='official'?'Official SAT practice':SES.mode==='speed'?'Word speed round':'Mixed practice', xp, acc, dur:secs});
   save(); sfx.done();
   const mm=Math.floor(secs/60)+':'+pad(secs%60);
   LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--saffron)" d="M12 1.5l2.6 4.2 4.8-1.1-1.1 4.8 4.2 2.6-4.2 2.6 1.1 4.8-4.8-1.1L12 22.5l-2.6-4.2-4.8 1.1 1.1-4.8L1.5 12l4.2-2.6-1.1-4.8 4.8 1.1z"/><circle cx="12" cy="12" r="4" fill="var(--bg)"/></svg>
     <h1>${SES.mode==='lesson'?'Lesson complete!':SES.mode==='speed'?'Time!':'Round complete!'}</h1>${note?`<p class="muted" style="margin:0">${note}</p>`:''}
-    <div class="res"><div style="--c:var(--saffron)"><span>Total XP</span><b>+${xp}</b></div><div style="--c:var(--good)"><span>Accuracy</span><b>${acc}%</b></div><div style="--c:var(--plum)"><span>SAT score</span><b>${sNow==null?S.sN+'/'+CAL:sNow}</b></div></div>
+    <div class="res"><div style="--c:var(--saffron)"><span>Total XP</span><b>+${xp}</b></div><div style="--c:var(--good)"><span>Accuracy</span><b>${acc}%</b></div>${SES.mode==='reading'?`<div style="--c:var(--plum)"><span>Words/min</span><b>${SES.lesson.wpm}</b></div>`:`<div style="--c:var(--plum)"><span>SAT score</span><b>${sNow==null?S.sN+'/'+CAL:sNow}</b></div>`}</div>
     <p class="muted" style="margin:6px 0 0">${sNow==null?`Answer ${CAL-S.sN} more to unlock your estimated SAT score.`:`Estimated R&amp;W score ${sNow} (${band(sNow)})${sD?`, ${sD>0?'up':'down'} ${Math.abs(sD)} this round`:''}.`} Time ${mm}.</p>
     ${bumped?`<p style="color:var(--saffron);font-weight:800;display:flex;gap:6px;align-items:center;margin:8px 0 0"><span style="width:24px;display:inline-block">${I.flame}</span>${S.streak}-day streak!</p>`:''}
     ${hitGoal?`<p style="font-weight:800;color:var(--good);margin:0">Daily goal reached</p>`:''}
   </div></div></div><div class="ft"><div class="in"><button class="btn" id="fC">Continue</button></div></div>`;
   document.getElementById('fC').onclick=closeSession;
+}
+
+/* ---------- Train: Reading Gym + Grammar Guide ---------- */
+function avgWpm(st=S){ const l=(st.wpmLog||[]).slice(0,5); return l.length?Math.round(l.reduce((a,x)=>a+x.wpm,0)/l.length):null; }
+function avgAcc(st=S){ const l=(st.wpmLog||[]).slice(0,5); return l.length?Math.round(l.reduce((a,x)=>a+x.acc,0)/l.length):null; }
+function vTrain(){
+  const aw=avgWpm(), aa=avgAcc(); const rd=S.reads||{}; const gd=GRAMMAR.filter(g=>S.lessons['gr-'+g.id]).length;
+  view.innerHTML=`<div class="wrap stack"><div><h1 style="font-size:28px">Train</h1><p class="muted" style="margin:4px 0 0">Build the skills under every SAT question: reading speed and understanding, and the grammar rules the test checks.</p></div>
+   <h2 style="font-size:20px;margin:6px 0 0">Reading Gym</h2>
+   <div class="tiles"><div class="tile" style="color:var(--plum)">${I.clock}<div><b style="color:var(--ink)">${aw??'–'}</b><span>words per minute (last 5)</span></div></div><div class="tile" style="color:var(--good)">${I.target}<div><b style="color:var(--ink)">${aa==null?'–':aa+'%'}</b><span>comprehension</span></div></div></div>
+   <p class="muted" style="margin:0;font-size:14px">Read the passage at your normal pace, then answer five questions. The goal is to get faster <b>without</b> losing understanding. Most SAT passages need about 200 to 250 words per minute with good comprehension.</p>
+   <div class="stack" style="gap:8px">${READS.map(r=>{ const x=rd[r.id]; return `<button class="trow" data-rd="${r.id}" style="--tone:var(--plum)"><span><b>${r.title}</b><small>${r.genre} · ${r.words} words · ${DNAME[r.d]}</small></span><span class="pill ${x?'good':''}">${x?`${x.wpm} wpm · ${x.acc}%`:'New'}</span></button>`; }).join('')}</div>
+   <h2 style="font-size:20px;margin:10px 0 0">Grammar Guide</h2>
+   <p class="muted" style="margin:0;font-size:14px">${gd} of ${GRAMMAR.length} topics practiced. Each topic explains the rule, shows examples, then gives you six practice questions.</p>
+   ${GRP.map((gn,gi)=>`<p class="lbl" style="margin:6px 0 0">${gn}</p><div class="stack" style="gap:8px">${GRAMMAR.filter(g=>g.grp===gi).map(g=>{ const x=S.lessons['gr-'+g.id]; return `<button class="trow" data-gr="${g.id}" style="--tone:var(--coral)"><span><b>${g.title}</b><small>${g.rules.length} rules · ${g.items.length} questions</small></span><span class="pill ${x&&x.best>=80?'good':''}">${x?'Best '+x.best+'%':'Start'}</span></button>`; }).join('')}</div>`).join('')}
+  </div>`;
+  view.querySelectorAll('[data-rd]').forEach(b=>b.onclick=()=>startReading(READS.find(r=>r.id===b.dataset.rd)));
+  view.querySelectorAll('[data-gr]').forEach(b=>b.onclick=()=>grammarSheet(UNIT[b.dataset.gr]));
+}
+function grammarSheet(g){
+  openModal(`<div style="--tone:var(--coral)"><div class="qtype">${GRP[g.grp]}</div></div><h2>${g.title}</h2><p>${g.intro}</p>
+   ${g.rules.map(([t,x])=>`<div class="rulebox"><span class="rt">${t}</span>${x}</div>`).join('')}
+   <p class="lbl" style="margin:10px 0 6px">Examples</p>${g.ex.map(([w,r,why])=>`<div class="exbox"><p class="w">${esc(w)}</p><p class="r">${esc(r)}</p><p class="muted" style="font-size:14px">${esc(why)}</p></div>`).join('')}
+   <div class="row"><button class="btn ghost" data-close>Close</button><button class="btn" id="gGo">Practice · ${g.items.length} questions</button></div>`);
+  const sh=modal.querySelector('.sheet'); if(sh) sh.scrollTop=0;
+  document.getElementById('gGo').onclick=()=>{ regen(); if(S.energy<=0){ energySheet(); return; } closeModal(); startSession('lesson', g.items, {id:'gr-'+g.id, unit:g, li:0, items:g.items, grammar:true}); };
+}
+function startReading(r){
+  LS.hidden=false; document.body.style.overflow='hidden'; const t0=Date.now();
+  LS.innerHTML=`<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div style="flex:1;font-weight:800">${r.title}</div><span class="rclock" id="rClk">0:00</span></div>
+   <div class="bd"><div class="in"><div class="qtype" style="--tone:var(--plum)">${r.genre} · ${r.words} words</div><div class="rtext">${r.text.map(t=>`<p>${t}</p>`).join('')}</div></div></div>
+   <div class="ft"><div class="in"><button class="btn" id="rDone">I've finished reading</button></div></div>`;
+  LS.querySelector('.bd').scrollTop=0;
+  const clk=setInterval(()=>{ const s=Math.floor((Date.now()-t0)/1000); const el=document.getElementById('rClk'); if(el) el.textContent=Math.floor(s/60)+':'+pad(s%60); else clearInterval(clk); },500);
+  document.getElementById('lsX').onclick=()=>{ clearInterval(clk); LS.hidden=true; LS.innerHTML=''; document.body.style.overflow=''; render(); };
+  document.getElementById('rDone').onclick=()=>{ clearInterval(clk); const secs=Math.max(5,(Date.now()-t0)/1000); const wpm=Math.min(1500,Math.round(r.words/(secs/60))); S.secs+=Math.round(secs);
+    LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><div style="width:96px;color:var(--plum)">${I.clock}</div><h1 style="color:var(--plum)">${wpm} words per minute</h1><p class="muted">${Math.floor(secs/60)}:${pad(Math.round(secs)%60)} for ${r.words} words. ${wpm<150?'Take your time, and try to read a little faster next time.':wpm>400?'Very fast! Make sure you are not skimming: the questions will tell.':'A good pace for the SAT.'} Now answer five questions. You can look back at the passage if you need to.</p></div></div></div><div class="ft"><div class="in"><button class="btn" id="rQ">Start questions</button></div></div>`;
+    document.getElementById('rQ').onclick=()=>startSession('reading', r.qs, {id:'rd-'+r.id, read:r, wpm, unit:UNIT.rd, li:0}); };
 }
 
 /* ---------- Words ---------- */
@@ -724,6 +775,10 @@ function skillRows(unitStats){ return SKILLS.map(u=>{ const s=unitStats[u.id]; c
   return `<div class="skill"><span class="nm">${u.title}</span><span class="tr"><i style="width:${p||0}%;background:${col}"></i></span><span class="pct">${p==null?'–':p+'%'}</span></div>`; }).join(''); }
 function logRows(log, n=12){ if(!log||!log.length) return `<div class="empty"><p>No activity yet. Finish a lesson and it will show up here.</p></div>`;
   return `<ul class="log">${log.slice(0,n).map(e=>`<li><span class="what">${esc(e.l)}<small>${ago(e.ts)}${e.dur?' · '+Math.max(1,Math.round(e.dur/60))+' min':''}${e.quit?' · left early':''}</small></span>${e.acc!=null?`<span class="pill ${e.acc>=80?'good':e.acc<60?'bad':''}">${e.acc}%</span>`:''}<span class="xpv">+${e.xp} XP</span></li>`).join('')}</ul>`; }
+function trainCard(st){ const l=st.wpmLog||[]; const g=GRAMMAR.filter(x=>(st.lessons||{})['gr-'+x.id]);
+  if(!l.length && !g.length) return '';
+  return `<div class="card"><p class="lbl">Reading and grammar</p>${l.length?`<p style="margin:0 0 8px"><b>${avgWpm(st)}</b> words per minute and <b>${avgAcc(st)}%</b> comprehension over the last ${Math.min(5,l.length)} passages (best ${Math.max(...l.map(x=>x.wpm))} wpm).</p><div class="seg">${l.slice(0,8).reverse().map(x=>`<span class="pill ${x.acc>=80?'good':x.acc<60?'bad':''}">${x.wpm} · ${x.acc}%</span>`).join('')}</div>`:''}
+   ${g.length?`<p style="margin:10px 0 0">Grammar topics practiced: <b>${g.length} of ${GRAMMAR.length}</b>.</p><div class="seg" style="margin-top:6px">${g.map(x=>`<span class="pill ${st.lessons['gr-'+x.id].best>=80?'good':''}">${x.title} · ${st.lessons['gr-'+x.id].best}%</span>`).join('')}</div>`:''}</div>`; }
 function diffRows(ds){ return [1,2,3].map(d=>{ const s=(ds||{})[d]; const p=s&&s.n?accPct(s.r,s.n):null; const col=p==null?'var(--line)':p>=80?'var(--good)':p>=60?'var(--saffron)':'var(--bad)';
   return `<div class="skill"><span class="nm">${DNAME[d]} <span class="muted" style="font-weight:600">(${DR[d]}-level)</span></span><span class="tr"><i style="width:${p||0}%;background:${col}"></i></span><span class="pct">${p==null?'–':p+'%'}</span></div>`; }).join(''); }
 function scoreCard(st, mine=true){ const s=scoreShown(st); const ns=nextStep(st); const tr=trend(st); const pos=s==null?0:(s-200)/6;
@@ -743,6 +798,7 @@ function vMe(){
     <div class="tile" style="color:var(--turq)">${I.book}<div><b style="color:var(--ink)">${sm.lessonsDone} / ${LESSONS.length}</b><span>lessons done</span></div></div>
     <div class="tile" style="color:var(--good)">${I.target}<div><b style="color:var(--ink)">${acc==null?'–':acc+'%'}</b><span>first-try accuracy</span></div></div>
    </div>
+   ${trainCard(S)}
    <div class="card"><p class="lbl">XP, last 7 days</p>${weekBars(S.hist)}</div>
    <div class="card"><p class="lbl">Accuracy by skill</p>${skillRows(S.unit)}<p class="muted" style="font-size:13px;margin:8px 0 0">Green 80%+, amber 60–79%, red below 60%. First tries only.</p></div>
    <div class="card"><p class="lbl">Recent activity</p>${logRows(S.log)}</div>
@@ -810,6 +866,7 @@ function studentSheet(r){ if(!r) return; const s=r.s, st=r.st;
   openModal(`<h2>${esc(r.name)}</h2><p class="muted">Last active ${ago(r.upd)} · ${Math.round((s.secs||0)/60)} min practiced in total</p>
    <div class="tiles"><div class="tile" style="color:var(--saffron)">${I.flame}<div><b style="color:var(--ink)">${r.live}</b><span>streak · best ${s.best||0}</span></div></div><div class="tile" style="color:var(--cobalt)">${I.bolt}<div><b style="color:var(--ink)">${s.xp||0}</b><span>XP · ${s.weekXp||0} this week</span></div></div><div class="tile" style="color:var(--turq)">${I.cards}<div><b style="color:var(--ink)">${s.words||0}</b><span>words mastered</span></div></div><div class="tile" style="color:var(--bad)">${I.redo}<div><b style="color:var(--ink)">${s.mistakes||0}</b><span>open mistakes</span></div></div></div>
    ${scoreCard(Object.assign({score:450,sN:0,sHist:{},dstat:{}},st),false)}
+   ${trainCard(st)}
    <div><p class="lbl">XP, last 7 days</p>${weekBars(st.hist||{})}</div>
    <div><p class="lbl">Accuracy by skill</p>${skillRows(st.unit||{})}</div>
    <div><p class="lbl">Recent activity</p>${logRows(st.log,15)}</div>
@@ -826,6 +883,7 @@ function welcome(){
   <div class="stack" style="gap:8px">
    <div class="tipbox" style="--tone:var(--cobalt)"><b>Learn</b>Follow the path through every Reading and Writing skill, one short lesson at a time.</div>
    <div class="tipbox" style="--tone:var(--jade)"><b>Words</b>Build your SAT vocabulary with word sets, flashcards, and a daily quiz.</div>
+   <div class="tipbox" style="--tone:var(--plum)"><b>Train</b>Time your reading in the Reading Gym and master every SAT grammar rule in the Grammar Guide.</div>
    <div class="tipbox" style="--tone:var(--coral)"><b>Review</b>Every mistake is a lesson. Fix yours here and refill your energy.</div>
    <div class="tipbox" style="--tone:var(--plum)"><b>Your SAT score</b>Every answer updates your estimated SAT Reading and Writing score, out of 800. Beat the timer to keep your energy.</div>
   </div>
