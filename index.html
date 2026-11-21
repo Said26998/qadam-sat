@@ -53,7 +53,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .chip{display:flex;align-items:center;gap:4px;font-weight:800;font-variant-numeric:tabular-nums;background:none;border:0;padding:6px 6px;border-radius:10px}
 .chip svg{width:22px;height:22px}
 .chip.streak{color:var(--saffron)} .chip.streak.off{color:var(--muted)}
-.chip.xp{color:var(--cobalt)} .chip.energy{color:var(--turq)} .chip.score{color:var(--plum)} .chip.energy.low{color:var(--bad)}
+.chip.theme{color:var(--muted)} .chip.xp{color:var(--cobalt)} .chip.energy{color:var(--turq)} .chip.score{color:var(--plum)} .chip.energy.low{color:var(--bad)}
 .timer{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--muted);margin:0 0 12px;font-variant-numeric:tabular-nums}
 .timer .tb{flex:1;height:6px;border-radius:99px;background:var(--sunk);overflow:hidden}.timer .tb i{display:block;height:100%;background:var(--turq);transition:width .25s linear}
 .timer.low .tb i{background:var(--saffron)} .timer.over{color:var(--bad)} .timer.over .tb i{background:var(--bad)}
@@ -287,6 +287,7 @@ details.deck[open] summary{margin-bottom:10px}
 .empty svg{width:56px;height:56px;color:var(--line)}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
+<script>try{var qt=localStorage.getItem('qadam-theme');if(qt==='light'||qt==='dark')document.documentElement.setAttribute('data-theme',qt);}catch(e){}</script>
 
 </head>
 <body>
@@ -332,6 +333,7 @@ details.deck[open] summary{margin-bottom:10px}
 <div class="app" id="app" hidden>
   <header class="top">
     <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 1.5l2.6 4.2 4.8-1.1-1.1 4.8 4.2 2.6-4.2 2.6 1.1 4.8-4.8-1.1L12 22.5l-2.6-4.2-4.8 1.1 1.1-4.8L1.5 12l4.2-2.6-1.1-4.8 4.8 1.1z"/><circle cx="12" cy="12" r="3.6" fill="var(--bg)"/></svg>Qadam</div>
+    <button class="chip theme" id="cTheme" aria-label="Switch theme"></button>
     <button class="chip streak" id="cStreak" aria-label="Streak"></button>
     <button class="chip xp" id="cXp" aria-label="Total XP"></button>
     <button class="chip score" id="cScore" aria-label="Estimated SAT score"></button>
@@ -1954,6 +1956,8 @@ const I = {
   battery:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 2h6v2h1.5A1.5 1.5 0 0 1 18 5.5v15a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 20.5v-15A1.5 1.5 0 0 1 7.5 4H9zm3.8 5.5L9 13.2h2.6l-1 4.8 4.4-6.2h-2.7z"/></svg>',
   gauge:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3.5 17a8.5 8.5 0 1 1 17 0"/><path d="M12 17l4-5.5"/></g><circle cx="12" cy="17" r="2" fill="currentColor"/></svg>',
   train:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z"/><path d="M12 6.5v13"/></g></svg>',
+  sun:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g></svg>',
+  moon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5 8.7 8.7 0 1 0 20.5 14.6z"/></svg>',
   star:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.2l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>',
   check:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.5l5 5L19.5 7"/></svg>',
   lock:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 10V7.5a5 5 0 0 1 10 0V10h1a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 18 21H6a1.5 1.5 0 0 1-1.5-1.5v-8A1.5 1.5 0 0 1 6 10zm2.5 0h5V7.5a2.5 2.5 0 0 0-5 0z"/></svg>',
@@ -2097,7 +2101,10 @@ function watchClass(){
 /* ---------- shell ---------- */
 let TAB='learn';
 const view=document.getElementById('view');
+function themeNow(){ const t=document.documentElement.getAttribute('data-theme'); if(t) return t; try{ return matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'; }catch(e){ return 'light'; } }
+function setTheme(t){ if(t==='auto'){ document.documentElement.removeAttribute('data-theme'); } else document.documentElement.setAttribute('data-theme',t); try{ t==='auto'?localStorage.removeItem('qadam-theme'):localStorage.setItem('qadam-theme',t); }catch(e){} renderTop(); }
 function renderTop(){
+  const ct=document.getElementById('cTheme'); const dk=themeNow()==='dark'; ct.innerHTML=dk?I.sun:I.moon; ct.setAttribute('aria-label',dk?'Switch to light theme':'Switch to dark theme'); ct.title=ct.getAttribute('aria-label');
   regen();
   const st=streakNow();
   const cs=document.getElementById('cStreak'); cs.className='chip streak'+(todayXp()>0?'':' off'); cs.innerHTML=I.flame+st; cs.setAttribute('aria-label',st+' day streak');
@@ -2112,6 +2119,7 @@ function renderNav(){
 }
 document.getElementById('nav').addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(!b)return; TAB=b.dataset.tab; render(); window.scrollTo(0,0); });
 document.getElementById('cEnergy').onclick=()=>energySheet();
+document.getElementById('cTheme').onclick=()=>{ setTheme(themeNow()==='dark'?'light':'dark'); if(TAB==='me') vMe(); };
 document.getElementById('cScore').onclick=()=>scoreSheet();
 document.getElementById('cStreak').onclick=()=>{ const st=streakNow(); openModal(`<h2>${st} day streak</h2><p class="muted">${todayXp()>0?'You have practiced today. Come back tomorrow to keep it going.':'Earn XP today to extend your streak.'} Longest streak: ${S.best} days.</p><button class="btn" data-close>Got it</button>`); };
 document.getElementById('cXp').onclick=()=>{ TAB='me'; render(); };
@@ -2452,6 +2460,7 @@ function vMe(){
    <div class="card stack" style="gap:12px"><p class="lbl" style="margin:0">Settings</p>
     <label for="nick" style="font-weight:700">Nickname shown to your teacher if your name is unavailable</label><input class="field" id="nick" maxlength="40" value="${esc(S.nick)}" placeholder="e.g. Aziza K.">
     <div><p style="margin:0 0 8px;font-weight:700">Daily goal</p><div class="seg" id="goalSeg">${[[10,'Casual'],[20,'Regular'],[30,'Serious'],[50,'Intense']].map(([g,l])=>`<button data-g="${g}" aria-pressed="${S.goal===g}">${l} · ${g} XP</button>`).join('')}</div></div>
+    <div><p style="margin:0 0 8px;font-weight:700">Theme</p><div class="seg" id="thSeg">${[['auto','Match my phone'],['light','Light'],['dark','Dark']].map(([k,l])=>{ let cur='auto'; try{ cur=localStorage.getItem('qadam-theme')||'auto'; }catch(e){} return `<button data-th="${k}" aria-pressed="${cur===k}">${l}</button>`; }).join('')}</div></div>
     <label class="switch" for="snd"><span>Sound effects</span><input type="checkbox" id="snd" ${S.sound?'checked':''}></label>
     <label class="switch" for="rlx"><span>Relaxed mode (no question timer)</span><input type="checkbox" id="rlx" ${S.relaxed?'checked':''}></label>
     <label class="switch" for="opn"><span>Open all lessons (skip ahead)</span><input type="checkbox" id="opn" ${S.openAll?'checked':''}></label>
@@ -2461,6 +2470,7 @@ function vMe(){
    </div></div>`;
   let nt; document.getElementById('nick').oninput=e=>{ clearTimeout(nt); nt=setTimeout(()=>{ S.nick=e.target.value.trim(); save(); },700); };
   document.getElementById('goalSeg').onclick=e=>{ const b=e.target.closest('[data-g]'); if(!b)return; S.goal=+b.dataset.g; save(); vMe(); paintSync(); };
+  document.getElementById('thSeg').onclick=e=>{ const b=e.target.closest('[data-th]'); if(!b) return; setTheme(b.dataset.th); vMe(); paintSync(); };
   document.getElementById('snd').onchange=e=>{ S.sound=e.target.checked; save(); };
   document.getElementById('opn').onchange=e=>{ S.openAll=e.target.checked; save(); };
   document.getElementById('wlc').onclick=welcome;
