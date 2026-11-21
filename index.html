@@ -59,6 +59,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .timer.low .tb i{background:var(--saffron)} .timer.over{color:var(--bad)} .timer.over .tb i{background:var(--bad)}
 .dbadge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;padding:1px 7px;border-radius:99px;margin-left:6px;border:1.5px solid currentColor;vertical-align:1px}
 .dbadge.d1{color:var(--good)} .dbadge.d2{color:var(--cobalt)} .dbadge.d3{color:var(--plum)}
+.lb{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}.lb li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:var(--sunk)}.lb li.me{outline:2px solid var(--cobalt)}
+.lb .rk{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--surface);flex:none}.lb .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}.lb b{font-variant-numeric:tabular-nums}
+.glink2{background:none;border:0;color:var(--cobalt);font-weight:800;padding:4px;cursor:pointer}
 .vword{font-size:22px;margin:0 0 6px}.vword span{font-size:14px;color:var(--muted);font-style:italic;margin-left:6px}
 .typein{font-size:20px;text-align:center;letter-spacing:.02em}
 .fb .meta{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 0}.fb .meta span{font-size:13px;font-weight:800;padding:3px 9px;border-radius:99px;background:var(--surface);color:var(--ink)}
@@ -318,10 +321,10 @@ details.deck[open] summary{margin-bottom:10px}
     <p class="muted" id="gLoading" style="text-align:center;margin:0">Loading…</p>
     <div id="gBox" class="stack" hidden>
       <button class="btn ghost gg" id="gGoogle" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.5 12.3c0-.8-.1-1.5-.2-2.2H12v4.2h5.9a5 5 0 0 1-2.2 3.3v2.7h3.5c2.1-1.9 3.3-4.7 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.2-2.7l-3.5-2.7c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.2v2.8A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.2a6.6 6.6 0 0 1 0-4.3V7.1H2.2a11 11 0 0 0 0 9.9z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.1-3.1A11 11 0 0 0 2.2 7.1l3.6 2.8C6.7 7.3 9.1 5.4 12 5.4z"/></svg>Continue with Google</button>
-      <div class="gor" id="gOr">or use email</div>
+      <div class="gor" id="gOr">or use email or username</div>
       <form id="gForm" novalidate>
         <div id="gNameRow" hidden><label for="gName">Your full name</label><input class="field" id="gName" autocomplete="name" placeholder="e.g. Aziza Karimova"></div>
-        <div><label for="gEmail">Email</label><input class="field" id="gEmail" type="email" autocomplete="email" inputmode="email" required></div>
+        <div><label for="gEmail">Email or username</label><input class="field" id="gEmail" type="text" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" required><p class="muted" style="margin:6px 0 0;font-size:13px">No email? Type a username instead (at least 3 letters or numbers, e.g. <i>aziza07</i>).</p></div>
         <div><label for="gPw">Password</label><input class="field" id="gPw" type="password" autocomplete="current-password" minlength="6" required></div>
         <button class="btn" id="gSubmit" type="submit">Sign in</button>
         <div class="glinks"><button class="glink" id="gSwap" type="button">Create an account</button><button class="glink" id="gReset" type="button">Forgot password</button></div>
@@ -2055,7 +2058,28 @@ function summary(){ const wk=[...Array(7)].map((_,i)=>{const d=new Date();d.setD
 async function push(){ if(!DB||!UID) return; if(writing){again=true;return;} writing=true;
   try{ const doc={summary:summary(), state:S, updatedAt:S.updatedAt}; if(window.QADAM_PROFILE) doc.profile=window.QADAM_PROFILE; await DB.doc('students/'+UID).set(doc); SYNC='ok'; }
   catch(e){ SYNC='err'; }
-  writing=false; paintSync(); if(again){again=false; push();} }
+  writing=false; paintSync(); pushBoard(); if(again){again=false; push();} }
+let BOARD=null, BOARD_LAST='';
+function boardName(){ const n=String(S.nick||((window.QADAM_PROFILE||{}).name)||'').trim(); if(!n) return 'Student'; const p=n.split(/\s+/); return p.length>1 ? p[0]+' '+p[p.length-1][0].toUpperCase()+'.' : p[0]; }
+function boardDays(){ const o={}; for(let i=0;i<7;i++){ const d=new Date(); d.setDate(d.getDate()-i); const k=dkey(d); if(S.hist[k]) o[k]=S.hist[k]; } return o; }
+async function pushBoard(){ if(!DB||!UID||OWNER) return; const ref=DB.doc('board/'+UID);
+  try{ if(S.board===false){ if(BOARD_LAST!=='off' && ref.delete){ await ref.delete(); BOARD_LAST='off'; } return; }
+    const d={name:boardName(), days:boardDays(), score:scoreShown(), streak:S.streak, lastDay:S.lastDay, xp:S.xp}; const j=JSON.stringify(d); if(j===BOARD_LAST) return; d.at=Date.now(); await ref.set(d); BOARD_LAST=j; }catch(e){} }
+function watchBoard(){ try{ DB.collection('board').onSnapshot(s=>{ BOARD=s.docs.map(d=>Object.assign({id:d.id},d.data())); if(LS.hidden && TAB==='learn') vLearn(); }, ()=>{ BOARD=null; }); }catch(e){} }
+function boardRows(kind){ const t=today(), y=yday(); const wk=new Set([...Array(7)].map((_,i)=>{ const d=new Date(); d.setDate(d.getDate()-i); return dkey(d); }));
+  return (BOARD||[]).map(b=>({id:b.id, name:b.name||'Student', week:Object.entries(b.days||{}).reduce((a,[k,v])=>a+(wk.has(k)?v:0),0), score:b.score, streak:(b.lastDay===t||b.lastDay===y)?(b.streak||0):0}))
+    .filter(r=>kind==='score'?r.score!=null:kind==='streak'?r.streak>0:r.week>0)
+    .sort((a,b)=>kind==='score'?b.score-a.score:kind==='streak'?b.streak-a.streak:b.week-a.week); }
+const MEDAL=['#E8B400','#9AA3B5','#C27A3A'];
+function boardList(rows, kind, n){ const v=r=>kind==='score'?r.score:kind==='streak'?r.streak+' days':r.week+' XP';
+  return `<ol class="lb">${rows.slice(0,n).map((r,i)=>`<li class="${r.id===UID?'me':''}"><span class="rk" style="${i<3?`background:${MEDAL[i]};color:#fff`:''}">${i+1}</span><span class="nm">${esc(r.name)}${r.id===UID?' (you)':''}</span><b>${v(r)}</b></li>`).join('')}</ol>`; }
+function boardCard(){ if(!BOARD) return ''; const rows=boardRows('week'); const me=rows.findIndex(r=>r.id===UID);
+  return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><p class="lbl" style="margin:0">Class leaderboard · this week</p><button class="glink2" id="lbAll">See all</button></div>
+   ${rows.length?boardList(rows,'week',5)+(me>=5?`<p style="margin:6px 0 0;font-weight:700">You are #${me+1} of ${rows.length}. ${rows[me-1]?`Earn ${rows[me-1].week-rows[me].week+1} XP to pass ${esc(rows[me-1].name)}.`:''}</p>`:me===-1&&!OWNER&&S.board!==false?'<p class="muted" style="margin:6px 0 0;font-size:14px">Earn XP this week to join the board.</p>':''):'<p class="muted" style="margin:6px 0 0">No one has earned XP this week yet. Be the first!</p>'}</div>`; }
+function boardSheet(kind='week'){ const rows=boardRows(kind);
+  openModal(`<h2>Class leaderboard</h2><div class="seg" id="lbSeg">${[['week','This week'],['score','SAT score'],['streak','Streak']].map(([k,l])=>`<button data-lb="${k}" aria-pressed="${kind===k}">${l}</button>`).join('')}</div>
+   ${rows.length?boardList(rows,kind,50):'<p class="muted">Nobody here yet.</p>'}<p class="muted" style="font-size:13px">${kind==='week'?'XP earned in the last 7 days.':kind==='score'?'Estimated SAT Reading and Writing score (after 10 answers).':'Days in a row with practice.'} You can hide yourself in My stats › Settings.</p><button class="btn ghost" data-close>Close</button>`);
+  document.getElementById('lbSeg').onclick=e=>{ const b=e.target.closest('[data-lb]'); if(b) boardSheet(b.dataset.lb); }; }
 function paintSync(){ document.querySelectorAll('[data-sync]').forEach(el=>{ el.className='sync '+(SYNC==='ok'?'ok':SYNC==='err'?'err':''); el.lastElementChild.textContent = SYNC==='ok'?'Progress saved to your teacher\'s class':SYNC==='err'?'Could not save to the class. Progress is kept on this device.':'Progress is kept on this device only'; }); }
 async function connect(){
   if(!window.claude || !window.claude.use) return;
@@ -2069,7 +2093,7 @@ async function connect(){
     else { await push(); }
     paintSync();
     if(OWNER){ renderNav(); watchClass(); loadAccess(); }
-    loadBank();
+    loadBank(); watchBoard(); pushBoard();
   }catch(e){ SYNC='err'; paintSync(); }
 }
 const clean=s=>String(s||'').replace(/<\/?(script|iframe|object|embed|style|link|meta)[^>]*>/gi,'').replace(/\son\w+\s*=/gi,' data-x=');
@@ -2093,7 +2117,7 @@ function watchClass(){
   DB.collection('students').onSnapshot(async snap=>{
     clearTimeout(timer); CLASS_ERR='';
     CLASS = snap.docs.map(d=>Object.assign({id:d.id}, d.data()));
-    try{ const ps = await USER.profiles(CLASS.map(c=>c.id)); CLASS_NAMES = {}; for(const c of CLASS){ CLASS_NAMES[c.id] = (ps[c.id]&&ps[c.id].name) || (c.profile&&c.profile.name) || (c.summary&&c.summary.nick) || (c.profile&&c.profile.email) || 'Student'; } }catch(e){}
+    try{ const ps = await USER.profiles(CLASS.map(c=>c.id)); CLASS_NAMES = {}; for(const c of CLASS){ CLASS_NAMES[c.id] = (ps[c.id]&&ps[c.id].name) || (c.profile&&c.profile.name) || (c.summary&&c.summary.nick) || (c.profile&&c.profile.email) || (c.profile&&c.profile.username) || 'Student'; } }catch(e){}
     if(TAB==='class') render();
   }, err=>{ clearTimeout(timer); CLASS_ERR='Class data could not be loaded right now ('+((err&&err.code)||'unknown error')+').'; if(TAB==='class') render(); });
 }
@@ -2143,7 +2167,7 @@ function scoreSheet(){ const s=scoreShown(); const ns=nextStep(); const tr=trend
 function goalCard(){ const x=todayXp(), g=S.goal, f=Math.min(1,x/g), C=2*Math.PI*24;
   return `<div class="goal"><svg class="ring" viewBox="0 0 58 58" aria-hidden="true"><circle class="bgc" cx="29" cy="29" r="24"/><circle class="fgc" cx="29" cy="29" r="24" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-f)}" transform="rotate(-90 29 29)"/></svg><div><b>${x>=g?'Daily goal complete':'Daily goal'} · ${x} / ${g} XP</b><p>${x>=g?'Great work. Anything extra counts toward your weekly total.':streakNow()>0&&x===0?`Finish one lesson to keep your ${streakNow()}-day streak.`:'One lesson is about 10 to 15 XP.'}</p></div></div>`; }
 function vLearn(){
-  const cur=currentLesson(); let html=`<div class="wrap stack">${goalCard()}${wotdCard(true)}`; let lastSec=-1, k=0;
+  const cur=currentLesson(); let html=`<div class="wrap stack">${goalCard()}${boardCard()}${wotdCard(true)}`; let lastSec=-1, k=0;
   const offs=[0,-70,-100,-70,0,70,100,70];
   UNITS.forEach(u=>{
     if(u.sec!==lastSec){ lastSec=u.sec; const s=SECTIONS[u.sec]; html+=`<div class="sechead"><h3>Section ${u.sec+1} · ${s.name}</h3><span>${s.share}</span></div>`; }
@@ -2159,6 +2183,7 @@ function vLearn(){
   html+=`<p class="muted" style="text-align:center;font-size:14px">${LESSONS.length} lessons · ${Object.keys(ITEM).length} original SAT-style questions</p></div>`;
   view.innerHTML=html;
   view.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>lessonSheet(LESSON[b.dataset.lesson]));
+  const lb=document.getElementById('lbAll'); if(lb) lb.onclick=()=>boardSheet('week');
   const wg=document.getElementById('wotdGo'); if(wg) wg.onclick=()=>{ TAB='words'; render(); window.scrollTo(0,0); };
   view.querySelectorAll('[data-guide]').forEach(b=>b.onclick=()=>{ const u=UNIT[b.dataset.guide]; const st=S.unit[u.id]; openModal(`<div style="--tone:var(--${toneOf(u)})"><div class="qtype">Unit ${u.n+1} guide</div></div><h2>${u.title}</h2><p>${u.tip}</p>${st&&st.n?`<p class="muted">Your accuracy here: ${accPct(st.r,st.n)}% over ${st.n} questions.</p>`:''}<button class="btn" data-close>Got it</button>`); });
 }
@@ -2461,16 +2486,18 @@ function vMe(){
     <label for="nick" style="font-weight:700">Nickname shown to your teacher if your name is unavailable</label><input class="field" id="nick" maxlength="40" value="${esc(S.nick)}" placeholder="e.g. Aziza K.">
     <div><p style="margin:0 0 8px;font-weight:700">Daily goal</p><div class="seg" id="goalSeg">${[[10,'Casual'],[20,'Regular'],[30,'Serious'],[50,'Intense']].map(([g,l])=>`<button data-g="${g}" aria-pressed="${S.goal===g}">${l} · ${g} XP</button>`).join('')}</div></div>
     <div><p style="margin:0 0 8px;font-weight:700">Theme</p><div class="seg" id="thSeg">${[['auto','Match my phone'],['light','Light'],['dark','Dark']].map(([k,l])=>{ let cur='auto'; try{ cur=localStorage.getItem('qadam-theme')||'auto'; }catch(e){} return `<button data-th="${k}" aria-pressed="${cur===k}">${l}</button>`; }).join('')}</div></div>
+    ${BOARD&&!OWNER?`<label class="switch" for="lbOn"><span>Show me on the class leaderboard</span><input type="checkbox" id="lbOn" ${S.board!==false?'checked':''}></label>`:''}
     <label class="switch" for="snd"><span>Sound effects</span><input type="checkbox" id="snd" ${S.sound?'checked':''}></label>
     <label class="switch" for="rlx"><span>Relaxed mode (no question timer)</span><input type="checkbox" id="rlx" ${S.relaxed?'checked':''}></label>
     <label class="switch" for="opn"><span>Open all lessons (skip ahead)</span><input type="checkbox" id="opn" ${S.openAll?'checked':''}></label>
-    ${window.QADAM_SIGNOUT?`<p class="muted" style="margin:0;font-size:14px">Signed in as ${esc((window.QADAM_PROFILE||{}).email||'')}${window.QADAM_VERIFIED===false?' · email not verified yet':''}</p><p style="margin:0;font-size:14px;font-weight:700;color:${OWNER?'var(--good)':'var(--muted)'}">Teacher access: ${OWNER?'yes':'no'}${!OWNER&&window.QADAM_TEACHER_ERR?' ('+esc(window.QADAM_TEACHER_ERR)+')':''}</p>${window.QADAM_VERIFIED===false?'<button class="btn ghost" id="vfy">Send verification email</button>':''}<button class="btn ghost" id="sgo">Sign out</button>`:''}
+    ${window.QADAM_SIGNOUT?`<p class="muted" style="margin:0;font-size:14px">Signed in as ${esc((window.QADAM_PROFILE||{}).email||('username '+((window.QADAM_PROFILE||{}).username||'')))}${window.QADAM_VERIFIED===false?' · email not verified yet':''}</p><p style="margin:0;font-size:14px;font-weight:700;color:${OWNER?'var(--good)':'var(--muted)'}">Teacher access: ${OWNER?'yes':'no'}${!OWNER&&window.QADAM_TEACHER_ERR?' ('+esc(window.QADAM_TEACHER_ERR)+')':''}</p>${window.QADAM_VERIFIED===false?'<button class="btn ghost" id="vfy">Send verification email</button>':''}<button class="btn ghost" id="sgo">Sign out</button>`:''}
     <button class="btn ghost" id="wlc">Why “Qadam”?</button>
     <button class="btn ghost" id="rst" style="color:var(--bad)">Reset my progress</button>
    </div></div>`;
   let nt; document.getElementById('nick').oninput=e=>{ clearTimeout(nt); nt=setTimeout(()=>{ S.nick=e.target.value.trim(); save(); },700); };
   document.getElementById('goalSeg').onclick=e=>{ const b=e.target.closest('[data-g]'); if(!b)return; S.goal=+b.dataset.g; save(); vMe(); paintSync(); };
   document.getElementById('thSeg').onclick=e=>{ const b=e.target.closest('[data-th]'); if(!b) return; setTheme(b.dataset.th); vMe(); paintSync(); };
+  const lo=document.getElementById('lbOn'); if(lo) lo.onchange=e=>{ S.board=e.target.checked; save(); };
   document.getElementById('snd').onchange=e=>{ S.sound=e.target.checked; save(); };
   document.getElementById('opn').onchange=e=>{ S.openAll=e.target.checked; save(); };
   document.getElementById('wlc').onclick=welcome;

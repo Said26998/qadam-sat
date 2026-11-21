@@ -28,6 +28,19 @@
     'auth/unauthorized-domain': 'This website address is not approved for sign-in yet. The teacher must add it in Firebase: Authentication > Settings > Authorized domains.',
     'auth/popup-closed-by-user': 'Sign-in window closed before finishing. Try again.',
   };
+  // Students without an email sign up with a username. It is stored as a never-delivered address on the reserved example.com domain.
+  const UDOM = '@example.com';
+  const isUser = em => /^qadam\.[a-z0-9._-]+@example\.com$/.test(em || '');
+  const toEmail = v => {
+    if (v.includes('@')) return v;
+    const u = v.toLowerCase();
+    if (!/^[a-z0-9._-]{3,30}$/.test(u)) throw { code: 'qadam/bad-username' };
+    return 'qadam.' + u + UDOM;
+  };
+  ERR['qadam/bad-username'] = 'A username needs 3 to 30 letters, numbers, dots or dashes, with no spaces.';
+  ERR['auth/user-not-found'] = 'No account uses that email or username yet. Tap "Create an account".';
+  ERR['auth/invalid-credential'] = 'That email or username and password do not match. Try again.';
+  ERR['auth/email-already-in-use'] = 'That email or username is already taken. Sign in, or choose another username.';
   const fail = e => { msg(ERR[e && e.code] || ('Sign-in failed: ' + ((e && e.message) || 'unknown error')), true); busy(false); };
   const busy = on => document.querySelectorAll('#gate button').forEach(b => b.disabled = on);
 
@@ -42,16 +55,18 @@
   };
   $('gForm').onsubmit = e => {
     e.preventDefault(); busy(true); msg('');
-    const em = $('gEmail').value.trim(), pw = $('gPw').value, nm = $('gName').value.trim();
+    let em; try { em = toEmail($('gEmail').value.trim()); } catch (x) { fail(x); return; }
+    const pw = $('gPw').value, nm = $('gName').value.trim();
     if (mode === 'up') {
       if (!nm) { msg('Enter your name so your teacher knows who you are.', true); busy(false); return; }
       signingUp = true;
-      auth.createUserWithEmailAndPassword(em, pw).then(c => c.user.updateProfile({ displayName: nm }).then(() => c.user.sendEmailVerification().catch(() => {})).then(() => { signingUp = false; start(auth.currentUser); })).catch(e => { signingUp = false; fail(e); });
+      auth.createUserWithEmailAndPassword(em, pw).then(c => c.user.updateProfile({ displayName: nm }).then(() => isUser(em) ? null : c.user.sendEmailVerification().catch(() => {})).then(() => { signingUp = false; start(auth.currentUser); })).catch(e => { signingUp = false; fail(e); });
     } else auth.signInWithEmailAndPassword(em, pw).catch(fail);
   };
   $('gReset').onclick = () => {
     const em = $('gEmail').value.trim();
     if (!em) { msg('Type your email above first, then tap "Forgot password".', true); return; }
+    if (!em.includes('@')) { msg('Accounts with a username cannot reset by email. Ask your teacher for help.', true); return; }
     auth.sendPasswordResetEmail(em).then(() => msg('Check your inbox for a link to set a new password.')).catch(fail);
   };
   auth.getRedirectResult().catch(fail);
@@ -60,8 +75,9 @@
   function start(u) {
     if (started) return; started = true;
     window.QADAM_UID = u.uid;
-    window.QADAM_PROFILE = { name: u.displayName || '', email: u.email || '' };
-    window.QADAM_VERIFIED = !!u.emailVerified;
+    window.QADAM_PROFILE = { name: u.displayName || '', email: isUser(u.email) ? '' : (u.email || '') };
+    if (isUser(u.email)) window.QADAM_PROFILE.username = u.email.slice(6, -UDOM.length);
+    window.QADAM_VERIFIED = !!u.emailVerified || isUser(u.email);
     window.QADAM_VERIFY = () => u.sendEmailVerification();
     window.QADAM_SIGNOUT = () => auth.signOut().then(() => location.reload());
     // The teacher is whoever the database rules let read the whole class list; no email is stored in the site.

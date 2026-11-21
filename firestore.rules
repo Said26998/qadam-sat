@@ -13,6 +13,11 @@ service cloud.firestore {
       allow create, update: if request.auth != null && request.auth.uid == uid;
       allow delete: if isTeacher();
     }
+    // Class leaderboard: every signed-in student can read it; each student writes only their own entry.
+    match /board/{uid} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if request.auth != null && request.auth.uid == uid;
+    }
     // Official question bank: private. Only the teacher can add questions; only students the teacher allows can read them.
     match /bank/{id} {
       allow read: if isTeacher() || (request.auth != null && exists(/databases/$(database)/documents/access/$(request.auth.uid)));
