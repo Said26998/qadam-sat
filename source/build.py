@@ -25,6 +25,9 @@ page = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '</head>\n<body>\n' + gate + body.replace('<script>\n', fb + '<script src="config.js"></script>\n<script>\n', 1)
          )
 # boot.js must run after the app script defines startQadam
-page = page.rstrip() + '\n<script src="boot.js"></script>\n</body>\n</html>\n'
+import hashlib, os
+_bp = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'boot.js')
+_bv = hashlib.sha1(open(_bp, 'rb').read()).hexdigest()[:8] if os.path.exists(_bp) else '1'
+page = page.rstrip() + '\n<script src="boot.js?v=' + _bv + '"></script>\n</body>\n</html>\n'
 open(os.path.join(here, '..', 'index.html'), 'w', encoding='utf-8').write(page)
 print('built', len(full), len(page))
