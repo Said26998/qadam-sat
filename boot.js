@@ -37,6 +37,25 @@
     if (!/^[a-z0-9._-]{3,30}$/.test(u)) throw { code: 'qadam/bad-username' };
     return 'qadam.' + u + UDOM;
   };
+  // Teacher tool: a second, separate sign-in connection creates or resets student logins without signing the teacher out.
+  let adminAuth = null;
+  const admin = () => {
+    if (!adminAuth) { adminAuth = firebase.initializeApp(cfg.firebase, 'qadam-admin').auth(); adminAuth.setPersistence(firebase.auth.Auth.Persistence.NONE).catch(() => {}); }
+    return adminAuth;
+  };
+  const uname = v => { const u = String(v || '').trim().toLowerCase(); if (!/^[a-z0-9._-]{3,30}$/.test(u)) throw { code: 'qadam/bad-username' }; return u; };
+  const adminErr = e => { const m = (ERR[e && e.code] || (e && e.message) || 'Something went wrong.'); const x = new Error(m); x.code = e && e.code; return x; };
+  window.QADAM_ADMIN = {
+    create: async (username, pw, name) => {
+      try { const a = admin(); const c = await a.createUserWithEmailAndPassword(toEmail(uname(username)), pw);
+        if (name) await c.user.updateProfile({ displayName: name }); const id = c.user.uid; await a.signOut(); return id; }
+      catch (e) { if (e && e.code === 'auth/email-already-in-use') throw adminErr({ message: 'That username is already taken. Choose another one.' }); throw adminErr(e); }
+    },
+    reset: async (username, oldPw, newPw) => {
+      try { const a = admin(); const c = await a.signInWithEmailAndPassword(toEmail(uname(username)), oldPw); await c.user.updatePassword(newPw); await a.signOut(); }
+      catch (e) { if (e && (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password')) throw adminErr({ message: 'The saved password no longer works, so this login cannot be reset here.' }); throw adminErr(e); }
+    },
+  };
   ERR['qadam/bad-username'] = 'A username needs 3 to 30 letters, numbers, dots or dashes, with no spaces.';
   ERR['auth/user-not-found'] = 'No account uses that email or username yet. Tap "Create an account".';
   ERR['auth/invalid-credential'] = 'That email or username and password do not match. Try again.';

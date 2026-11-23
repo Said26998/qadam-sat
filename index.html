@@ -289,6 +289,9 @@ details.deck[open] summary{margin-bottom:10px}
 .empty{text-align:center;padding:28px 12px;color:var(--muted)}
 .empty svg{width:56px;height:56px;color:var(--line)}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.lform{display:grid;gap:8px}
+.lrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.btn.sm{padding:8px 12px;font-size:13px;width:auto;box-shadow:none}
 </style>
 <script>try{var qt=localStorage.getItem('qadam-theme');if(qt==='light'||qt==='dark')document.documentElement.setAttribute('data-theme',qt);}catch(e){}</script>
 
@@ -2052,6 +2055,7 @@ const sfx={ good:()=>tone([[660,.12],[880,.18]]), bad:()=>tone([[220,.22,'triang
 let DB=null, USER=null, UID=null, OWNER=false, SYNC='local', CLASS=null, CLASS_ERR='', CLASS_NAMES={};
 let writing=false, again=false;
 let BANK=null, ACCESS=null, BANK_MSG='';
+let LOGINS=null, LOGIN_MSG='', LOGIN_SHOW=new Set(), LFORM=null;
 function summary(){ const wk=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return S.hist[dkey(d)]||0}).reduce((a,b)=>a+b,0);
   return {xp:S.xp, streak:S.streak, lastDay:S.lastDay, best:S.best, weekXp:wk, lessonsDone:LESSONS.filter(l=>S.lessons[l.id]).length, lessonsTotal:LESSONS.length, vocabDone:VLESSONS.filter(l=>S.lessons[l.id]).length,
     ans:S.ans, right:S.right, secs:S.secs, words:mastered(), mistakes:S.mistakes.length, nick:S.nick||'', score:scoreShown(), sN:S.sN, dstat:S.dstat, wpm:avgWpm(), reads:Object.keys(S.reads||{}).length, grammarDone:GRAMMAR.filter(g=>S.lessons['gr-'+g.id]).length}; }
@@ -2092,7 +2096,7 @@ async function connect(){
     if(snap.exists){ const d=snap.data(); if(d && d.state && (d.updatedAt||0) > (S.updatedAt||0)){ S = Object.assign(fresh(), JSON.parse(JSON.stringify(d.state))); save(false); render(); } else push(); SYNC='ok'; }
     else { await push(); }
     paintSync();
-    if(OWNER){ renderNav(); watchClass(); loadAccess(); }
+    if(OWNER){ renderNav(); watchClass(); loadAccess(); loadLogins(); }
     loadBank(); watchBoard(); pushBoard();
   }catch(e){ SYNC='err'; paintSync(); }
 }
@@ -2104,6 +2108,43 @@ async function loadBank(){ const col=DB&&DB.collection('bank'); if(!col||!col.ge
   if(!LS.hidden) return; render(); }
 async function loadAccess(){ const col=DB&&DB.collection('access'); if(!col||!col.get) return; try{ const s=await col.get(); ACCESS=new Set(s.docs.map(d=>d.id)); }catch(e){ ACCESS=null; } if(TAB==='class'&&LS.hidden) render(); }
 async function setAccess(uid,on){ try{ if(on) await DB.doc('access/'+uid).set({ok:true,at:Date.now()}); else await DB.doc('access/'+uid).delete(); ACCESS=ACCESS||new Set(); on?ACCESS.add(uid):ACCESS.delete(uid); return true; }catch(e){ BANK_MSG='Could not change access ('+((e&&e.code)||'error')+'). Check that the new database rules are pasted in Firebase.'; return false; } }
+/* Teacher-made logins for students without email (website only). */
+const ADM=()=>window.QADAM_ADMIN&&window.QADAM_SIGNOUT?window.QADAM_ADMIN:null;
+const PWW=['tiger','river','maple','comet','lemon','cedar','pearl','sunny','orbit','mango','eagle','piano','delta','bloom','spark','ocean'];
+const genPw=()=>{ const r=new Uint32Array(2); crypto.getRandomValues(r); return PWW[r[0]%PWW.length]+String(1000+r[1]%9000); };
+async function loadLogins(){ if(!ADM()) return; try{ const s=await DB.collection('logins').get(); LOGINS=s.docs.map(d=>Object.assign({},d.data(),{id:d.id})).sort((a,b)=>(a.name||'').localeCompare(b.name||'')); }catch(e){ LOGINS=null; LOGIN_MSG='Could not load student logins ('+((e&&e.code)||'error')+'). Paste the new database rules in Firebase, then reload.'; } if(TAB==='class'&&LS.hidden) render(); }
+function credSheet(title,l,pw,note){ openModal(`<h2>${esc(title)}</h2><p class="muted">${esc(note)}</p>
+  <div class="card stack" style="gap:6px"><p style="margin:0">Name: <b>${esc(l.name||'')}</b></p><p style="margin:0">Username: <b>${esc(l.id)}</b></p><p style="margin:0">Password: <b>${esc(pw)}</b></p></div>
+  <p class="muted" style="font-size:14px">The student signs in on the website by typing the username in the "Email or username" box.</p><button class="btn" data-close>Done</button>`); }
+async function createLogin(){ const g=id=>document.getElementById(id).value.trim(); const name=g('lName'), u=g('lUser').toLowerCase(), pw=g('lPw'); LFORM={name,u,pw};
+  if(!name){ LOGIN_MSG='Enter the student\'s name.'; return vClass(); }
+  if(!/^[a-z0-9._-]{3,30}$/.test(u)){ LOGIN_MSG='A username needs 3 to 30 letters, numbers, dots or dashes, with no spaces.'; return vClass(); }
+  if(pw.length<6){ LOGIN_MSG='Use a password with at least 6 characters.'; return vClass(); }
+  if(LOGINS&&LOGINS.some(l=>l.id===u)){ LOGIN_MSG='You already made a login with that username.'; return vClass(); }
+  const b=document.getElementById('lGo'); if(b){ b.disabled=true; b.textContent='Creating…'; }
+  try{ const uid=await ADM().create(u,pw,name); const l={name,pw,uid,createdAt:Date.now()};
+    try{ await DB.doc('logins/'+u).set(l); }catch(e){ LOGIN_MSG='The account works, but its password could not be saved to your list ('+((e&&e.code)||'error')+'). Write it down now: '+pw; }
+    LOGINS=(LOGINS||[]).concat([Object.assign({id:u},l)]).sort((a,b)=>(a.name||'').localeCompare(b.name||'')); if(!LOGIN_MSG.startsWith('The account')) LOGIN_MSG=''; LFORM=null; vClass();
+    credSheet('Login created',{id:u,name},pw,'Give these details to the student.'); }
+  catch(e){ LOGIN_MSG=(e&&e.message)||'Could not create the login.'; vClass(); } }
+async function resetLogin(l){ const pw=genPw();
+  openModal(`<h2>Reset ${esc(l.name||l.id)}'s password?</h2><p class="muted">Their old password stops working. You will see the new one next.</p><div class="row"><button class="btn ghost" data-close>Cancel</button><button class="btn" id="mRp">Reset password</button></div>`);
+  document.getElementById('mRp').onclick=async()=>{ const b=document.getElementById('mRp'); b.disabled=true; b.textContent='Resetting…';
+    try{ await ADM().reset(l.id,l.pw,pw); l.pw=pw; l.resetAt=Date.now(); LOGIN_MSG='';
+      try{ await DB.doc('logins/'+l.id).set({name:l.name||'',pw,uid:l.uid||'',createdAt:l.createdAt||0,resetAt:l.resetAt}); }catch(e){ LOGIN_MSG='Password changed, but your list could not be updated. Write it down now: '+pw; }
+      vClass(); credSheet('New password set',l,pw,'Give the new password to the student.'); }
+    catch(e){ closeModal(); LOGIN_MSG=(e&&e.message)||'Could not reset the password.'; vClass(); } }; }
+function loginCard(){ if(!ADM()) return '';
+  return `<div class="card stack" style="gap:10px;border-color:var(--cobalt)" id="lCard"><p class="lbl" style="margin:0;color:var(--cobalt)">Student logins (no email needed)</p>
+   <p class="muted" style="margin:0;font-size:14px">Make a username and password for a student without email. You can see and reset these passwords any time. Only you can see this list.</p>
+   <div class="lform"><input class="field" id="lName" value="${esc(LFORM?LFORM.name:'')}" placeholder="Student's name" autocomplete="off" maxlength="40"><input class="field" id="lUser" value="${esc(LFORM?LFORM.u:'')}" placeholder="Username, e.g. madina.k" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="30"><input class="field" id="lPw" value="${esc(LFORM?LFORM.pw:genPw())}" autocomplete="off" spellcheck="false" maxlength="40" aria-label="Password"></div>
+   <button class="btn" id="lGo">Create login</button>
+   ${LOGIN_MSG?`<p style="margin:0;font-weight:700">${esc(LOGIN_MSG)}</p>`:''}
+   ${LOGINS&&LOGINS.length?`<div class="stack" style="gap:6px">${LOGINS.map(l=>`<div class="lrow"><div style="min-width:0"><b>${esc(l.name||l.id)}</b><span class="muted" style="display:block;font-size:13px;overflow-wrap:anywhere">${esc(l.id)} · ${LOGIN_SHOW.has(l.id)?`<b style="color:var(--ink)">${esc(l.pw||'')}</b>`:'••••••'}</span></div><div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn ghost sm" data-lshow="${esc(l.id)}">${LOGIN_SHOW.has(l.id)?'Hide':'Show'}</button><button class="btn ghost sm" data-lreset="${esc(l.id)}">Reset</button></div></div>`).join('')}</div>`:LOGINS?'<p class="muted" style="margin:0;font-size:14px">No logins made yet.</p>':''}
+  </div>`; }
+function wireLogins(){ const go=document.getElementById('lGo'); if(!go) return; go.onclick=createLogin;
+  const c=document.getElementById('lCard'); c.querySelectorAll('[data-lshow]').forEach(b=>b.onclick=()=>{ const id=b.dataset.lshow; LOGIN_SHOW.has(id)?LOGIN_SHOW.delete(id):LOGIN_SHOW.add(id); vClass(); });
+  c.querySelectorAll('[data-lreset]').forEach(b=>b.onclick=()=>resetLogin(LOGINS.find(l=>l.id===b.dataset.lreset))); }
 async function importBank(file){
   BANK_MSG='Reading the file…'; vClass();
   try{ const j=JSON.parse(await file.text()); const items=(j.items||j).filter(x=>x&&x.id&&x.c&&x.c.length===4&&x.q&&UNIT[x.unit]);
@@ -2539,8 +2580,10 @@ function vClass(){
    <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><p class="lbl" style="margin:0">Students</p><div class="seg" id="cSort">${[['active','Recent'],['score','Score'],['xp','Week XP'],['acc','Lowest accuracy'],['name','Name']].map(([k,l])=>`<button data-s="${k}" aria-pressed="${CSORT===k}" style="padding:5px 9px;font-size:13px">${l}</button>`).join('')}</div></div>
     ${rows.length?`<div class="tblscroll"><table class="roster"><thead><tr><th>Student</th><th>Est. score</th><th>Last active</th><th>Streak</th><th>Week XP</th><th>Lessons</th><th>Words</th><th>Accuracy</th></tr></thead><tbody>${rows.map((r,i)=>`<tr class="click" data-st="${esc(r.id)}" tabindex="0"><td><span class="who"><span class="av" style="background:${colors[i%colors.length]}">${esc((r.name[0]||'?').toUpperCase())}</span><span>${esc(r.name)}</span></span></td><td><b>${r.sc??'–'}</b></td><td>${ago(r.upd)}</td><td>${r.live}</td><td>${r.s.weekXp||0}</td><td>${r.s.lessonsDone||0}/${LESSONS.length}</td><td>${r.s.words||0}</td><td>${r.acc==null?'–':`<span class="pill ${r.acc>=80?'good':r.acc<60?'bad':''}">${r.acc}%</span>`}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty"><p>No students yet. Share this app's link with your students. Each one appears here after their first lesson.</p></div>`}
    </div>
+   ${loginCard()}
    ${window.QADAM_SIGNOUT?bankCard(rows):''}
    <div class="card"><p class="lbl">Class accuracy by skill</p>${skillRows(classUnit)}</div></div>`;
+  wireLogins();
   const bf=document.getElementById('bFile'); if(bf) bf.onchange=e=>{ if(e.target.files[0]) importBank(e.target.files[0]); };
   const ba=document.getElementById('bAll'); if(ba) ba.onclick=async()=>{ ba.disabled=true; for(const r of rows){ if(!(ACCESS&&ACCESS.has(r.id))) if(!await setAccess(r.id,true)) break; } BANK_MSG=BANK_MSG||'Every student on the list can now open the official questions.'; vClass(); };
   document.getElementById('cSort').onclick=e=>{const b=e.target.closest('[data-s]'); if(!b)return; CSORT=b.dataset.s; vClass();};

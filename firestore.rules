@@ -28,5 +28,9 @@ service cloud.firestore {
       allow read: if request.auth != null && (request.auth.uid == uid || isTeacher());
       allow write: if isTeacher();
     }
+    // Logins the teacher created for students without email. Only the teacher can read them.
+    match /logins/{name} {
+      allow read, write: if isTeacher();
+    }
   }
 }
