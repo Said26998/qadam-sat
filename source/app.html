@@ -283,6 +283,9 @@ details.deck[open] summary{margin-bottom:10px}
 .lform{display:grid;gap:8px}
 .lrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
 .btn.sm{padding:8px 12px;font-size:13px;width:auto;box-shadow:none}
+.vbg .vset{padding:12px}
+.vbg .vset .row>*{min-width:0}
+.vbg .vbtn svg{flex:none}
 </style>
 <script>try{var qt=localStorage.getItem('qadam-theme');if(qt==='light'||qt==='dark')document.documentElement.setAttribute('data-theme',qt);}catch(e){}</script>
 
@@ -782,8 +785,11 @@ function startSpeed(){ const seen=WORDS.filter(w=>S.cards[w[0]]).map(w=>w[0]); c
   SES.speedT=setInterval(()=>{ if(!SES||SES.mode!=='speed') return; const el=document.getElementById('spd'); const left=Math.max(0,Math.ceil((SES.deadline-Date.now())/1000)); if(el) el.textContent=left+'s · '+SES.firstTry+' ✓'; if(left<=0) finish(); },250); }
 function vWords(){
   const due=dueCards(); const learning=WORDS.filter(w=>S.cards[w[0]]&&S.cards[w[0]].box<4).length; const m=mastered();
-  const sets=VUNITS.map(u=>{ const ls=VLESSONS.filter(l=>l.unit===u); const ws=VSETS[u.n].words; const mm=ws.filter(w=>(S.cards[w[0]]||{}).box>=4).length;
-    return `<div class="card vset"><div class="vh"><div><div class="k">Set ${u.n+1}</div><h3>${u.title}</h3></div><span class="pill ${mm===10?'good':''}">${mm}/10 mastered</span></div><p class="vw">${ws.map(w=>w[0]).join(' · ')}</p><div class="row">${ls.map(l=>{ const done=!!S.lessons[l.id], open=unlocked(l); return `<button class="vbtn ${done?'done':open?'':'locked'}" data-vl="${l.id}" aria-label="${u.title}, part ${l.li+1}${done?', completed':open?'':', locked'}">${done?I.check:open?I.star:I.lock}<span>Part ${l.li+1}</span></button>`; }).join('')}</div></div>`; }).join('');
+  const setCard=u=>{ const ls=VLESSONS.filter(l=>l.unit===u); const ws=VSETS[u.n].words; const mm=ws.filter(w=>(S.cards[w[0]]||{}).box>=4).length;
+    return `<div class="card vset"><div class="vh"><div><div class="k">Set ${u.n+1}</div><h3>${u.title}</h3></div><span class="pill ${mm===10?'good':''}">${mm}/10 mastered</span></div><p class="vw">${ws.map(w=>w[0]).join(' · ')}</p><div class="row">${ls.map(l=>{ const done=!!S.lessons[l.id], open=unlocked(l); return `<button class="vbtn ${done?'done':open?'':'locked'}" data-vl="${l.id}" aria-label="${u.title}, part ${l.li+1}${done?', completed':open?'':', locked'}">${done?I.check:open?I.star:I.lock}<span>Part ${l.li+1}</span></button>`; }).join('')}</div></div>`; };
+  const own=VUNITS.filter(u=>!VSETS[u.n].book), book=VUNITS.filter(u=>VSETS[u.n].book);
+  const bookDone=book.reduce((t,u)=>t+VSETS[u.n].words.filter(w=>(S.cards[w[0]]||{}).box>=4).length,0);
+  const sets=own.map(setCard).join('')+(book.length?`<h2 style="font-size:20px;margin-top:6px">SATashkent Vocabook</h2><p class="muted" style="margin:0;font-size:14px">${book.length*10} more words from the Vocabook word list (College Panda 400 and real exam words), with short definitions and examples. ${bookDone} mastered.</p>`+Array.from({length:Math.ceil(book.length/10)},(_,g)=>{ const part=book.slice(g*10,g*10+10); const m=part.reduce((t,u)=>t+VSETS[u.n].words.filter(w=>(S.cards[w[0]]||{}).box>=4).length,0); return `<details class="card deck vbg"><summary>Sets ${g*10+1}–${g*10+part.length} · ${m}/${part.length*10} mastered</summary><div class="stack" style="gap:10px;margin-top:10px">${part.map(setCard).join('')}</div></details>`; }).join(''):'');
   view.innerHTML=`<div class="wrap stack"><div><h1 style="font-size:28px">Words</h1><p class="muted" style="margin:4px 0 0">${WORDS.length} high-value SAT words in ${VSETS.length} themed sets. Learn a set with its two lessons, then keep it fresh with flashcards and the daily quiz.</p></div>
   ${wotdCard(false)}
   <div class="tiles"><div class="tile" style="color:var(--jade)">${I.cards}<div><b style="color:var(--ink)">${m} / ${WORDS.length}</b><span>words mastered</span></div></div><div class="tile" style="color:var(--saffron)">${I.clock}<div><b style="color:var(--ink)">${Math.min(10,due.length)}</b><span>cards ready</span></div></div></div>
