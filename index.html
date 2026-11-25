@@ -1580,6 +1580,69 @@ fss:[
 UNITS.forEach(u=>{ if(MORE3[u.id]) u.lessons.push(MORE3[u.id]); });
 
 /* Words that are too close in meaning are never offered as wrong choices for each other. */
+/* ---------- More word sets (Nov 2026) ---------- */
+VSETS.push(
+{ title:'Land, Water and Climate', d:2, words:[
+ ['arid','adj','very dry, with little rain','The arid plains get less than 20 cm of rain a year.','Few crops grow in the ___ Kyzylkum, where rain falls only a few days each year.'],
+ ['barren','adj','unable to grow plants; empty','The hillside was barren after the fire.','After years of overgrazing, the once-green pasture became ___ and dusty.'],
+ ['fertile','adj','able to grow many plants; productive','The Fergana Valley has fertile soil.','Floods left a layer of ___ mud that made the riverbank perfect for farming.'],
+ ['drought','noun','a long period with little or no rain','The drought dried up the wells.','During the three-year ___, farmers lost most of their wheat.'],
+ ['scarcity','noun','a shortage; not having enough','The scarcity of water raised prices.','The ___ of fresh water in the region forced villages to share a single well.'],
+ ['erode','verb','to wear away slowly','Wind eroded the soft rock.','Over centuries, rain and wind ___ the clay walls of the ancient fortress.'],
+ ['contaminate','verb','to make dirty or poisonous by adding something harmful','Chemicals contaminated the river.','Factory waste can ___ groundwater for decades after the factory closes.'],
+ ['conserve','verb','to protect something or use it carefully so it lasts','We must conserve energy.','Drip irrigation helps farmers ___ water by sending it straight to the roots.'],
+ ['encroach','verb','to gradually move into an area that belongs to something else','The desert is encroaching on farmland.','As the city grew, new houses began to ___ on the forest where deer once lived.'],
+ ['thrive','verb','to grow strongly and successfully','Cacti thrive in dry climates.','Mint and basil ___ in sunny spots with regular watering.'],
+]},
+{ title:'Health and the Body', d:2, words:[
+ ['chronic','adj','lasting a long time or coming back again and again','She has chronic back pain.','Unlike a cold, which passes in days, ___ illnesses such as diabetes must be managed for years.'],
+ ['symptom','noun','a sign of an illness','A fever is a common symptom of flu.','Fatigue was the first ___ she noticed, weeks before the doctor found the cause.'],
+ ['remedy','noun','a cure or treatment; a solution to a problem','Honey is a traditional remedy for a sore throat.','The city looked for a ___ for traffic jams and decided to build a metro line.'],
+ ['alleviate','verb','to make pain or a problem less severe','The medicine alleviated his headache.','Planting trees along the street can ___ summer heat for people walking below.'],
+ ['potent','adj','very strong or powerful','This is a potent medicine.','The new drug is so ___ that a tiny dose is enough to kill the bacteria.'],
+ ['lethargic','adj','tired, slow and without energy','The heat made everyone lethargic.','After staying up all night, the students felt ___ and could barely focus.'],
+ ['ingest','verb','to take food or another substance into the body','Do not ingest this chemical.','Sea turtles sometimes ___ plastic bags, mistaking them for jellyfish.'],
+ ['therapeutic','adj','helping to heal or relax','Gardening can be therapeutic.','Doctors found that listening to music had a ___ effect, lowering patients\' stress.'],
+ ['fragile','adj','easily broken or harmed','Handle the glass carefully; it is fragile.','Coral reefs are ___ ecosystems that can be damaged by a small rise in temperature.'],
+ ['deteriorate','verb','to become worse over time','His health deteriorated during the winter.','Without repairs, the old bridge will continue to ___ until it is unsafe.'],
+]},
+{ title:'Technology and Invention', d:2, words:[
+ ['ingenious','adj','very clever and original','It was an ingenious solution.','The ___ design uses sunlight to cool the building without any electricity.'],
+ ['innovative','adj','new and creative','The company is known for innovative products.','The school\'s ___ program lets students build real apps for local businesses.'],
+ ['prototype','noun','a first model used for testing','Engineers tested the prototype.','Before mass production, the team built a ___ and tested it on rough roads.'],
+ ['breakthrough','noun','an important new discovery or success','Vaccines were a medical breakthrough.','After years of failure, the lab announced a ___: a battery that charges in five minutes.'],
+ ['automate','verb','to make a process work by machines without people','Banks automated many tasks.','Factories ___ dangerous jobs so that robots, not workers, handle hot metal.'],
+ ['streamline','verb','to make a process simpler and more efficient','We streamlined the sign-up form.','The new website will ___ applications, cutting the process from ten steps to three.'],
+ ['cumbersome','adj','large, heavy or slow and hard to use','Early computers were cumbersome.','The ___ old cameras needed a tripod and two people to carry them.'],
+ ['durable','adj','able to last a long time without breaking','These boots are very durable.','Engineers chose a ___ material that could survive fifty winters of snow and ice.'],
+ ['compatible','adj','able to work together without problems','The charger is compatible with most phones.','The new software is not ___ with older computers, so the school had to upgrade.'],
+ ['versatile','adj','able to be used in many different ways','A knife is a versatile tool.','Bamboo is a ___ material, used for floors, bicycles and even clothing.'],
+]},
+{ title:'Law and Ethics', d:3, words:[
+ ['statute','noun','a written law passed by a government','The statute bans smoking indoors.','A new ___ requires all cars to have seat belts in the back seats.'],
+ ['verdict','noun','the decision made at the end of a trial or contest','The jury reached a verdict.','After two days of discussion, the judges announced their ___: the film had won first prize.'],
+ ['ethical','adj','morally right; about right and wrong','Is it ethical to test on animals?','Doctors face ___ questions when deciding who receives a scarce organ.'],
+ ['legitimate','adj','allowed by law or reasonable and acceptable','She had a legitimate reason for being late.','Missing class for a hospital visit is a ___ excuse; missing it to sleep late is not.'],
+ ['culpable','adj','deserving blame','The driver was found culpable for the crash.','The report found the company ___ because it ignored warnings about the faulty brakes.'],
+ ['integrity','noun','the quality of being honest and having strong principles','He is a man of integrity.','The referee\'s ___ was never questioned; everyone knew she could not be bribed.'],
+ ['infringe','verb','to break a law or limit someone\'s rights','The rule infringes on free speech.','Copying another author\'s book without permission may ___ copyright law.'],
+ ['testimony','noun','a formal statement of what someone knows, often in court','Her testimony helped the case.','The witness\'s ___ contradicted the security camera footage.'],
+ ['prohibit','verb','to officially forbid','The law prohibits fishing here.','The museum ___ flash photography because the light can damage old paintings.'],
+ ['impose','verb','to force a rule, tax or burden on someone','The city imposed a new tax.','During the epidemic, officials ___ limits on how many people could gather.'],
+]},
+{ title:'Art and Culture', d:2, words:[
+ ['aesthetic','adj','about beauty or artistic taste','The building has aesthetic appeal.','The architect made choices for ___ reasons, choosing blue tiles simply because they were beautiful.'],
+ ['motif','noun','a pattern or idea that is repeated in a work','The pomegranate is a common motif in Uzbek art.','The ___ of a journey appears again and again in the poet\'s work.'],
+ ['adorn','verb','to decorate or make more beautiful','Flowers adorned the table.','Hand-painted tiles ___ the walls of the madrasa from floor to ceiling.'],
+ ['genre','noun','a type or category of art, music or writing','Mystery is my favorite genre.','The author is best known for science fiction but has also written in the ___ of historical drama.'],
+ ['patron','noun','a person who supports an artist or cause with money','The king was a patron of poets.','As a ___ of the arts, Ulugh Beg brought scholars and artists to Samarkand.'],
+ ['heritage','noun','traditions and history passed down from earlier generations','The city is proud of its heritage.','Bukhara\'s old town is protected as part of the world\'s cultural ___.'],
+ ['improvise','verb','to create or perform without planning','The actor improvised a joke.','When the music stopped, the dancers had to ___, inventing new steps on the spot.'],
+ ['rendition','noun','a particular performance or version of a work','Her rendition of the song was moving.','The choir sang a slow, gentle ___ of a well-known folk song.'],
+ ['virtuoso','noun','a person with exceptional skill, especially in music','He is a piano virtuoso.','By age twelve, she was a ___ on the dutar, playing pieces that challenged adult masters.'],
+ ['eclectic','adj','made of many different styles or sources','The café has an eclectic style.','His ___ music collection included jazz, classical and traditional maqom.'],
+]},
+);
 const NEAR = [['corroborate','validate','substantiate','concur'],['tentative','provisional','preliminary','inconclusive'],['resilient','robust','tenacious','steadfast'],
  ['meticulous','rigorous','diligent','comprehensive','exhaustive'],['negligible','marginal','meager','sparse','scarce'],['wary','apprehensive','skeptical'],['detached','aloof','dismissive'],
  ['foster','engender','bolster','advocate','induce'],['diminish','curtail','mitigate'],['contend','assert','qualify'],['convey','articulate','depict','evoke'],['compelling','cogent','lucid','plausible'],
@@ -1845,6 +1908,81 @@ const GRAMMAR = [
    {d:3,p:'For the competition, students may either submit a written essay or ______',q:Q_CONV,c:['present a short film.','a short film.','presenting a short film.','they may present a short film.'],e:'"Either submit..." must be matched by "or present..."'},
   ]},
 ];
+/* ---------- More grammar topics (Nov 2026) ---------- */
+GRAMMAR.push(
+{ id:'gintro', grp:1, stat:'bd', title:'Introductory Phrases and Clauses',
+  intro:'Many SAT sentences open with a phrase or a dependent clause before the main idea. A single comma usually separates that opener from the independent clause that follows.',
+  rules:[
+   ['Comma after a dependent opener','<i>Although the storm passed, the roads stayed closed.</i> The clause starting with <b>although, because, when, if, since, while</b> ends with a comma.'],
+   ['Comma after a long phrase','<i>After three hours of careful work, the team found the error.</i> Longer prepositional or -ing phrases take a comma.'],
+   ['No comma after the subject','The opener ends where the subject begins. Never put a comma between the subject and its verb: <i>The team, found the error</i> is wrong.'],
+   ['Not a semicolon','A semicolon needs a complete sentence on <b>both</b> sides. <i>Because it rained; we stayed inside</i> is wrong because the first part is dependent.'],
+  ],
+  ex:[['When the bell rang the students rushed out.','When the bell rang, the students rushed out.','The dependent clause "When the bell rang" needs a comma before the main clause.'],
+      ['Because the bridge was closed; we took the ferry.','Because the bridge was closed, we took the ferry.','A dependent clause cannot stand before a semicolon.']],
+  items:[
+   {d:1,p:'Although the museum is small ______ holds more than two thousand ancient coins.',q:Q_CONV,c:[', it',' it','; it','. It'],e:'The dependent clause "Although the museum is small" ends with a comma before the main clause.'},
+   {d:1,p:'After weeks of practice ______ finally mastered the difficult piece.',q:Q_CONV,c:[', the pianist',' the pianist,','; the pianist','. The pianist'],e:'A comma closes the long introductory phrase. No comma goes between the subject and the verb "mastered."'},
+   {t:'tap',d:2,tq:'Tap the punctuation mark that should be a comma.',s:'Since the river changed its course*;* the old village now sits far from the water.',e:'"Since the river changed its course" is dependent, so it is followed by a comma, not a semicolon.'},
+   {d:2,p:'Using satellite images from the past forty years, ______ how quickly the glacier had retreated.',q:Q_CONV,c:['the researchers measured','the researchers, measured','measuring the researchers','the researchers\' measurement of'],e:'The subject right after the opener must be the ones "using" the images, and no comma separates it from the verb.'},
+   {d:3,p:'If the results of the second trial match those of the ______ will publish the findings next spring.',q:Q_CONV,c:['first, the team','first the team','first; the team','first. The team'],e:'The "If" clause is dependent and ends after "first," so a comma comes next.'},
+   {t:'tap',d:3,tq:'Tap the unnecessary comma.',s:'When the festival ended, the musicians from Khiva*,* packed their instruments and drove home.',e:'"The musicians from Khiva" is the subject. No comma goes between a subject and its verb "packed."'},
+  ]},
+{ id:'glist', grp:1, stat:'bd', title:'Punctuating Lists',
+  intro:'Lists appear in many SAT punctuation questions. Most lists use commas. When the items themselves contain commas, the list switches to semicolons.',
+  rules:[
+   ['Simple list','Use commas between items: <i>wool, silk, and cotton</i>. The SAT accepts the comma before <i>and</i>.'],
+   ['Colon to introduce a list','A colon may introduce a list only after a <b>complete sentence</b>: <i>She packed three things: a map, water, and a hat.</i>'],
+   ['No colon after a verb or preposition','<i>The kit includes: a map</i> is wrong. The words before the colon are not a complete sentence.'],
+   ['Semicolons for complex lists','If items already contain commas, separate them with semicolons: <i>Tashkent, Uzbekistan; Almaty, Kazakhstan; and Bishkek, Kyrgyzstan</i>.'],
+  ],
+  ex:[['The recipe needs: flour, salt, and water.','The recipe needs flour, salt, and water.','"The recipe needs" is not a complete sentence, so no colon.'],
+      ['They visited Rome, Italy, Paris, France, and Madrid, Spain.','They visited Rome, Italy; Paris, France; and Madrid, Spain.','Each item contains a comma, so semicolons separate the items.']],
+  items:[
+   {d:1,p:'The bazaar sells dried apricots, raisins ______ and almonds.',q:Q_CONV,c:[', walnuts,',' walnuts',', walnuts;','; walnuts,'],e:'A simple list uses commas between all items.'},
+   {d:2,p:'The expedition carried everything it needed to survive ______ tents, stoves, and two months of food.',q:Q_CONV,c:[':',';',', such as:',' including:'],e:'"The expedition carried everything it needed to survive" is a complete sentence, so a colon can introduce the list.'},
+   {t:'tap',d:2,tq:'Tap the punctuation mark that should be removed.',s:'The new library includes*:* a reading hall, a recording studio, and a café.',e:'"The new library includes" is not a complete sentence, so no colon. The verb leads straight into its objects.'},
+   {d:3,p:'The panel included Dilnoza Karimova, a chemist ______ Aziz Rahimov, a historian; and Lola Saidova, a poet.',q:Q_CONV,c:[';',',',':','—'],e:'Each item contains a comma ("Dilnoza Karimova, a chemist"), so semicolons separate the items, matching the one before "and Lola Saidova."'},
+   {d:3,p:'The tour stops in three cities: Samarkand, known for the Registan; Bukhara, known for its old trading domes ______ Khiva, known for its walled inner town.',q:Q_CONV,c:['; and',', and',' and',': and'],e:'The items contain commas, so the list uses semicolons, including before the final "and."'},
+   {d:2,p:'To apply, students must submit a transcript, two letters of ______ and a short essay.',q:Q_CONV,c:['recommendation,','recommendation;','recommendation:','recommendation'],e:'The list items contain no internal commas, so plain commas separate them.'},
+  ]},
+{ id:'gcomp', grp:2, stat:'fss', title:'Logical Comparisons',
+  intro:'When a sentence compares two things, they must be the same kind of thing. The SAT likes to compare a thing with a person or a place by mistake.',
+  rules:[
+   ['Compare like with like','<i>Her score was higher than <b>his</b></i> (his score) is fine. <i>Her score was higher than <b>him</b></i> compares a score to a person.'],
+   ['that of / those of','Use <i>that of</i> (singular) or <i>those of</i> (plural) to avoid repeating the noun: <i>The climate of Nukus is drier than <b>that of</b> Tashkent.</i>'],
+   ['Possessives can do it too','<i>Samarkand\'s history is older than <b>Tashkent\'s</b></i> means Tashkent\'s history.'],
+   ['Than vs. then','<i>Than</i> compares (<i>taller than</i>). <i>Then</i> shows time (<i>first this, then that</i>).'],
+  ],
+  ex:[['The rivers in Africa are longer than Europe.','The rivers in Africa are longer than those in Europe.','Compare rivers to rivers, not to a continent.'],
+      ['A cheetah\'s speed is greater than a lion.','A cheetah\'s speed is greater than a lion\'s.','Compare speed to speed.']],
+  items:[
+   {d:1,p:'The new phone\'s battery lasts much longer than ______',q:Q_CONV,c:['the old phone\'s.','the old phone.','the old phone does battery.','then the old phone.'],e:'Compare battery to battery: "the old phone\'s" (battery).'},
+   {d:2,p:'The population of Samarkand is smaller than ______ but its tourist industry is larger.',q:Q_CONV,c:['that of Tashkent,','Tashkent,','those of Tashkent,','Tashkent\'s population is,'],e:'"That of Tashkent" means "the population of Tashkent," a singular noun, so "that" not "those."'},
+   {d:2,p:'Unlike ______ the Aral Sea has shrunk to a small fraction of its former size.',q:Q_CONV,c:['Lake Issyk-Kul,','Lake Issyk-Kul\'s water level,','that of Lake Issyk-Kul,','those of Lake Issyk-Kul,'],e:'The Aral Sea (a body of water) is compared with another body of water, Lake Issyk-Kul, not with its water level.'},
+   {t:'tap',d:2,tq:'Tap the word that creates an illogical comparison.',s:'The leaves of the Asian elm are smaller than the *oak*, so the tree lets in more light.',e:'Leaves are compared with a tree. It should be "those of the oak."'},
+   {d:3,p:'Researchers found that the bones of birds are lighter than ______ because they are filled with tiny air pockets.',q:Q_CONV,c:['those of mammals','mammals','that of mammals','mammal'],e:'Compare bones (plural) with bones: "those of mammals."'},
+   {d:2,p:'Today, the train trip from Tashkent to Samarkand takes far less time ______ it did twenty years ago.',q:Q_CONV,c:['than','then','than what','then what'],e:'"Than" makes a comparison. "Then" is about time order, and "what" adds an extra word that breaks the sentence.'},
+  ]},
+{ id:'gconf', grp:2, stat:'fss', title:'Commonly Confused Words',
+  intro:'Some small words sound alike but play different roles. The SAT tests the most common pairs, especially contractions and possessives.',
+  rules:[
+   ['its / it\'s','<i>Its</i> = belonging to it (<i>the tree lost its leaves</i>). <i>It\'s</i> = it is or it has.'],
+   ['their / there / they\'re','<i>Their</i> = belonging to them. <i>There</i> = a place or "there is." <i>They\'re</i> = they are.'],
+   ['whose / who\'s','<i>Whose</i> = belonging to whom. <i>Who\'s</i> = who is or who has.'],
+   ['affect / effect','Usually <i>affect</i> is the verb (<i>rain affects crops</i>) and <i>effect</i> is the noun (<i>the effect of rain</i>).'],
+  ],
+  ex:[['The company changed it\'s logo.','The company changed its logo.','Possession needs "its," with no apostrophe.'],
+      ['The scientist who\'s research won the prize spoke first.','The scientist whose research won the prize spoke first.','"Whose" shows possession; "who\'s" means "who is."']],
+  items:[
+   {d:1,p:'The falcon spread ______ wings and rose above the canyon.',q:Q_CONV,c:['its','it\'s','its\'','their'],e:'The wings belong to the falcon (singular), so "its."'},
+   {d:1,p:'The students left ______ backpacks in the hall before the exam.',q:Q_CONV,c:['their','there','they\'re','its'],e:'The backpacks belong to the students: "their."'},
+   {d:2,p:'Doctors are studying how screen time ______ the sleep of teenagers.',q:Q_CONV,c:['affects','effects','affect','effect'],e:'The verb is needed, and the subject "screen time" is singular: "affects."'},
+   {t:'tap',d:2,tq:'Tap the word that is used incorrectly.',s:'The author, *who\'s* novels have been translated into twenty languages, lives in Tashkent.',e:'The novels belong to the author, so it should be "whose."'},
+   {d:3,p:'The museum says ______ planning to return the manuscript to the library where it was first found.',q:Q_CONV,c:['it\'s','its','its\'','it'],e:'"It is planning" is needed, so the contraction "it\'s."'},
+   {d:3,p:'The new policy had an immediate ______ on traffic: commute times dropped by twenty percent.',q:Q_CONV,c:['effect','affect','effects','affects'],e:'After "an immediate," a singular noun is needed: "effect."'},
+  ]},
+);
 GRAMMAR.forEach((g,gi)=>{ g.sec=3; g.grammar=true; g.n=gi; g.tip=g.intro; g.items.forEach((it,k)=>{ it.id='gr-'+g.id+'-'+(k+1); it.unit=g.id; it.stat=g.stat; }); });
 const GRP = ['Foundations','Sentence Boundaries (SAT)','Form, Structure, and Sense (SAT)'];
 /* ---------- Reading Gym: timed passages (original) ---------- */
@@ -1946,6 +2084,69 @@ const READS = [
   {d:2,q:'Which choice best describes the structure of the passage?',c:['A challenge is introduced, a character works to overcome it, and the result is shown.','Two characters argue and then make peace.','A place is described from several points of view.','A character remembers events from long ago.'],e:'The gray "desert" (challenge), Timur\'s work, and the flourishing garden (result).'},
  ]},
 ];
+/* ---------- More Reading Gym passages (Nov 2026, original) ---------- */
+READS.push(
+{ id:'r9', title:'The Prince Who Mapped the Stars', genre:'History', d:2, text:[
+ 'In the 1420s, the ruler of Samarkand was not only a prince but also a serious scientist. Ulugh Beg, the grandson of Timur, was fascinated by mathematics and astronomy. Rather than spend the city\'s wealth only on palaces, he built an observatory on a hill outside Samarkand and invited dozens of scholars to work there.',
+ 'The observatory\'s most remarkable instrument was a giant curved track cut deep into the rock, with a radius of about forty meters. Because it was so large, astronomers could measure the height of the sun and stars with unusual precision. Small errors that would ruin a measurement on a handheld instrument became tiny when spread across such a huge scale.',
+ 'The results were impressive. Ulugh Beg\'s team produced a catalogue listing the positions of more than a thousand stars, the most complete since ancient times. They also calculated the length of the year to within about a minute of the modern value. Scholars in Europe would later translate and study the catalogue.',
+ 'The story did not end happily. Ulugh Beg was killed in 1449, and the observatory was abandoned and slowly buried. For centuries, its location was forgotten. In 1908, the archaeologist Vasily Vyatkin found the remains of the great curved track underground. Today visitors can walk down into it and see how one prince turned a hilltop into one of the world\'s great centers of science.'],
+ qs:[
+  {d:1,q:'What is the main idea of the passage?',c:['Ulugh Beg built an observatory in Samarkand that produced remarkably precise astronomy.','Ulugh Beg preferred palaces to science.','The observatory was the first building ever made in Samarkand.','European scholars built the observatory in Samarkand.'],e:'Each paragraph explains the observatory, its instrument, its results and its later history.'},
+  {d:2,q:'According to the passage, why did the large size of the curved track matter?',c:['It made small measuring errors much less important.','It allowed more scholars to sit inside it.','It protected the observatory from earthquakes.','It made the observatory visible from the city.'],e:'Paragraph 2: small errors "became tiny when spread across such a huge scale."'},
+  {d:2,q:'As used in paragraph 2, "precision" most nearly means',c:['exactness','speed','beauty','difficulty'],e:'The measurements were unusually exact.'},
+  {d:2,q:'Which detail best supports the claim that the observatory\'s work was influential?',c:['Scholars in Europe would later translate and study the catalogue.','Ulugh Beg was the grandson of Timur.','The observatory was built on a hill.','Visitors can walk down into the track today.'],e:'Later study by European scholars shows the work had influence beyond Samarkand.'},
+  {d:3,q:'Which choice best describes the function of the final paragraph?',c:['It explains what happened to the observatory and how it was found again.','It describes how the curved track was used.','It compares Ulugh Beg with European astronomers.','It lists the stars in Ulugh Beg\'s catalogue.'],e:'The paragraph covers the abandonment, the rediscovery in 1908 and what visitors see today.'},
+ ]},
+{ id:'r10', title:'Skin That Sees', genre:'Science', d:2, text:[
+ 'An octopus resting on a coral reef can vanish in less than a second. Its skin changes color, brightness and even texture until it matches the rock or seaweed behind it. Few animals can disguise themselves so quickly or so completely.',
+ 'The change is controlled by thousands of tiny sacs of pigment in the skin called chromatophores. Each sac is surrounded by muscles connected to nerves. When the muscles pull, the sac stretches and its color spreads across a wider area; when they relax, the sac shrinks to a dot. Because the brain controls these muscles directly, the octopus can change its whole body almost instantly.',
+ 'This ability raises a puzzle. Most evidence suggests that octopuses are color-blind: their eyes have only one type of light-sensitive cell, so they should not be able to tell red from green. How, then, can they match colors so well? One possible answer came when researchers found light-sensing proteins in octopus skin itself. These proteins may allow the skin to respond to light directly, without waiting for the eyes.',
+ 'Scientists do not yet know how much this "seeing skin" helps with camouflage. Still, the discovery has inspired engineers, who are trying to build flexible materials that change color when light hits them. One day, such materials could be used to make clothing or buildings that adjust to their surroundings.'],
+ qs:[
+  {d:1,q:'What is the main purpose of paragraph 2?',c:['To explain how an octopus physically changes its color','To argue that octopuses are color-blind','To describe where octopuses live','To compare octopuses with other animals'],e:'It describes chromatophores and the muscles that stretch them.'},
+  {d:2,q:'According to the passage, what happens when the muscles around a chromatophore relax?',c:['The sac shrinks and shows less color.','The sac stretches and spreads its color.','The octopus becomes color-blind.','The skin changes texture.'],e:'"When they relax, the sac shrinks to a dot."'},
+  {d:2,q:'What puzzle does the author describe in paragraph 3?',c:['Octopuses match colors well even though their eyes probably cannot see color.','Octopuses cannot change color in bright light.','Octopuses have no nerves in their skin.','Octopuses change color more slowly than other animals.'],e:'The author asks how a color-blind animal "can match colors so well."'},
+  {d:3,q:'Which choice best describes the author\'s view of the "seeing skin" idea?',c:['It is a promising possibility that has not yet been fully confirmed.','It has been proved to be the main source of camouflage.','It has been disproved by later experiments.','It is unimportant to scientists.'],e:'The author says the proteins "may allow" a response, and scientists "do not yet know how much" it helps.'},
+  {d:2,q:'As used in paragraph 4, "inspired" most nearly means',c:['given ideas to','breathed in','frightened','confused'],e:'The discovery gave engineers ideas for new materials.'},
+ ]},
+{ id:'r11', title:'Why Cities Are Hotter', genre:'Social science', d:3, text:[
+ 'On a summer night, the center of a large city can stay several degrees warmer than the farmland around it. Scientists call this effect the urban heat island. It is not caused by a different climate but by the city itself: by the materials it is built from and the way it is arranged.',
+ 'Dark surfaces such as asphalt and roofing tar absorb most of the sunlight that hits them. During the day they store this energy, and at night they release it slowly as heat. Tall buildings make the problem worse by trapping warm air in narrow streets and blocking breezes. Meanwhile, cities have fewer trees and less open soil. In the countryside, plants release water vapor that cools the air, much as sweat cools the skin. Concrete does not.',
+ 'The consequences are more than uncomfortable. Hot nights prevent people\'s bodies from recovering from daytime heat, which is especially dangerous for older residents. Air conditioners run longer, raising electricity use and, in many places, pollution from power plants, which can in turn warm the city further.',
+ 'Cities are now testing ways to cool themselves. Some paint roofs white or light gray so that they reflect sunlight instead of absorbing it. Others plant trees along streets or create "green roofs" covered with grass. Each measure is small, but together they show that the heat island is not inevitable. Because people created it through choices about building, people can also reduce it.'],
+ qs:[
+  {d:2,q:'Which choice best states the main idea of the passage?',c:['Cities trap extra heat because of how they are built, but changes in building can reduce it.','Cities have a different climate from the countryside because they are farther north.','Air conditioners are the main cause of hot nights in cities.','Trees cannot survive in cities because of the heat.'],e:'Paragraphs 1–2 explain the causes in the built environment; paragraph 4 describes solutions.'},
+  {d:2,q:'According to the passage, how do plants help cool the countryside?',c:['They release water vapor that cools the air.','They absorb sunlight and release it at night.','They block breezes from reaching farms.','They reflect sunlight back into space like white roofs.'],e:'"Plants release water vapor that cools the air, much as sweat cools the skin."'},
+  {d:3,q:'Why does the author mention pollution from power plants in paragraph 3?',c:['To show how the heat island can make itself worse through a cycle','To argue that cities should close all power plants','To explain why older residents are at risk','To prove that air conditioners do not work'],e:'More cooling leads to more power use and pollution, "which can in turn warm the city further."'},
+  {d:3,q:'As used in paragraph 4, "inevitable" most nearly means',c:['impossible to avoid','very expensive','easy to see','recently discovered'],e:'The author argues the heat island can be reduced, so it is not unavoidable.'},
+  {d:3,q:'Based on the passage, which change would most likely reduce a city\'s nighttime temperature?',c:['Replacing a dark parking lot with a park full of trees','Building taller towers along narrow streets','Covering more roofs with black tar','Running air conditioners for longer'],e:'Trees add cooling water vapor and replace a dark heat-storing surface; the other choices add heat.'},
+ ]},
+{ id:'r12', title:'Stories in Thread', genre:'Arts', d:1, text:[
+ 'In many Uzbek homes, the brightest object in the room is a suzani. These large cloth panels are covered with embroidery: red and orange circles, curling vines, flowers and pomegranates stitched in silk or cotton thread. They hang on walls, cover beds or are spread out for special guests.',
+ 'Traditionally, a suzani was made for a wedding. When a girl was born, the women of her family would begin planning the panels she would one day take to her new home. The work was often shared. One woman would draw the design onto the cloth, and the cloth would be cut into strips so that several women could stitch at the same time. Later, the strips were sewn back together.',
+ 'This method left small clues. Because different women worked on different strips, the colors or stitches sometimes do not line up perfectly where the pieces meet. Collectors once saw these mismatches as mistakes. Today many people see them as a record of the family members who worked side by side.',
+ 'The designs carry meaning, too. Pomegranates, full of seeds, stand for many children and a large family. Large circles may represent the sun or the moon. Every suzani is therefore more than decoration. It is a wish for the future, written in thread.'],
+ qs:[
+  {d:1,q:'What is the main idea of the passage?',c:['Suzanis are embroidered panels that carry family history and meaning.','Suzanis are made by machines in large factories.','Pomegranates are the most popular fruit in Uzbekistan.','Suzanis are used only in museums.'],e:'The passage describes how suzanis were made and what their designs mean.'},
+  {d:1,q:'According to the passage, why was the cloth cut into strips?',c:['So that several women could stitch at the same time','So that the suzani would be easier to sell','So that the colors would match perfectly','So that the design could be drawn more easily'],e:'"The cloth would be cut into strips so that several women could stitch at the same time."'},
+  {d:2,q:'How has the view of mismatched strips changed over time?',c:['They were once seen as mistakes but are now valued as signs of shared work.','They were once valued but are now seen as mistakes.','They have always been seen as beautiful.','They have always been hidden by collectors.'],e:'Paragraph 3: "Collectors once saw these mismatches as mistakes. Today many people see them as a record..."'},
+  {d:2,q:'As used in paragraph 4, "stand for" most nearly means',c:['represent','tolerate','rise up','support'],e:'Pomegranates represent many children.'},
+  {d:2,q:'What does the author mean by calling a suzani "a wish for the future, written in thread"?',c:['Its designs express hopes for the family\'s future.','It contains written words sewn in thread.','It was made to be sold in the future.','It predicts the weather.'],e:'Symbols such as pomegranates express wishes, like the wish for a large family.'},
+ ]},
+{ id:'r13', title:'The Chess Clock', genre:'Fiction', d:1, text:[
+ 'Farrukh had beaten everyone in his class at chess, so when his teacher signed him up for the city tournament, he expected to win easily. He did not expect the chess clock.',
+ 'In his first game, his opponent, a quiet girl named Shahnoza, moved quickly and pressed the clock after every move. Farrukh, used to thinking as long as he liked, stared at the board while his minutes drained away. He found a brilliant plan, but by then he had only seconds left. His flag fell before he could finish. He had lost a game he was winning.',
+ 'That evening he told his grandfather, who had taught him to play. The old man laughed gently. "You learned chess without time," he said. "Now you must learn time." For the next month, they played every evening with a clock, five minutes each. At first Farrukh lost again and again. Slowly he learned to trust his first good idea instead of searching forever for a perfect one.',
+ 'At the next tournament, he met Shahnoza in the third round. This time the game was close, and both clocks ran low together. When Farrukh finally won, Shahnoza shook his hand and smiled. "You got faster," she said. "You got better," he answered, and they both laughed.'],
+ qs:[
+  {d:1,q:'Why did Farrukh lose his first tournament game?',c:['He ran out of time on the clock.','He made a careless mistake with his queen.','He arrived late to the tournament.','Shahnoza found a brilliant plan first.'],e:'"His flag fell before he could finish. He had lost a game he was winning."'},
+  {d:1,q:'What does the grandfather mean when he says, "Now you must learn time"?',c:['Farrukh must learn to play well under time pressure.','Farrukh must learn to tell time on a clock.','Farrukh must stop playing chess.','Farrukh must practice for more hours each day.'],e:'Farrukh plays well without a clock but has not learned to manage time limits.'},
+  {d:2,q:'Which choice best describes how Farrukh changes?',c:['He learns to act on good ideas instead of always searching for perfect ones.','He decides that winning is no longer important.','He becomes more careless in his play.','He stops listening to his grandfather.'],e:'"Slowly he learned to trust his first good idea instead of searching forever for a perfect one."'},
+  {d:2,q:'As used in paragraph 2, "drained away" most nearly means',c:['ran out gradually','flowed into a river','became heavier','stopped completely'],e:'His minutes were used up little by little.'},
+  {d:2,q:'Which choice best describes the structure of the passage?',c:['A character faces a setback, practices to overcome it, and succeeds.','Two friends compete and end their friendship.','A narrator describes the history of chess.','A character remembers his grandfather\'s life.'],e:'Loss on time (setback), a month of practice, and a win in the next tournament.'},
+ ]},
+);
 READS.forEach(r=>{ r.words=r.text.join(' ').replace(/<[^>]+>/g,'').split(/\s+/).length; r.unit='rd'; r.sec=1;
   const look=`<details class="look"><summary>Look back at the passage</summary>${r.text.map(t=>`<p>${t}</p>`).join('')}</details>`;
   r.qs.forEach((q,k)=>{ q.id='rd-'+r.id+'-'+(k+1); q.unit='rd'; q.stat=/most nearly means/.test(q.q)?'wic':/purpose|function|structure|Why does the author|Why is it important/.test(q.q)?'ts':'ci'; q.p=look; q.read=r.id; }); });
