@@ -2411,7 +2411,9 @@ function startReading(r){
 
 /* ---------- Words ---------- */
 function cardState(w){ return S.cards[w]||{box:0,due:'',seen:0}; }
-function dueCards(){ const t=today(); const seen=WORDS.filter(w=>S.cards[w[0]] && S.cards[w[0]].due<=t); const fresh=WORDS.filter(w=>!S.cards[w[0]]); return seen.concat(fresh); }
+const isLearned=w=>(S.cards[w[0]]||{}).box>=4, isLearning=w=>!!S.cards[w[0]]&&!isLearned(w);
+// Still-learning words come first, then new words, then learned words when their (longer) review date arrives.
+function dueCards(){ const t=today(); const due=WORDS.filter(w=>S.cards[w[0]] && S.cards[w[0]].due<=t); const fresh=WORDS.filter(w=>!S.cards[w[0]]); return due.filter(isLearning).concat(fresh, due.filter(isLearned)); }
 function wotd(){ return WORDS[Math.floor(Date.now()/864e5) % WORDS.length]; }
 function wotdCard(link){ const w=wotd(); return `<div class="card wotd"><p class="lbl">Word of the day</p><div class="wd">${w[0]} <span>${w[1]}</span></div><p style="margin:4px 0 0">${esc(w[2])}</p><p class="ex">“${esc(w[3])}”</p>${link?'<button class="btn ghost" id="wotdGo" style="margin-top:12px">Practice vocabulary</button>':''}</div>`; }
 function startQuiz(){
@@ -2422,8 +2424,8 @@ function startQuiz(){
 const MEAN={}; VUNITS.forEach(u=>u.lessons[2].forEach(it=>{ if(it.t==='mean') MEAN[it.word]=it; }));
 function meanItem(w){ if(MEAN[w]) return MEAN[w]; const u=VUNITS.find(v=>VSETS[v.n].words.some(x=>x[0]===w)); const ws=VSETS[u.n].words; const i=ws.findIndex(x=>x[0]===w);
   const it=u.meaning(ws[i],i); it.id=u.id+'-s-'+w; it.unit=u.id; it.stat='voc'; ITEM[it.id]=it; return MEAN[w]=it; }
-function startSpeed(){ const seen=WORDS.filter(w=>S.cards[w[0]]).map(w=>w[0]); const pool=(seen.length>=12?seen:WORDS.slice(0,40).map(w=>w[0]));
-  startSession('speed', shuffle(pool).slice(0,40).map(meanItem)); SES.deadline=Date.now()+60000;
+function startSpeed(){ const seen=WORDS.filter(w=>S.cards[w[0]]).map(w=>w[0]); const pool=(seen.length>=12?seen.concat(...WORDS.filter(isLearning).map(w=>[w[0],w[0]])):WORDS.slice(0,40).map(w=>w[0]));
+  startSession('speed', [...new Set(shuffle(pool))].slice(0,40).map(meanItem)); SES.deadline=Date.now()+60000;
   SES.speedT=setInterval(()=>{ if(!SES||SES.mode!=='speed') return; const el=document.getElementById('spd'); const left=Math.max(0,Math.ceil((SES.deadline-Date.now())/1000)); if(el) el.textContent=left+'s · '+SES.firstTry+' ✓'; if(left<=0) finish(); },250); }
 function vWords(){
   const due=dueCards(); const learning=WORDS.filter(w=>S.cards[w[0]]&&S.cards[w[0]].box<4).length; const m=mastered();
@@ -2433,11 +2435,14 @@ function vWords(){
   ${wotdCard(false)}
   <div class="tiles"><div class="tile" style="color:var(--jade)">${I.cards}<div><b style="color:var(--ink)">${m} / ${WORDS.length}</b><span>words mastered</span></div></div><div class="tile" style="color:var(--saffron)">${I.clock}<div><b style="color:var(--ink)">${Math.min(10,due.length)}</b><span>cards ready</span></div></div></div>
   <div class="row"><button class="btn" id="wGo" ${due.length?'':'disabled'}>${due.length?'Flashcards':'Cards done'}</button><button class="btn saff" id="wQ">Word quiz</button></div>
+  <div class="row"><button class="btn ghost" id="wBl" ${WORDS.some(isLearning)?'':'disabled'}>Learning · ${WORDS.filter(isLearning).length}</button><button class="btn ghost" id="wBk" ${m?'':'disabled'}>Learned · ${m}</button></div>
   <button class="btn" id="wS" style="background:var(--plum);box-shadow:0 4px 0 var(--plum-d)">Speed round · 60 seconds${S.speedBest?` · best ${S.speedBest}`:''}</button>
-  <p class="muted" style="margin:0;font-size:14px">The speed round shows a word in a sentence: pick its meaning as fast as you can. The quiz picks the words you find hardest. Missed words go back into your flashcards for tomorrow.</p>
+  <p class="muted" style="margin:0;font-size:14px">The speed round shows a word in a sentence: pick its meaning as fast as you can. The quiz picks the words you find hardest. On a flashcard, tap Learned and the word comes back only every few weeks. Tap Still learning and it comes back today and first in line.</p>
   <h2 style="font-size:20px;margin-top:6px">Word sets</h2>${sets}
   <details class="card deck"><summary>Your whole deck · ${learning} learning</summary><div class="wl">${WORDS.map(w=>{const c=cardState(w[0]);return `<div><b>${w[0]}</b><span class="lv" aria-label="level ${c.box} of 5">${[1,2,3,4,5].map(i=>`<i class="${c.box>=i?'on':''}"></i>`).join('')}</span></div>`}).join('')}</div></details></div>`;
   const b=document.getElementById('wGo'); if(b) b.onclick=()=>cardSession(due.slice(0,10));
+  document.getElementById('wBl').onclick=()=>cardSession(shuffle(WORDS.filter(isLearning)).slice(0,15));
+  document.getElementById('wBk').onclick=()=>cardSession(shuffle(WORDS.filter(isLearned)).slice(0,15));
   document.getElementById('wQ').onclick=startQuiz;
   document.getElementById('wS').onclick=startSpeed;
   view.querySelectorAll('[data-vl]').forEach(x=>x.onclick=()=>lessonSheet(LESSON[x.dataset.vl]));
@@ -2452,12 +2457,12 @@ function cardSession(list){
     const w=q[0]; const pct=Math.round(n/ (total+again.size) *100);
     LS.innerHTML=`<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog"><i style="width:${pct}%"></i></div><span class="pill">${q.length} left</span></div>
       <div class="bd"><div class="in"><p class="muted" style="margin:0;text-align:center">Say the meaning out loud, then tap the card.</p><div class="fc" id="fc" role="button" tabindex="0" aria-label="Flip card"><div class="inner"><div class="face"><div class="wd">${w[0]}</div><div class="pos">${w[1]}</div></div><div class="face back"><div class="pos">${w[0]} · ${w[1]}</div><div class="df">${esc(w[2])}</div><div class="ex">“${esc(w[3])}”</div></div></div></div></div></div>
-      <div class="ft"><div class="in"><div class="row" id="fcBtns" hidden><button class="btn bad" id="fA">Still learning</button><button class="btn good" id="fK">I knew it</button></div><button class="btn" id="fF">Show meaning</button></div></div>`;
+      <div class="ft"><div class="in"><div class="row" id="fcBtns" hidden><button class="btn bad" id="fA">Still learning</button><button class="btn good" id="fK">Learned</button></div><button class="btn" id="fF">Show meaning</button></div></div>`;
     const fc=document.getElementById('fc'); const flip=()=>{ fc.classList.add('flip'); document.getElementById('fcBtns').hidden=false; document.getElementById('fF').hidden=true; };
     fc.onclick=flip; fc.onkeydown=e=>{ if(e.key===' '||e.key==='Enter'){e.preventDefault();flip();} }; document.getElementById('fF').onclick=flip;
     document.getElementById('lsX').onclick=()=>{ save(); LS.hidden=true; LS.innerHTML=''; document.body.style.overflow=''; render(); };
     const grade=(knew)=>{ const c=Object.assign({box:0,due:'',seen:0}, S.cards[w[0]]); c.seen++; n++;
-      if(knew && !again.has(w[0])){ c.box=Math.min(5,c.box+1); sfx.good(); } else if(!knew){ c.box=0; again.add(w[0]); q.push(w); sfx.bad(); } else { sfx.good(); }
+      if(knew && !again.has(w[0])){ c.box=Math.min(5,Math.max(4,c.box+1)); sfx.good(); } else if(!knew){ c.box=0; again.add(w[0]); q.push(w); sfx.bad(); } else { sfx.good(); }
       const d=new Date(); d.setDate(d.getDate()+INTV[c.box]); c.due=dkey(d); S.cards[w[0]]=c; q.shift(); reviewed++; save(false); draw(); };
     document.getElementById('fA').onclick=()=>grade(false); document.getElementById('fK').onclick=()=>grade(true);
   };
