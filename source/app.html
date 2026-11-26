@@ -286,6 +286,45 @@ details.deck[open] summary{margin-bottom:10px}
 .vbg .vset{padding:12px}
 .vbg .vset .row>*{min-width:0}
 .vbg .vbtn svg{flex:none}
+/* skill levels + mock test */
+.unit .lvb{margin-left:auto;display:flex;align-items:center;gap:4px;background:var(--saffron);border-color:transparent;color:#2A1A00}
+.unit .lvb svg{width:16px;height:16px}
+.unit .lvb+.guide{margin-left:0}
+.pips{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.pip{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
+.pip b{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--sunk);color:var(--muted);font-family:var(--f-disp);border:2px solid var(--line)}
+.pip.on b{background:var(--tone);color:var(--on);border-color:var(--tone)}
+.pip small{font-size:11px;font-weight:700;color:var(--muted)}
+.pips.sm{display:inline-flex;gap:4px}.pips.sm i{width:14px;height:14px;border-radius:50%;background:var(--sunk);border:2px solid var(--line)}.pips.sm i.on{background:var(--tone);border-color:var(--tone)}
+.lvrows{display:flex;flex-direction:column;gap:8px}.lvrow{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}
+.lvbar{height:12px;border-radius:99px;background:var(--sunk);overflow:hidden}.lvbar i{display:block;height:100%;background:var(--saffron);border-radius:99px}
+.crown{width:96px;color:var(--saffron)}.crown.off{color:var(--line)}.crown svg{width:100%;height:auto}
+.mkclk{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:6px 10px;font-weight:800;font-variant-numeric:tabular-nums;min-width:74px}
+.mkclk.low{border-color:var(--bad);color:var(--bad)}
+.mkq{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.mknum{min-width:34px;height:34px;padding:0 8px;border-radius:10px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:800}
+.mkflag{display:flex;align-items:center;gap:6px;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:6px 10px;font-weight:700;font-size:14px;color:var(--muted)}
+.mkflag svg{width:18px;height:18px}.mkflag[aria-pressed="true"]{border-color:var(--coral);color:var(--coral)}
+.mkft{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+.mknav{border:0;background:var(--sunk);border-radius:12px;padding:10px 12px;font-weight:800;white-space:nowrap}
+.mkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:8px}
+.mkgrid button{position:relative;height:44px;border-radius:10px;border:2px dashed var(--muted);background:var(--surface);font-weight:800}
+.mkgrid button.done{border:2px solid var(--cobalt);background:var(--cobalt);color:var(--on)}
+.mkgrid button.fl::after{content:"";position:absolute;top:-5px;right:-5px;width:12px;height:12px;border-radius:50%;background:var(--coral);border:2px solid var(--bg)}
+.mkkey{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}.mkkey span{display:flex;align-items:center;gap:6px}.mkkey i{width:14px;height:14px;border-radius:4px;display:inline-block}
+.mkkey .k1{background:var(--cobalt)}.mkkey .k2{border:2px dashed var(--muted)}.mkkey .k3{background:var(--coral);border-radius:50%}
+.mkscore{font-size:64px!important;color:var(--cobalt)!important;line-height:1}
+.srow{margin:0 0 10px;font-size:15px}.sbar{height:10px;border-radius:99px;background:var(--sunk);overflow:hidden;margin-top:4px}.sbar i{display:block;height:100%;border-radius:99px}
+.mkrev{display:flex;flex-direction:column;gap:8px}
+.mkrev details{border:2px solid var(--line);border-radius:12px;padding:10px 12px}
+.mkrev details[open]{display:flex;flex-direction:column;gap:10px}
+.mkrev summary{display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:700;font-size:14px;list-style:none}
+.mkrev summary::-webkit-details-marker{display:none}
+.mkrev summary .ok,.mkrev summary .no{width:22px;height:22px;flex:none}.mkrev summary .ok{color:var(--good)}.mkrev summary .no{color:var(--bad)}
+.mkrev summary .dbadge{margin-left:auto}
+.mkrev p{margin:0}.mkrev .ans{font-weight:700}
+.mkhist{display:flex;gap:8px;flex-wrap:wrap}.mkhist span{border:2px solid var(--line);border-radius:12px;padding:6px 10px;display:flex;flex-direction:column;line-height:1.15}
+.mkhist b{font-family:var(--f-disp);font-size:20px}.mkhist small{font-size:12px;color:var(--muted)}
 </style>
 <script>try{var qt=localStorage.getItem('qadam-theme');if(qt==='light'||qt==='dark')document.documentElement.setAttribute('data-theme',qt);}catch(e){}</script>
 
@@ -331,6 +370,8 @@ const I = {
   cls:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.8-3.4 3.2-5 6-5s5.2 1.6 6 5"/><path d="M16 5.2a3 3 0 0 1 0 5.6M18 15c1.6.6 2.6 2.2 3 5"/></g></svg>',
   book:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 3h11a3 3 0 0 1 3 3v15H7a2 2 0 0 1-2-2zm2 14v2h10v-2z"/></svg>',
   target:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></g></svg>',
+  crown:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 7.5l4.5 3.5L12 4l4.5 7L21 7.5 19 18H5zM5 19.5h14V21H5z"/></svg>',
+  flag:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M5 21V4m0 0h11l-2 4 2 4H5"/></svg>',
   clock:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></svg>',
 };
 
@@ -414,7 +455,7 @@ let BANK=null, ACCESS=null, BANK_MSG='';
 let LOGINS=null, LOGIN_MSG='', LOGIN_SHOW=new Set(), LFORM=null;
 function summary(){ const wk=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return S.hist[dkey(d)]||0}).reduce((a,b)=>a+b,0);
   return {xp:S.xp, streak:S.streak, lastDay:S.lastDay, best:S.best, weekXp:wk, lessonsDone:LESSONS.filter(l=>S.lessons[l.id]).length, lessonsTotal:LESSONS.length, vocabDone:VLESSONS.filter(l=>S.lessons[l.id]).length,
-    ans:S.ans, right:S.right, secs:S.secs, words:mastered(), mistakes:S.mistakes.length, nick:S.nick||'', score:scoreShown(), sN:S.sN, dstat:S.dstat, wpm:avgWpm(), reads:Object.keys(S.reads||{}).length, grammarDone:GRAMMAR.filter(g=>S.lessons['gr-'+g.id]).length}; }
+    ans:S.ans, right:S.right, secs:S.secs, words:mastered(), mistakes:S.mistakes.length, nick:S.nick||'', score:scoreShown(), sN:S.sN, dstat:S.dstat, wpm:avgWpm(), reads:Object.keys(S.reads||{}).length, grammarDone:GRAMMAR.filter(g=>S.lessons['gr-'+g.id]).length, lv:totalLv(), mock:(S.mocks||[])[0]?S.mocks[0].score:null, mocks:(S.mocks||[]).length}; }
 async function push(){ if(!DB||!UID) return; if(writing){again=true;return;} writing=true;
   try{ const doc={summary:summary(), state:S, updatedAt:S.updatedAt}; if(window.QADAM_PROFILE) doc.profile=window.QADAM_PROFILE; await DB.doc('students/'+UID).set(doc); SYNC='ok'; }
   catch(e){ SYNC='err'; }
@@ -564,12 +605,12 @@ function scoreSheet(){ const s=scoreShown(); const ns=nextStep(); const tr=trend
 function goalCard(){ const x=todayXp(), g=S.goal, f=Math.min(1,x/g), C=2*Math.PI*24;
   return `<div class="goal"><svg class="ring" viewBox="0 0 58 58" aria-hidden="true"><circle class="bgc" cx="29" cy="29" r="24"/><circle class="fgc" cx="29" cy="29" r="24" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-f)}" transform="rotate(-90 29 29)"/></svg><div><b>${x>=g?'Daily goal complete':'Daily goal'} · ${x} / ${g} XP</b><p>${x>=g?'Great work. Anything extra counts toward your weekly total.':streakNow()>0&&x===0?`Finish one lesson to keep your ${streakNow()}-day streak.`:'One lesson is about 10 to 15 XP.'}</p></div></div>`; }
 function vLearn(){
-  const cur=currentLesson(); let html=`<div class="wrap stack">${goalCard()}${boardCard()}${wotdCard(true)}`; let lastSec=-1, k=0;
+  const cur=currentLesson(); let html=`<div class="wrap stack">${goalCard()}${climbCard()}${boardCard()}${wotdCard(true)}`; let lastSec=-1, k=0;
   const offs=[0,-70,-100,-70,0,70,100,70];
   UNITS.forEach(u=>{
     if(u.sec!==lastSec){ lastSec=u.sec; const s=SECTIONS[u.sec]; html+=`<div class="sechead"><h3>Section ${u.sec+1} · ${s.name}</h3><span>${s.share}</span></div>`; }
     const t=toneOf(u);
-    html+=`<section style="--tone:var(--${t});--toned:var(--${t}d)"><div class="unit"><div style="min-width:0"><div class="k">Unit ${u.n+1}</div><h2>${u.title}</h2></div><button class="guide" data-guide="${u.id}">Guide</button></div><div class="nodes">`;
+    html+=`<section style="--tone:var(--${t});--toned:var(--${t}d)"><div class="unit"><div style="min-width:0"><div class="k">Unit ${u.n+1}</div><h2>${u.title}</h2></div>${mLevel(u)?`<button class="guide lvb" data-lv="${u.id}" aria-label="Skill level ${mLevel(u)} of 5">${I.crown}Lv ${mLevel(u)}</button>`:''}<button class="guide" data-guide="${u.id}">Guide</button></div><div class="nodes">`;
     LESSONS.filter(l=>l.unit===u).forEach(l=>{
       const done=!!S.lessons[l.id], open=unlocked(l), isCur=cur&&cur.id===l.id;
       const off=offs[k++%offs.length];
@@ -581,6 +622,9 @@ function vLearn(){
   view.innerHTML=html;
   view.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>lessonSheet(LESSON[b.dataset.lesson]));
   const lb=document.getElementById('lbAll'); if(lb) lb.onclick=()=>boardSheet('week');
+  view.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>masterySheet(UNIT[b.dataset.lv]));
+  const cn=document.getElementById('clNext'); if(cn) cn.onclick=()=>{ const u=UNITS.filter(x=>unitDone(x)&&mLevel(x)<5).sort((a,b)=>mLevel(a)-mLevel(b)||a.n-b.n)[0]; if(u) masterySheet(u); };
+  const cm=document.getElementById('clMock'); if(cm) cm.onclick=()=>{ TAB='train'; render(); window.scrollTo(0,0); };
   const wg=document.getElementById('wotdGo'); if(wg) wg.onclick=()=>{ TAB='words'; render(); window.scrollTo(0,0); };
   view.querySelectorAll('[data-guide]').forEach(b=>b.onclick=()=>{ const u=UNIT[b.dataset.guide]; const st=S.unit[u.id]; openModal(`<div style="--tone:var(--${toneOf(u)})"><div class="qtype">Unit ${u.n+1} guide</div></div><h2>${u.title}</h2><p>${u.tip}</p>${st&&st.n?`<p class="muted">Your accuracy here: ${accPct(st.r,st.n)}% over ${st.n} questions.</p>`:''}<button class="btn" data-close>Got it</button>`); });
 }
@@ -596,9 +640,10 @@ function lessonSheet(l){
 
 /* ---------- session engine ---------- */
 let SES=null; const LS=document.getElementById('lesson');
-function startSession(mode, items, lesson){
+function startSession(mode, items, lesson, opts){
   SES={mode, lesson, queue:items.slice(), total:items.length, done:0, firstTry:0, tries:0, wrongOnce:new Set(), start:Date.now(), sel:null, checked:false, energy0:S.energy, score0:scoreShown(), sN0:S.sN, run:0, eBonus:0};
   if(mode!=='lesson' && mode!=='reading') SES.queue=shuffle(SES.queue);
+  if(opts) Object.assign(SES, opts);
   LS.hidden=false; document.body.style.overflow='hidden'; showItem();
 }
 function startPractice(){
@@ -611,9 +656,9 @@ function stopTimer(){ if(SES&&SES.tmr){ clearInterval(SES.tmr); SES.tmr=null; } 
 function stopAll(){ stopTimer(); if(SES){ clearInterval(SES.speedT); clearTimeout(SES.adv); } }
 function closeSession(){ stopAll(); LS.hidden=true; LS.innerHTML=''; document.body.style.overflow=''; SES=null; render(); }
 function head(){ const pct=Math.round(SES.done/SES.total*100);
-  return `<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${SES.mode==='speed'?`<span class="pill" id="spd" style="font-size:15px">${Math.max(0,Math.ceil((SES.deadline-Date.now())/1000))}s · ${SES.firstTry} ✓</span>`:SES.mode==='lesson'?`<span class="chip energy${S.energy<5?' low':''}">${I.battery}${S.energy}</span>`:`<span class="pill">${SES.mode==='mistakes'?'Mistakes':SES.mode==='quiz'?'Word quiz':SES.mode==='official'?'Official SAT':SES.mode==='reading'?'Reading':'Practice'}</span>`}</div>`; }
+  return `<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${SES.mode==='speed'?`<span class="pill" id="spd" style="font-size:15px">${Math.max(0,Math.ceil((SES.deadline-Date.now())/1000))}s · ${SES.firstTry} ✓</span>`:SES.mode==='mastery'?`<span class="pill" style="font-size:14px">Level ${SES.lesson.mlv} · ${SES.pass}/${SES.need} ✓</span>`:SES.mode==='lesson'?`<span class="chip energy${S.energy<5?' low':''}">${I.battery}${S.energy}</span>`:`<span class="pill">${SES.mode==='mistakes'?'Mistakes':SES.mode==='quiz'?'Word quiz':SES.mode==='official'?'Official SAT':SES.mode==='reading'?'Reading':'Practice'}</span>`}</div>`; }
 function showItem(){
-  stopTimer(); const it=SES.queue[0]; SES.sel=null; SES.checked=false; SES.item=it; SES.qStart=Date.now(); SES.limit=limitOf(it);
+  stopTimer(); const it=SES.queue[0]; SES.sel=null; SES.checked=false; SES.item=it; SES.qStart=Date.now(); SES.limit=Math.round(limitOf(it)*(SES.tf||1));
   const u=UNIT[it.unit]; const tone=toneOf(u);
   let body='';
   if(SES.mode==='speed' && Date.now()>=SES.deadline){ finish(); return; }
@@ -629,10 +674,10 @@ function showItem(){
     SES.order=it.fixed?[0,1,2,3]:shuffle([0,1,2,3]);
     body=`<div class="qtype">${u.title}${dBadge(it)}</div>${it.p?`<div class="passage">${it.p.startsWith('<')?fmt(it.p):'<p>'+fmt(it.p)+'</p>'}</div>`:''}<div class="qtext">${it.q}</div><div class="choices">${SES.order.map((ci,k)=>`<button class="choice" data-k="${k}" aria-pressed="false"><span class="letter">${'ABCD'[k]}</span><span>${escI(it.c[ci])}</span></button>`).join('')}</div>`;
   }
-  LS.innerHTML=head()+`<div class="bd"><div class="in" style="--tone:var(--${tone})">${S.relaxed||SES.mode==='speed'?'':`<div class="timer" id="tmr" role="timer"><span>${I.clock.replace('<svg','<svg width="18" height="18"')}</span><span class="tb"><i style="width:100%"></i></span><span id="tmrT"></span></div>`}${body}</div></div><div class="ft" id="lsFt"><div class="in">${it.t==='m'?'<p class="muted" style="margin:0;text-align:center">Tap a word, then its meaning.</p>':'<button class="btn" id="lsCheck" disabled>Check</button>'}</div></div>`;
+  LS.innerHTML=head()+`<div class="bd"><div class="in" style="--tone:var(--${tone})">${(S.relaxed&&!SES.forceT)||SES.mode==='speed'?'':`<div class="timer" id="tmr" role="timer"><span>${I.clock.replace('<svg','<svg width="18" height="18"')}</span><span class="tb"><i style="width:100%"></i></span><span id="tmrT"></span></div>`}${body}</div></div><div class="ft" id="lsFt"><div class="in">${it.t==='m'?'<p class="muted" style="margin:0;text-align:center">Tap a word, then its meaning.</p>':'<button class="btn" id="lsCheck" disabled>Check</button>'}</div></div>`;
   LS.querySelector('.bd').scrollTop=0;
   document.getElementById('lsX').onclick=quitAsk;
-  if(!S.relaxed && SES.mode!=='speed'){ const tick=()=>{ const el=document.getElementById('tmr'); if(!el||!SES){ stopTimer(); return; } const left=SES.limit-(Date.now()-SES.qStart)/1000;
+  if((!S.relaxed||SES.forceT) && SES.mode!=='speed'){ const tick=()=>{ const el=document.getElementById('tmr'); if(!el||!SES){ stopTimer(); return; } const left=SES.limit-(Date.now()-SES.qStart)/1000;
       el.className='timer'+(left<=0?' over':left<SES.limit*.25?' low':''); el.querySelector('i').style.width=Math.max(0,left/SES.limit*100)+'%';
       document.getElementById('tmrT').textContent=left<=0?'Over time':Math.ceil(left)+'s'; if(left<=0) stopTimer(); };
     tick(); SES.tmr=setInterval(tick,250); }
@@ -664,13 +709,14 @@ function check(){
 }
 function feedback(ok, expl, ansText){
   stopTimer(); const it=SES.item; const first=!SES.wrongOnce.has(it.id);
-  const secs=Math.round((Date.now()-SES.qStart)/1000); const onTime=S.relaxed||secs<=SES.limit; const meta=[];
+  const secs=Math.round((Date.now()-SES.qStart)/1000); const onTime=(S.relaxed&&!SES.forceT)||secs<=SES.limit; const meta=[];
+  if(SES.mode==='mastery' && ok && first){ if(onTime) SES.pass++; else meta.push('Over time: does not count'); }
   const sc=first?rate(it,ok):null;
   if(sc){ if(sc.d!=null) meta.push(`Score ${sc.d>=0?'+':''}${sc.d} → ${sc.after}`); else if(sc.after!=null) meta.push(`Your first score: ${sc.after}`); else meta.push(`Finding your level ${S.sN}/${CAL}`); }
   if(SES.mode==='lesson'){ useEnergy(1);
     if(ok){ SES.run++; if(onTime){ addEnergy(1); meta.push('Energy kept'); } else meta.push('Over time: −1 energy'); if(SES.run%5===0){ addEnergy(2); SES.eBonus+=2; meta.push('5 in a row: +2 energy'); } }
     else { SES.run=0; meta.push('−1 energy'); } }
-  if(!S.relaxed) meta.push((onTime?'':'Over time · ')+Math.floor(secs/60)+':'+pad(secs%60));
+  if(!S.relaxed||SES.forceT) meta.push((onTime?'':'Over time · ')+Math.floor(secs/60)+':'+pad(secs%60));
   // stats: only first attempts count toward accuracy
   if(first && it.t!=='m'){ S.ans++; const sk=it.stat||it.unit; const us=S.unit[sk]||(S.unit[sk]={r:0,n:0}); us.n++; if(ok){S.right++;us.r++;} }
   if(it.fixed && first){ S.bank=S.bank||{}; S.bank[it.id]=ok?1:0; }
@@ -678,7 +724,7 @@ function feedback(ok, expl, ansText){
   else if(it.word && ok && !S.cards[it.word]){ const d=new Date(); d.setDate(d.getDate()+1); S.cards[it.word]={box:1, due:dkey(d), seen:1}; }
   if(ok){ sfx.good(); if(first) SES.firstTry++; SES.done++; SES.queue.shift();
     if(SES.mode==='mistakes'||first){ const mi=S.mistakes.indexOf(it.id); if(mi>-1) S.mistakes.splice(mi,1); }
-  } else if(SES.mode==='speed'){ sfx.bad(); SES.done++; SES.queue.shift(); if(!S.mistakes.includes(it.id)) S.mistakes.unshift(it.id); S.mistakes=S.mistakes.slice(0,60);
+  } else if(SES.mode==='speed'||SES.mode==='mastery'){ sfx.bad(); SES.done++; SES.queue.shift(); if(!S.mistakes.includes(it.id)) S.mistakes.unshift(it.id); S.mistakes=S.mistakes.slice(0,60);
   } else { sfx.bad(); SES.wrongOnce.add(it.id); SES.queue.push(SES.queue.shift()); if(!S.mistakes.includes(it.id)) S.mistakes.unshift(it.id); S.mistakes=S.mistakes.slice(0,60);
   }
   SES.tries++;
@@ -700,6 +746,7 @@ function outOfEnergy(){
 }
 function finish(){
   if(SES.ended) return; SES.ended=true; stopAll();
+  if(SES.mode==='mastery') return masteryDone();
   if(SES.mode==='speed'){ SES.total=Math.max(1,SES.done); }
   const secs=Math.round((Date.now()-SES.start)/1000); S.secs+=secs;
   const scored=SES.total-SES.queue.length; const acc=Math.round(SES.firstTry/Math.max(1,SES.total)*100);
@@ -733,6 +780,7 @@ function avgAcc(st=S){ const l=(st.wpmLog||[]).slice(0,5); return l.length?Math.
 function vTrain(){
   const aw=avgWpm(), aa=avgAcc(); const rd=S.reads||{}; const gd=GRAMMAR.filter(g=>S.lessons['gr-'+g.id]).length;
   view.innerHTML=`<div class="wrap stack"><div><h1 style="font-size:28px">Train</h1><p class="muted" style="margin:4px 0 0">Build the skills under every SAT question: reading speed and understanding, and the grammar rules the test checks.</p></div>
+   ${mockCard()}
    <h2 style="font-size:20px;margin:6px 0 0">Reading Gym</h2>
    <div class="tiles"><div class="tile" style="color:var(--plum)">${I.clock}<div><b style="color:var(--ink)">${aw??'–'}</b><span>words per minute (last 5)</span></div></div><div class="tile" style="color:var(--good)">${I.target}<div><b style="color:var(--ink)">${aa==null?'–':aa+'%'}</b><span>comprehension</span></div></div></div>
    <p class="muted" style="margin:0;font-size:14px">Read the passage at your normal pace, then answer five questions. The goal is to get faster <b>without</b> losing understanding. Most SAT passages need about 200 to 250 words per minute with good comprehension.</p>
@@ -741,6 +789,7 @@ function vTrain(){
    <p class="muted" style="margin:0;font-size:14px">${gd} of ${GRAMMAR.length} topics practiced. Each topic explains the rule, shows examples, then gives you six practice questions.</p>
    ${GRP.map((gn,gi)=>`<p class="lbl" style="margin:6px 0 0">${gn}</p><div class="stack" style="gap:8px">${GRAMMAR.filter(g=>g.grp===gi).map(g=>{ const x=S.lessons['gr-'+g.id]; return `<button class="trow" data-gr="${g.id}" style="--tone:var(--coral)"><span><b>${g.title}</b><small>${g.rules.length} rules · ${g.items.length} questions</small></span><span class="pill ${x&&x.best>=80?'good':''}">${x?'Best '+x.best+'%':'Start'}</span></button>`; }).join('')}</div>`).join('')}
   </div>`;
+  wireMock();
   view.querySelectorAll('[data-rd]').forEach(b=>b.onclick=()=>startReading(READS.find(r=>r.id===b.dataset.rd)));
   view.querySelectorAll('[data-gr]').forEach(b=>b.onclick=()=>grammarSheet(UNIT[b.dataset.gr]));
 }
@@ -884,6 +933,7 @@ function vMe(){
     <div class="tile" style="color:var(--good)">${I.target}<div><b style="color:var(--ink)">${acc==null?'–':acc+'%'}</b><span>first-try accuracy</span></div></div>
    </div>
    ${trainCard(S)}
+   ${growCard(S)}
    <div class="card"><p class="lbl">XP, last 7 days</p>${weekBars(S.hist)}</div>
    <div class="card"><p class="lbl">Accuracy by skill</p>${skillRows(S.unit)}<p class="muted" style="font-size:13px;margin:8px 0 0">Green 80%+, amber 60–79%, red below 60%. First tries only.</p></div>
    <div class="card"><p class="lbl">Recent activity</p>${logRows(S.log)}</div>
@@ -942,7 +992,7 @@ function vClass(){
    </div>
    ${weakest?`<div class="card" style="border-color:var(--bad)"><p class="lbl" style="color:var(--bad)">Weakest skill right now</p><p style="margin:0"><b>${weakest.u.title}</b> at ${weakest.p}% class accuracy. A good candidate for your next lesson warm-up.</p></div>`:''}
    <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><p class="lbl" style="margin:0">Students</p><div class="seg" id="cSort">${[['active','Recent'],['score','Score'],['xp','Week XP'],['acc','Lowest accuracy'],['name','Name']].map(([k,l])=>`<button data-s="${k}" aria-pressed="${CSORT===k}" style="padding:5px 9px;font-size:13px">${l}</button>`).join('')}</div></div>
-    ${rows.length?`<div class="tblscroll"><table class="roster"><thead><tr><th>Student</th><th>Est. score</th><th>Last active</th><th>Streak</th><th>Week XP</th><th>Lessons</th><th>Words</th><th>Accuracy</th></tr></thead><tbody>${rows.map((r,i)=>`<tr class="click" data-st="${esc(r.id)}" tabindex="0"><td><span class="who"><span class="av" style="background:${colors[i%colors.length]}">${esc((r.name[0]||'?').toUpperCase())}</span><span>${esc(r.name)}</span></span></td><td><b>${r.sc??'–'}</b></td><td>${ago(r.upd)}</td><td>${r.live}</td><td>${r.s.weekXp||0}</td><td>${r.s.lessonsDone||0}/${LESSONS.length}</td><td>${r.s.words||0}</td><td>${r.acc==null?'–':`<span class="pill ${r.acc>=80?'good':r.acc<60?'bad':''}">${r.acc}%</span>`}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty"><p>No students yet. Share this app's link with your students. Each one appears here after their first lesson.</p></div>`}
+    ${rows.length?`<div class="tblscroll"><table class="roster"><thead><tr><th>Student</th><th>Est. score</th><th>Last active</th><th>Streak</th><th>Week XP</th><th>Lessons</th><th>Levels</th><th>Mock</th><th>Words</th><th>Accuracy</th></tr></thead><tbody>${rows.map((r,i)=>`<tr class="click" data-st="${esc(r.id)}" tabindex="0"><td><span class="who"><span class="av" style="background:${colors[i%colors.length]}">${esc((r.name[0]||'?').toUpperCase())}</span><span>${esc(r.name)}</span></span></td><td><b>${r.sc??'–'}</b></td><td>${ago(r.upd)}</td><td>${r.live}</td><td>${r.s.weekXp||0}</td><td>${r.s.lessonsDone||0}/${LESSONS.length}</td><td>${totalLv(r.st)}/${MAXLV}</td><td>${(r.st.mocks||[])[0]?`<b>${r.st.mocks[0].score}</b>`:'–'}</td><td>${r.s.words||0}</td><td>${r.acc==null?'–':`<span class="pill ${r.acc>=80?'good':r.acc<60?'bad':''}">${r.acc}%</span>`}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty"><p>No students yet. Share this app's link with your students. Each one appears here after their first lesson.</p></div>`}
    </div>
    ${loginCard()}
    ${window.QADAM_SIGNOUT?bankCard(rows):''}
@@ -958,6 +1008,7 @@ function studentSheet(r){ if(!r) return; const s=r.s, st=r.st;
    <div class="tiles"><div class="tile" style="color:var(--saffron)">${I.flame}<div><b style="color:var(--ink)">${r.live}</b><span>streak · best ${s.best||0}</span></div></div><div class="tile" style="color:var(--cobalt)">${I.bolt}<div><b style="color:var(--ink)">${s.xp||0}</b><span>XP · ${s.weekXp||0} this week</span></div></div><div class="tile" style="color:var(--turq)">${I.cards}<div><b style="color:var(--ink)">${s.words||0}</b><span>words mastered</span></div></div><div class="tile" style="color:var(--bad)">${I.redo}<div><b style="color:var(--ink)">${s.mistakes||0}</b><span>open mistakes</span></div></div></div>
    ${scoreCard(Object.assign({score:450,sN:0,sHist:{},dstat:{}},st),false)}
    ${trainCard(st)}
+   ${growCard(st)}
    <div><p class="lbl">XP, last 7 days</p>${weekBars(st.hist||{})}</div>
    <div><p class="lbl">Accuracy by skill</p>${skillRows(st.unit||{})}</div>
    <div><p class="lbl">Recent activity</p>${logRows(st.log,15)}</div>
@@ -965,6 +1016,180 @@ function studentSheet(r){ if(!r) return; const s=r.s, st=r.st;
    <button class="btn ghost" data-close>Close</button>`);
   const sa=document.getElementById('sAcc'); if(sa) sa.onclick=async()=>{ sa.disabled=true; await setAccess(r.id,!ACCESS.has(r.id)); studentSheet(r); if(TAB==='class') vClass(); };
 }
+
+/* ---------- Skill levels (mastery) ---------- */
+const LVN=['Not started','Learned','Practiced','Skilled','Expert','Master'];
+const MLV={2:{mix:[2,4,2],pass:6,tf:1,txt:'a mix of Easy, Medium and Hard'},3:{mix:[0,4,4],pass:6,tf:.9,txt:'Medium and Hard, with 10% less time'},4:{mix:[0,2,6],pass:7,tf:.8,force:1,txt:'mostly Hard, with 20% less time'},5:{mix:[0,0,8],pass:7,tf:.75,force:1,txt:'all Hard, with 25% less time'}};
+const MAXLV=UNITS.length*5, GMAP={bd:[1], fss:[0,2]};
+function unitDone(u,st=S){ return LESSONS.filter(l=>l.unit===u).every(l=>(st.lessons||{})[l.id]); }
+function mLevel(u,st=S){ return unitDone(u,st) ? Math.max(1,((st.mast||{})[u.id]||{}).lv||0) : 0; }
+function totalLv(st=S){ return UNITS.reduce((a,u)=>a+mLevel(u,st),0); }
+function unitPool(u, mc){ const ok=it=>it.d && (mc ? (!it.t && it.c && it.c.length===4) : (!it.t || it.t==='tap'));
+  let p=u.lessons.flat().filter(ok);
+  (GMAP[u.id]||[]).forEach(g=>GRAMMAR.filter(x=>x.grp===g).forEach(x=>{ p=p.concat(x.items.filter(ok)); }));
+  if(BANK) p=p.concat(BANK.filter(x=>x.unit===u.id && ok(x)));
+  return p; }
+function pickD(pool, want, avoid, taken=new Set()){ const out=[];
+  want.forEach(d=>{ for(const x of [d,d+1,d-1,d+2,d-2].filter(x=>x>=1&&x<=3)){ const c=shuffle(pool.filter(it=>it.d===x && !taken.has(it.id))).sort((a,b)=>(avoid.has(a.id)?1:0)-(avoid.has(b.id)?1:0))[0];
+      if(c){ out.push(c); taken.add(c.id); return; } } });
+  return out; }
+const pipsHtml=(lv,big)=>[1,2,3,4,5].map(i=>big?`<span class="pip ${i<=lv?'on':''}"><b>${i}</b><small>${LVN[i]}</small></span>`:`<i class="${i<=lv?'on':''}"></i>`).join('');
+function masterySheet(u){ const lv=mLevel(u), m=(S.mast||{})[u.id]||{}; const nx=Math.min(5,lv+1), spec=MLV[Math.max(2,nx)]; const tone=`--tone:var(--${toneOf(u)})`;
+  const timed=spec.force||!S.relaxed;
+  openModal(`<div style="${tone}"><div class="qtype">Unit ${u.n+1} · Skill level</div></div><h2>${u.title}</h2><div class="pips" style="${tone}">${pipsHtml(lv,true)}</div>
+   ${lv===0?`<p class="muted">Finish all ${u.lessons.length} lessons in this unit to reach Level 1. Then you can climb to Level 5 with harder challenges.</p><button class="btn ghost" data-close>OK</button>`:
+   `<p>${lv>=5?'You have mastered this skill. Replay the Master challenge any time to stay sharp.':`You are at <b>Level ${lv} · ${LVN[lv]}</b>. Pass a challenge to reach <b>Level ${nx} · ${LVN[nx]}</b>.`}</p>
+    <div class="tipbox" style="${tone}"><b>Level ${nx} challenge</b>8 questions, ${spec.txt}. Get ${spec.pass} of 8 right on the first try${timed?', within the timer':''}.${spec.force&&S.relaxed?' The timer stays on at this level, even in Relaxed mode.':''} Costs no energy.</div>
+    ${m.tries?`<p class="muted" style="font-size:14px">${m.tries} challenge${m.tries>1?'s':''} tried · last result ${m.last} of 8</p>`:''}
+    <button class="btn" id="mvGo">${lv>=5?'Replay Master challenge':'Start Level '+nx+' challenge'}</button><button class="btn ghost" data-close>Not now</button>`}`);
+  const g=document.getElementById('mvGo'); if(g) g.onclick=()=>{ closeModal(); startMastery(u, nx); };
+}
+function startMastery(u, L){ const spec=MLV[L]; const want=[]; spec.mix.forEach((n,i)=>{ for(let k=0;k<n;k++) want.push(i+1); });
+  S.mSeen=S.mSeen||{}; const recent=new Set(S.mSeen[u.id]||[]); const items=pickD(unitPool(u,false), want, recent);
+  S.mSeen[u.id]=items.map(i=>i.id).concat([...recent].filter(id=>!items.some(i=>i.id===id))).slice(0,24);
+  startSession('mastery', items, {id:'mv-'+u.id, unit:u, li:0, items, mlv:L}, {tf:spec.tf, forceT:!!spec.force, pass:0, need:Math.min(spec.pass, items.length-1)});
+}
+function masteryDone(){ const u=SES.lesson.unit, L=SES.lesson.mlv; const secs=Math.round((Date.now()-SES.start)/1000); S.secs+=secs;
+  S.mast=S.mast||{}; const m=S.mast[u.id]||(S.mast[u.id]={lv:1,tries:0}); m.tries=(m.tries||0)+1; m.last=SES.pass; m.at=Date.now();
+  const pass=SES.pass>=SES.need, up=pass && L>(m.lv||1); if(up) m.lv=L;
+  const xp=pass?10+5*L:5; const before=todayXp(); const bumped=addXp(xp); const hitGoal=before<S.goal&&todayXp()>=S.goal;
+  const acc=Math.round(SES.firstTry/Math.max(1,SES.total)*100);
+  logEvent({k:'mastery', l:`${u.title} · Level ${L} challenge${pass?' passed':''}`, xp, acc, dur:secs});
+  save(); sfx.done(); const tone=`--tone:var(--${toneOf(u)})`;
+  LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero" style="${tone}">${pass?`<div class="crown">${I.crown}</div><h1 style="color:var(--tone)">${up?'Level '+L+' reached!':'Challenge passed!'}</h1><p style="margin:0;font-weight:800">${u.title} · ${LVN[L]}</p>`:`<div class="crown off">${I.crown}</div><h1 style="color:var(--ink)">Not this time</h1><p class="muted" style="margin:0">You need ${SES.need} of ${SES.total}. The questions you missed are waiting in Review.</p>`}
+    <div class="pips" style="${tone};width:100%">${pipsHtml(mLevel(u),true)}</div>
+    <div class="res"><div style="--c:var(--saffron)"><span>Total XP</span><b>+${xp}</b></div><div style="--c:var(--good)"><span>On time</span><b>${SES.pass}/${SES.total}</b></div><div style="--c:var(--plum)"><span>SAT score</span><b>${scoreShown()??S.sN+'/'+CAL}</b></div></div>
+    ${bumped?`<p style="color:var(--saffron);font-weight:800;display:flex;gap:6px;align-items:center;margin:8px 0 0"><span style="width:24px;display:inline-block">${I.flame}</span>${S.streak}-day streak!</p>`:''}
+    ${hitGoal?`<p style="font-weight:800;color:var(--good);margin:0">Daily goal reached</p>`:''}
+  </div></div></div><div class="ft"><div class="in">${pass&&L<5?`<button class="btn" id="mvNext">Try Level ${L+1}</button>`:!pass?`<button class="btn" id="mvNext">Try again</button>`:''}<button class="btn ${pass&&L>=5?'':'ghost'}" id="fC">Continue</button></div></div>`;
+  document.getElementById('fC').onclick=closeSession;
+  const n=document.getElementById('mvNext'); if(n) n.onclick=()=>{ stopAll(); SES=null; startMastery(u, pass?L+1:L); };
+}
+function climbCard(){ const done=UNITS.filter(u=>unitDone(u)); if(!done.length) return ''; const all=done.length===UNITS.length, tl=totalLv();
+  const next=done.filter(u=>mLevel(u)<5).sort((a,b)=>mLevel(a)-mLevel(b)||a.n-b.n)[0];
+  return `<div class="card stack" style="gap:10px"><p class="lbl" style="margin:0;color:var(--saffron-d)">${all?'Path complete · keep climbing':'Level up your skills'}</p>
+   <div class="lvbar" role="progressbar" aria-valuenow="${tl}" aria-valuemin="0" aria-valuemax="${MAXLV}"><i style="width:${tl/MAXLV*100}%"></i></div>
+   <p style="margin:0"><b>${tl} of ${MAXLV}</b> skill levels. ${next?`Next: <b>${next.title}</b>, Level ${mLevel(next)+1}.`:'Every skill is at Master level. Amazing work!'}${all?' Take a timed mock test to see where you stand.':''}</p>
+   <div class="row">${next?`<button class="btn" id="clNext">Level up</button>`:''}<button class="btn ghost" id="clMock">Mock test</button></div></div>`; }
+
+/* ---------- Mock test (2 adaptive modules, like the digital SAT) ---------- */
+const MOCK_BP=[['wic',4],['ts',2],['ct',2],['ci',2],['ev',2],['qe',1],['inf',2],['bd',4],['fss',3],['tr',3],['rs',2]];
+const MOCK_MIN=32, MOCK_W={m1:[.3,.4,.3], hard:[0,.4,.6], easy:[.45,.45,.1]};
+let MOCKT=null, MKHIDE=false;
+const mmss=s=>Math.floor(s/60)+':'+pad(s%60);
+function buildModule(key, taken, uof){ const used=new Set(S.mockUsed||[]); const ids=[];
+  MOCK_BP.forEach(([uid,n])=>{ const w=MOCK_W[key]; const want=[...Array(n)].map(()=>{ const r=Math.random(); return r<w[0]?1:r<w[0]+w[1]?2:3; }).sort();
+    pickD(unitPool(UNIT[uid],true), want, used, taken).sort((a,b)=>a.d-b.d).forEach(it=>{ ids.push(it.id); uof[it.id]=uid; }); });
+  return ids; }
+function mockModule(M, key){ const taken=new Set(M.taken||[]); M.uof=M.uof||{}; const ids=buildModule(key, taken, M.uof); M.taken=[...taken];
+  M.ids=ids; M.ans={}; M.flag=[]; M.cur=0; M.ord={}; ids.forEach(id=>{ M.ord[id]=ITEM[id].fixed?[0,1,2,3]:shuffle([0,1,2,3]); }); M.deadline=Date.now()+MOCK_MIN*60000; }
+function mockStartAsk(){ openModal(`<h2>Start a mock test?</h2><p>Two modules, 27 questions each, with 32 minutes per module. That is about 65 minutes, just like the Reading and Writing section of the digital SAT.</p>
+  <div class="tipbox" style="--tone:var(--cobalt)"><b>How it works</b>You will not see answers until the end. You can skip, go back, and mark questions for review. If Module 1 goes well, Module 2 is harder, and a harder Module 2 unlocks higher scores. The clock keeps running if you leave the app.</div>
+  <div class="row"><button class="btn ghost" data-close>Not now</button><button class="btn" id="mkYes">Start Module 1</button></div>`);
+  document.getElementById('mkYes').onclick=()=>{ closeModal(); const M={ts:Date.now(), mod:1, stage:'m1', route:null}; mockModule(M,'m1'); S.mockLive=M; save(false); mockOpen(); }; }
+function mockResume(){ const M=S.mockLive; if(!M) return; if(M.stage==='break'){ LS.hidden=false; document.body.style.overflow='hidden'; mockBreak(false); } else mockOpen(); }
+function mockOpen(){ LS.hidden=false; document.body.style.overflow='hidden'; clearInterval(MOCKT); MOCKT=setInterval(mockTick,500); mockShow(); mockTick(); }
+function mockLeft(){ const M=S.mockLive; return M?Math.max(0,Math.ceil((M.deadline-Date.now())/1000)):0; }
+function mockTick(){ const M=S.mockLive; if(!M||LS.hidden||M.stage==='break'){ clearInterval(MOCKT); return; } const s=mockLeft(); const el=document.getElementById('mkClk');
+  if(el){ el.textContent=MKHIDE?'Show time':mmss(s); el.classList.toggle('low', s<=300); }
+  if(s<=0){ clearInterval(MOCKT); mockSubmit(true); } }
+function mockHead(){ const M=S.mockLive; return `<div class="hd"><button class="x" id="mkX" aria-label="Pause and leave">${I.x}</button><div style="flex:1;min-width:0;line-height:1.2"><b>Module ${M.mod} of 2</b><small class="muted" style="display:block;font-size:12px">Reading and Writing</small></div><button class="mkclk" id="mkClk" aria-label="Time left. Tap to hide or show.">${MKHIDE?'Show time':mmss(mockLeft())}</button></div>`; }
+function mockWireHead(){ document.getElementById('mkX').onclick=mockPause; document.getElementById('mkClk').onclick=()=>{ MKHIDE=!MKHIDE; mockTick(); }; }
+function mockPause(){ openModal(`<h2>Leave the test?</h2><p class="muted">Your answers are saved and you can come back from the Train tab. The clock keeps running while you are away, just like the real test.</p>
+  <div class="stack" style="gap:10px"><button class="btn" data-close>Keep going</button><button class="btn ghost" id="mkL">Leave for now</button><button class="btn ghost" id="mkD" style="color:var(--bad)">Discard this test</button></div>`);
+  document.getElementById('mkL').onclick=()=>{ closeModal(); clearInterval(MOCKT); save(); closeSession(); };
+  document.getElementById('mkD').onclick=()=>{ closeModal(); clearInterval(MOCKT); delete S.mockLive; save(); closeSession(); }; }
+function mockShow(){ const M=S.mockLive; if(M.cur>=M.ids.length) return mockReview(); const id=M.ids[M.cur], it=ITEM[id];
+  if(!it){ M.ids.splice(M.cur,1); save(false); return mockShow(); }
+  const ord=M.ord[id]||[0,1,2,3], fl=M.flag.includes(id);
+  LS.innerHTML=mockHead()+`<div class="bd"><div class="in" style="--tone:var(--cobalt)"><div class="mkq"><span class="mknum">${M.cur+1}</span><button class="mkflag" id="mkF" aria-pressed="${fl}">${I.flag}<span>${fl?'Marked for review':'Mark for review'}</span></button></div>
+   ${it.p?`<div class="passage">${it.p.startsWith('<')?fmt(it.p):'<p>'+fmt(it.p)+'</p>'}</div>`:''}<div class="qtext">${it.q}</div>
+   <div class="choices">${ord.map((ci,k)=>`<button class="choice" data-c="${ci}" aria-pressed="${M.ans[id]===ci}"><span class="letter">${'ABCD'[k]}</span><span>${escI(it.c[ci])}</span></button>`).join('')}</div></div></div>
+   <div class="ft"><div class="in"><div class="mkft"><button class="btn ghost" id="mkB" ${M.cur===0?'disabled':''}>Back</button><button class="mknav" id="mkN" aria-label="All questions">${M.cur+1} of ${M.ids.length}</button><button class="btn" id="mkNx">Next</button></div></div></div>`;
+  LS.querySelector('.bd').scrollTop=0; mockWireHead();
+  LS.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{ const c=+b.dataset.c; if(M.ans[id]===c) delete M.ans[id]; else M.ans[id]=c; LS.querySelectorAll('[data-c]').forEach(x=>x.setAttribute('aria-pressed', String(M.ans[id]===+x.dataset.c))); sfx.tap(); save(false); });
+  document.getElementById('mkF').onclick=()=>{ const i=M.flag.indexOf(id); i>-1?M.flag.splice(i,1):M.flag.push(id); save(false); mockShow(); };
+  document.getElementById('mkB').onclick=()=>{ M.cur=Math.max(0,M.cur-1); save(false); mockShow(); };
+  document.getElementById('mkNx').onclick=()=>{ M.cur++; save(false); mockShow(); };
+  document.getElementById('mkN').onclick=()=>{ M.cur=M.ids.length; mockShow(); };
+}
+function mockReview(){ const M=S.mockLive; const n=M.ids.filter(id=>M.ans[id]!=null).length;
+  LS.innerHTML=mockHead()+`<div class="bd"><div class="in"><h2>Check your work</h2><p class="muted" style="margin:0">${n} of ${M.ids.length} answered. Tap a number to go back to that question. After you submit, you cannot change your Module ${M.mod} answers.</p>
+   <div class="mkgrid">${M.ids.map((id,i)=>{ const a=M.ans[id]!=null, f=M.flag.includes(id); return `<button data-go="${i}" class="${a?'done':''}${f?' fl':''}" aria-label="Question ${i+1}, ${a?'answered':'not answered'}${f?', marked for review':''}">${i+1}</button>`; }).join('')}</div>
+   <div class="mkkey"><span><i class="k1"></i>Answered</span><span><i class="k2"></i>Not answered</span><span><i class="k3"></i>Marked for review</span></div></div></div>
+   <div class="ft"><div class="in"><div class="row"><button class="btn ghost" id="mkBk">Back</button><button class="btn" id="mkS">Submit Module ${M.mod}</button></div></div></div>`;
+  mockWireHead();
+  LS.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{ M.cur=+b.dataset.go; save(false); mockShow(); });
+  document.getElementById('mkBk').onclick=()=>{ M.cur=M.ids.length-1; mockShow(); };
+  document.getElementById('mkS').onclick=()=>{ const left=M.ids.length-n; if(!left) return mockSubmit(false);
+    openModal(`<h2>Submit with ${left} unanswered?</h2><p class="muted">There is no penalty for guessing on the SAT, so it is better to answer every question.</p><div class="row"><button class="btn ghost" data-close>Go back</button><button class="btn" id="mkS2">Submit</button></div>`);
+    document.getElementById('mkS2').onclick=()=>mockSubmit(false); };
+}
+function mockSubmit(auto){ const M=S.mockLive; if(!M||M.stage==='break') return; clearInterval(MOCKT); closeModal();
+  const right=M.ids.filter(id=>ITEM[id] && M.ans[id]===(ITEM[id].a||0)).length;
+  const secs=Math.min(MOCK_MIN*60, Math.round((Date.now()-(M.deadline-MOCK_MIN*60000))/1000));
+  const rec={ids:M.ids, ans:M.ans, ord:M.ord, right, secs};
+  if(M.stage==='m1'){ M.m1=rec; M.route=right>=Math.ceil(M.ids.length*.6)?'hard':'easy'; M.stage='break'; save(); mockBreak(auto); }
+  else { M.m2=rec; mockFinish(); }
+}
+function mockBreak(auto){ LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><div class="crown" style="color:var(--cobalt)">${I.flag}</div><h1 style="color:var(--cobalt)">Module 1 done</h1><p class="muted" style="margin:0">${auto?'Time ran out, so your answers were submitted. ':''}Take a short break and a deep breath.</p></div>
+   <div class="tipbox" style="--tone:var(--cobalt)"><b>Module 2</b>27 more questions in 32 minutes. Its difficulty depends on how you did in Module 1. The clock starts when you tap Start.</div></div></div>
+   <div class="ft"><div class="in"><button class="btn" id="m2Go">Start Module 2</button><button class="btn ghost" id="m2No">Stop and see my Module 1 results</button></div></div>`;
+  document.getElementById('m2Go').onclick=()=>{ const M=S.mockLive; M.mod=2; M.stage='m2'; mockModule(M, M.route); save(false); mockOpen(); };
+  document.getElementById('m2No').onclick=mockFinish;
+}
+const MTAB={hard:[[0,200],[20,480],[28,540],[34,580],[40,640],[44,680],[48,720],[50,740],[52,770],[54,800]], easy:[[0,200],[4,220],[8,270],[12,320],[16,360],[20,400],[24,430],[28,460],[32,490],[36,520],[40,560],[44,600],[54,640]]};
+// Raw score to 200-800, modelled on published digital SAT curves: the harder Module 2 unlocks the top of the range.
+function mockScale(right, n, route){ const x=Math.max(0,Math.min(54,right*54/Math.max(1,n))); const t=MTAB[route]||MTAB.easy;
+  for(let i=1;i<t.length;i++){ if(x<=t[i][0]){ const [a,A]=t[i-1],[b,B]=t[i]; return Math.round((A+(B-A)*(x-a)/(b-a))/10)*10; } } return t[t.length-1][1]; }
+function mockRows(rec){ const all=[]; [rec.m1,rec.m2].forEach((m,mi)=>{ if(!m) return; m.ids.forEach(id=>{ const it=ITEM[id]; if(it) all.push({it, id, a:m.ans[id], ok:m.ans[id]===(it.a||0), mod:mi+1, ord:m.ord[id]||[0,1,2,3], u:(rec.uof||{})[id]||it.unit}); }); }); return all; }
+function mockFinish(){ const M=S.mockLive; if(!M) return; clearInterval(MOCKT); const all=mockRows(M); const mods=M.m2?2:1;
+  const nr=all.filter(x=>x.ok).length; const score=mockScale(M.m2?nr:nr*2, M.m2?all.length:all.length*2, M.route);
+  all.forEach(x=>{ rate(x.it,x.ok); S.ans++; const sk=x.it.stat||x.it.unit; const us=S.unit[sk]||(S.unit[sk]={r:0,n:0}); us.n++; if(x.ok){S.right++;us.r++;}
+    if(x.it.fixed){ S.bank=S.bank||{}; S.bank[x.id]=x.ok?1:0; }
+    const mi=S.mistakes.indexOf(x.id); if(x.ok){ if(mi>-1) S.mistakes.splice(mi,1); } else if(mi<0) S.mistakes.unshift(x.id); });
+  S.mistakes=S.mistakes.slice(0,60);
+  const dom={}; all.forEach(x=>{ const s=(UNIT[x.u]||{}).sec; const d=dom[s]||(dom[s]=[0,0]); d[1]++; if(x.ok) d[0]++; });
+  const secs=(M.m1?M.m1.secs:0)+(M.m2?M.m2.secs:0); S.secs+=secs;
+  const prevBest=Math.max(0,...(S.mocks||[]).filter(x=>x.mods===2).map(x=>x.score));
+  const entry={ts:Date.now(), score, r:all.filter(x=>x.ok).length, n:all.length, mods, route:M.m2?M.route:null, secs, dom, m1:M.m1?M.m1.right:0, m2:M.m2?M.m2.right:null};
+  (S.mocks=S.mocks||[]).unshift(entry); S.mocks=S.mocks.slice(0,20);
+  S.mockUsed=M.ids.concat(M.m1?M.m1.ids:[]).concat(S.mockUsed||[]).filter((v,i,a)=>a.indexOf(v)===i).slice(0,300);
+  S.mockRev={m1:M.m1, m2:M.m2||null, uof:M.uof, entry}; delete S.mockLive;
+  const xp=15*mods+(mods===2&&prevBest&&score>prevBest?10:0); const bumped=addXp(xp);
+  logEvent({k:'mock', l:`Mock test${mods<2?' (Module 1 only)':''} · est. ${score}`, xp, acc:Math.round(entry.r/Math.max(1,entry.n)*100), dur:secs});
+  save(); sfx.done(); mockReport(S.mockRev, {xp, bumped, pb:mods===2&&prevBest>0&&score>prevBest});
+}
+function mockReport(rec, extra){ const e=rec.entry, all=mockRows(rec); LS.hidden=false; document.body.style.overflow='hidden';
+  const sec=[1,0,3,2].filter(s=>e.dom[s]).map(s=>{ const [r,n]=e.dom[s]; const p=Math.round(r/n*100); const col=p>=80?'var(--good)':p>=60?'var(--saffron)':'var(--bad)';
+    return `<div class="srow"><div style="display:flex;justify-content:space-between;gap:8px"><span>${SECTIONS[s].name}</span><b>${r}/${n}</b></div><div class="sbar"><i style="width:${p}%;background:${col}"></i></div></div>`; }).join('');
+  const lo=Math.max(200,e.score-40), hi=Math.min(800,e.score+40);
+  LS.innerHTML=`<div class="hd"><button class="x" id="mrX" aria-label="Close">${I.x}</button><div style="flex:1;font-weight:800">Mock test results</div></div><div class="bd"><div class="in">
+   <div class="done-hero" style="padding-top:8px"><p class="lbl" style="margin:0">Estimated SAT Reading and Writing</p><h1 class="mkscore">${e.score}</h1><p class="muted" style="margin:0">Likely range ${lo} to ${hi} · ${band(e.score)}${e.mods<2?' · Module 1 only, so this is a rough estimate':''}</p>
+    ${extra&&extra.pb?`<p style="font-weight:800;color:var(--good);margin:0">New personal best!</p>`:''}</div>
+   <div class="res" style="grid-template-columns:repeat(${e.mods<2?2:3},minmax(0,1fr))"><div style="--c:var(--cobalt)"><span>Module 1</span><b>${e.m1}/27</b></div>${e.mods>1?`<div style="--c:var(--plum)"><span>Module 2 · ${e.route==='hard'?'harder':'standard'}</span><b>${e.m2}/27</b></div>`:''}<div style="--c:var(--saffron)"><span>${extra?'XP earned':'Time'}</span><b>${extra?'+'+extra.xp:mmss(e.secs)}</b></div></div>
+   ${e.mods>1?`<p class="muted" style="margin:0;font-size:14px">${e.route==='hard'?'You did well enough on Module 1 to get the harder Module 2, which unlocks the top of the score range.':'Module 2 was the standard version. Get about 17 or more right in Module 1 next time to unlock the harder Module 2 and a higher score range.'}</p>`:''}
+   <div class="card"><p class="lbl">By domain</p>${sec}</div>
+   <div class="card"><p class="lbl">Review every question</p><div class="mkrev">${all.map((x,i)=>{ const u=UNIT[x.u]||UNIT[x.it.unit]; const L=k=>'ABCD'[x.ord.indexOf(k)];
+      return `<details><summary><span class="${x.ok?'ok':'no'}">${x.ok?I.check:I.x}</span><span>M${x.mod} · Q${x.mod===1?i+1:i+1-(rec.m1?rec.m1.ids.length:0)} · ${esc(u?u.title:'')}</span>${x.it.d?`<span class="dbadge d${x.it.d}">${DNAME[x.it.d]}</span>`:''}</summary>
+       ${x.it.p?`<div class="passage">${x.it.p.startsWith('<')?fmt(x.it.p):'<p>'+fmt(x.it.p)+'</p>'}</div>`:''}<div class="qtext">${x.it.q}</div>
+       <p class="ans">${x.a==null?'You did not answer.':`Your answer: ${L(x.a)}. ${escI(x.it.c[x.a])}`}</p>${x.ok?'':`<p class="ans" style="color:var(--good)">Correct answer: ${L(x.it.a||0)}. ${escI(x.it.c[x.it.a||0])}</p>`}${x.it.e?`<p class="muted">${esc(x.it.e)}</p>`:''}</details>`; }).join('')}</div></div>
+   ${extra&&extra.bumped?`<p style="color:var(--saffron);font-weight:800;text-align:center;margin:0">${S.streak}-day streak!</p>`:''}
+  </div></div><div class="ft"><div class="in"><button class="btn" id="mrC">Done</button></div></div>`;
+  LS.querySelector('.bd').scrollTop=0;
+  document.getElementById('mrX').onclick=closeSession; document.getElementById('mrC').onclick=closeSession;
+}
+function mockHist(h){ return `<div class="mkhist">${h.slice(0,6).map(x=>`<span><b>${x.score}</b><small>${new Date(x.ts).toLocaleDateString(undefined,{month:'short',day:'numeric'})}${x.mods<2?' · M1 only':''}</small></span>`).join('')}</div>`; }
+function mockCard(){ const M=S.mockLive, h=S.mocks||[]; const full=h.filter(x=>x.mods===2); const best=full.length?Math.max(...full.map(x=>x.score)):null;
+  return `<div class="card stack" style="gap:10px;border-color:var(--cobalt)"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 style="font-size:20px">Mock test</h2>${best!=null?`<span class="pill good">Best ${best}</span>`:''}</div>
+   <p style="margin:0" class="muted">A timed test like the digital SAT: 2 modules of 27 questions, 32 minutes each. Module 2 gets harder if Module 1 goes well. Answers are shown at the end.</p>
+   ${h.length?mockHist(h):''}
+   ${M?`<button class="btn saff" id="mkGo">${M.stage==='break'?'Continue to Module 2':'Resume Module '+M.mod+' · '+mmss(mockLeft())+' left'}</button>`:`<button class="btn" id="mkGo">Start mock test</button>`}
+   ${S.mockRev&&!M?`<button class="btn ghost" id="mkRv">Review my last test</button>`:''}</div>`; }
+function wireMock(){ const g=document.getElementById('mkGo'); if(g) g.onclick=()=>S.mockLive?mockResume():mockStartAsk(); const r=document.getElementById('mkRv'); if(r) r.onclick=()=>mockReport(S.mockRev); }
+function growCard(st){ const h=st.mocks||[];
+  return `<div class="card"><p class="lbl">Skill levels · ${totalLv(st)} of ${MAXLV}</p><div class="lvrows">${UNITS.map(u=>{ const lv=mLevel(u,st); return `<div class="lvrow"><span>${u.title}</span><span class="pips sm" style="--tone:var(--${toneOf(u)})" aria-label="Level ${lv} of 5">${pipsHtml(lv)}</span></div>`; }).join('')}</div>
+   <p class="lbl" style="margin:14px 0 8px">Mock tests</p>${h.length?mockHist(h):`<p class="muted" style="margin:0;font-size:14px">No mock tests yet.</p>`}</div>`; }
 
 /* ---------- welcome ---------- */
 function welcome(){
