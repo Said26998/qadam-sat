@@ -28,6 +28,11 @@ service cloud.firestore {
       allow read: if request.auth != null && (request.auth.uid == uid || isTeacher());
       allow write: if isTeacher();
     }
+    // Teacher's class settings (announcement, homework, weekly goal): every signed-in student reads, only the teacher writes.
+    match /class/{id} {
+      allow read: if request.auth != null;
+      allow write: if isTeacher();
+    }
     // Logins the teacher created for students without email. Only the teacher can read them.
     match /logins/{name} {
       allow read, write: if isTeacher();

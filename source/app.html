@@ -325,6 +325,16 @@ details.deck[open] summary{margin-bottom:10px}
 .mkrev p{margin:0}.mkrev .ans{font-weight:700}
 .mkhist{display:flex;gap:8px;flex-wrap:wrap}.mkhist span{border:2px solid var(--line);border-radius:12px;padding:6px 10px;display:flex;flex-direction:column;line-height:1.15}
 .mkhist b{font-family:var(--f-disp);font-size:20px}.mkhist small{font-size:12px;color:var(--muted)}
+.bdgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.bdgc{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;font-size:13px}
+.bdgc b{font-size:13px;line-height:1.2}.bdgc small{font-size:11px;color:var(--muted);line-height:1.25}.bdgc.off b{color:var(--muted)}
+.bdg{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--sunk);color:var(--line);border:2px solid var(--line)}
+.bdg svg{width:30px;height:30px}.bdg.on{background:color-mix(in srgb,var(--tone) 16%,var(--surface));color:var(--tone);border-color:var(--tone)}
+.bdgbig .bdg{width:96px;height:96px}.bdgbig .bdg svg{width:62px;height:62px}
+.attn{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.hr{border:0;border-top:2px solid var(--line);margin:2px 0;width:100%}
+.ann{border-color:var(--cobalt);background:color-mix(in srgb,var(--cobalt) 7%,var(--surface))}
+textarea.field{resize:vertical;min-height:70px}
 </style>
 <script>try{var qt=localStorage.getItem('qadam-theme');if(qt==='light'||qt==='dark')document.documentElement.setAttribute('data-theme',qt);}catch(e){}</script>
 
@@ -372,6 +382,7 @@ const I = {
   target:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></g></svg>',
   crown:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 7.5l4.5 3.5L12 4l4.5 7L21 7.5 19 18H5zM5 19.5h14V21H5z"/></svg>',
   flag:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M5 21V4m0 0h11l-2 4 2 4H5"/></svg>',
+  medal:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" opacity=".55" d="M7 2h4l2 5-3 2zM17 2h-4l-1.2 3 2.2 4z"/><circle cx="12" cy="15" r="7" fill="currentColor"/><path fill="#fff" d="M12 10.8l1.3 2.7 2.9.4-2.1 2 .5 2.9-2.6-1.4-2.6 1.4.5-2.9-2.1-2 2.9-.4z"/></svg>',
   clock:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></svg>',
 };
 
@@ -406,7 +417,7 @@ function save(sync=true){ S.updatedAt = Date.now(); try{ localStorage.setItem(KE
 const pad=n=>String(n).padStart(2,'0');
 const dkey=(d=new Date())=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const today=()=>dkey(); const yday=()=>{const d=new Date();d.setDate(d.getDate()-1);return dkey(d)};
-function streakNow(st=S){ return (st.lastDay===today()||st.lastDay===yday()) ? st.streak : 0; }
+function streakNow(st=S){ if(st.lastDay===today()||st.lastDay===yday()) return st.streak||0; return st.lastDay && missedDays(st)<=(st.freeze||0) ? (st.streak||0) : 0; }
 function todayXp(st=S){ return st.hist[today()]||0; }
 function regen(){ if(S.energy>=MAXE){S.energyTs=Date.now();return;} const n=Math.floor((Date.now()-S.energyTs)/EREGEN); if(n>0){S.energy=Math.min(MAXE,S.energy+n); S.energyTs+=n*EREGEN; if(S.energy>=MAXE)S.energyTs=Date.now(); save(false);} }
 function nextEnergyMin(){ return Math.max(1,Math.ceil((EREGEN-(Date.now()-S.energyTs))/60000)); }
@@ -430,7 +441,7 @@ function spellOk(typed, w){ const t=String(typed).toLowerCase().replace(/[^a-z]/
   return [w, w+'s', w+'es', w+'d', w+'ed', e+'ed', e+'ing', w+'ing', y+'es', y+'ed', w+'ly'].includes(t); }
 function limitOf(it){ return it.t==='type'?45 : it.t==='mean'?30 : it.t==='tap'?40 : it.t==='m'?45 : it.word?40 : (it.p&&it.p.length>650?95:75); }
 const dBadge=it=>it.d?`<span class="dbadge d${it.d}">${DNAME[it.d]} · ${DR[it.d]}</span>`:'';
-function addXp(n){ const t=today(); let bumped=false; if(S.lastDay!==t){ S.streak = (S.lastDay===yday()) ? S.streak+1 : 1; S.lastDay=t; bumped=true; S.best=Math.max(S.best,S.streak);} S.xp+=n; S.hist[t]=(S.hist[t]||0)+n; return bumped; }
+function addXp(n){ const t=today(); let bumped=false; if(S.lastDay!==t){ const m=missedDays(S); if(S.lastDay && S.streak && m<=(S.freeze||0)){ if(m>0) S.freeze-=m; S.streak++; } else S.streak=1; S.lastDay=t; bumped=true; S.best=Math.max(S.best,S.streak); if(S.streak%7===0 && (S.freeze||0)<2) S.freeze=(S.freeze||0)+1; } S.xp+=n; S.hist[t]=(S.hist[t]||0)+n; return bumped; }
 function logEvent(e){ S.log.unshift(Object.assign({ts:Date.now()},e)); S.log=S.log.slice(0,60); }
 function unlocked(l){ if(l.vocab) return S.openAll || l.li===0 || !!S.lessons[VLESSONS[l.n-1].id]; return S.openAll || l.n===0 || !!S.lessons[LESSONS[l.n-1].id]; }
 function currentLesson(){ return LESSONS.find(l=>!S.lessons[l.id]) || null; }
@@ -455,7 +466,7 @@ let BANK=null, ACCESS=null, BANK_MSG='';
 let LOGINS=null, LOGIN_MSG='', LOGIN_SHOW=new Set(), LFORM=null;
 function summary(){ const wk=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return S.hist[dkey(d)]||0}).reduce((a,b)=>a+b,0);
   return {xp:S.xp, streak:S.streak, lastDay:S.lastDay, best:S.best, weekXp:wk, lessonsDone:LESSONS.filter(l=>S.lessons[l.id]).length, lessonsTotal:LESSONS.length, vocabDone:VLESSONS.filter(l=>S.lessons[l.id]).length,
-    ans:S.ans, right:S.right, secs:S.secs, words:mastered(), mistakes:S.mistakes.length, nick:S.nick||'', score:scoreShown(), sN:S.sN, dstat:S.dstat, wpm:avgWpm(), reads:Object.keys(S.reads||{}).length, grammarDone:GRAMMAR.filter(g=>S.lessons['gr-'+g.id]).length, lv:totalLv(), mock:(S.mocks||[])[0]?S.mocks[0].score:null, mocks:(S.mocks||[]).length}; }
+    ans:S.ans, right:S.right, secs:S.secs, words:mastered(), mistakes:S.mistakes.length, nick:S.nick||'', score:scoreShown(), sN:S.sN, dstat:S.dstat, wpm:avgWpm(), reads:Object.keys(S.reads||{}).length, grammarDone:GRAMMAR.filter(g=>S.lessons['gr-'+g.id]).length, lv:totalLv(), freeze:S.freeze||0, badges:Object.keys(S.badges||{}).length, dcN:S.dcN||0, mock:(S.mocks||[])[0]?S.mocks[0].score:null, mocks:(S.mocks||[]).length}; }
 async function push(){ if(!DB||!UID) return; if(writing){again=true;return;} writing=true;
   try{ const doc={summary:summary(), state:S, updatedAt:S.updatedAt}; if(window.QADAM_PROFILE) doc.profile=window.QADAM_PROFILE; await DB.doc('students/'+UID).set(doc); SYNC='ok'; }
   catch(e){ SYNC='err'; }
@@ -465,21 +476,22 @@ function boardName(){ const n=String(S.nick||((window.QADAM_PROFILE||{}).name)||
 function boardDays(){ const o={}; for(let i=0;i<7;i++){ const d=new Date(); d.setDate(d.getDate()-i); const k=dkey(d); if(S.hist[k]) o[k]=S.hist[k]; } return o; }
 async function pushBoard(){ if(!DB||!UID||OWNER) return; const ref=DB.doc('board/'+UID);
   try{ if(S.board===false){ if(BOARD_LAST!=='off' && ref.delete){ await ref.delete(); BOARD_LAST='off'; } return; }
-    const d={name:boardName(), days:boardDays(), score:scoreShown(), streak:S.streak, lastDay:S.lastDay, xp:S.xp}; const j=JSON.stringify(d); if(j===BOARD_LAST) return; d.at=Date.now(); await ref.set(d); BOARD_LAST=j; }catch(e){} }
+    const d={name:boardName(), days:boardDays(), score:scoreShown(), streak:streakNow(), lastDay:S.lastDay, xp:S.xp, dc:S.dc||null}; const j=JSON.stringify(d); if(j===BOARD_LAST) return; d.at=Date.now(); await ref.set(d); BOARD_LAST=j; }catch(e){} }
 function watchBoard(){ try{ DB.collection('board').onSnapshot(s=>{ BOARD=s.docs.map(d=>Object.assign({id:d.id},d.data())); if(LS.hidden && TAB==='learn') vLearn(); }, ()=>{ BOARD=null; }); }catch(e){} }
-function boardRows(kind){ const t=today(), y=yday(); const wk=new Set([...Array(7)].map((_,i)=>{ const d=new Date(); d.setDate(d.getDate()-i); return dkey(d); }));
+function boardRows(kind){ const t=today(), y=yday(); const wk=weekKeys();
   return (BOARD||[]).map(b=>({id:b.id, name:b.name||'Student', week:Object.entries(b.days||{}).reduce((a,[k,v])=>a+(wk.has(k)?v:0),0), score:b.score, streak:(b.lastDay===t||b.lastDay===y)?(b.streak||0):0}))
     .filter(r=>kind==='score'?r.score!=null:kind==='streak'?r.streak>0:r.week>0)
     .sort((a,b)=>kind==='score'?b.score-a.score:kind==='streak'?b.streak-a.streak:b.week-a.week); }
 const MEDAL=['#E8B400','#9AA3B5','#C27A3A'];
 function boardList(rows, kind, n){ const v=r=>kind==='score'?r.score:kind==='streak'?r.streak+' days':r.week+' XP';
   return `<ol class="lb">${rows.slice(0,n).map((r,i)=>`<li class="${r.id===UID?'me':''}"><span class="rk" style="${i<3?`background:${MEDAL[i]};color:#fff`:''}">${i+1}</span><span class="nm">${esc(r.name)}${r.id===UID?' (you)':''}</span><b>${v(r)}</b></li>`).join('')}</ol>`; }
-function boardCard(){ if(!BOARD) return ''; const rows=boardRows('week'); const me=rows.findIndex(r=>r.id===UID);
-  return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><p class="lbl" style="margin:0">Class leaderboard · this week</p><button class="glink2" id="lbAll">See all</button></div>
-   ${rows.length?boardList(rows,'week',5)+(me>=5?`<p style="margin:6px 0 0;font-weight:700">You are #${me+1} of ${rows.length}. ${rows[me-1]?`Earn ${rows[me-1].week-rows[me].week+1} XP to pass ${esc(rows[me-1].name)}.`:''}</p>`:me===-1&&!OWNER&&S.board!==false?'<p class="muted" style="margin:6px 0 0;font-size:14px">Earn XP this week to join the board.</p>':''):'<p class="muted" style="margin:6px 0 0">No one has earned XP this week yet. Be the first!</p>'}</div>`; }
+function boardCard(){ if(!BOARD) return ''; const rows=boardRows('week'); const me=rows.findIndex(r=>r.id===UID); const tot=rows.reduce((a,r)=>a+r.week,0), goal=classGoal(), gp=Math.min(100,Math.round(tot/goal*100));
+  const goalHtml=`<div style="margin-top:12px"><div style="display:flex;justify-content:space-between;gap:8px;font-size:14px"><b>Class goal this week</b><span>${tot.toLocaleString()} / ${goal.toLocaleString()} XP</span></div><div class="lvbar" style="margin-top:6px"><i style="width:${gp}%;background:${gp>=100?'var(--good)':'var(--cobalt)'}"></i></div>${gp>=100?'<p style="margin:6px 0 0;font-weight:800;color:var(--good)">Goal reached together!</p>':''}</div>`;
+  return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><p class="lbl" style="margin:0">Weekly league · ${leagueLeft()}</p><button class="glink2" id="lbAll">See all</button></div>
+   ${rows.length?boardList(rows,'week',5)+(me>=5?`<p style="margin:6px 0 0;font-weight:700">You are #${me+1} of ${rows.length}. ${rows[me-1]?`Earn ${rows[me-1].week-rows[me].week+1} XP to pass ${esc(rows[me-1].name)}.`:''}</p>`:me===-1&&!OWNER&&S.board!==false?'<p class="muted" style="margin:6px 0 0;font-size:14px">Earn XP this week to join the board.</p>':''):'<p class="muted" style="margin:6px 0 0">No one has earned XP this week yet. Be the first!</p>'}${goalHtml}</div>`; }
 function boardSheet(kind='week'){ const rows=boardRows(kind);
   openModal(`<h2>Class leaderboard</h2><div class="seg" id="lbSeg">${[['week','This week'],['score','SAT score'],['streak','Streak']].map(([k,l])=>`<button data-lb="${k}" aria-pressed="${kind===k}">${l}</button>`).join('')}</div>
-   ${rows.length?boardList(rows,kind,50):'<p class="muted">Nobody here yet.</p>'}<p class="muted" style="font-size:13px">${kind==='week'?'XP earned in the last 7 days.':kind==='score'?'Estimated SAT Reading and Writing score (after 10 answers).':'Days in a row with practice.'} You can hide yourself in My stats › Settings.</p><button class="btn ghost" data-close>Close</button>`);
+   ${rows.length?boardList(rows,kind,50):'<p class="muted">Nobody here yet.</p>'}<p class="muted" style="font-size:13px">${kind==='week'?'XP earned since Monday. The league starts over every Monday.':kind==='score'?'Estimated SAT Reading and Writing score (after 10 answers).':'Days in a row with practice.'} You can hide yourself in My stats › Settings.</p><button class="btn ghost" data-close>Close</button>`);
   document.getElementById('lbSeg').onclick=e=>{ const b=e.target.closest('[data-lb]'); if(b) boardSheet(b.dataset.lb); }; }
 function paintSync(){ document.querySelectorAll('[data-sync]').forEach(el=>{ el.className='sync '+(SYNC==='ok'?'ok':SYNC==='err'?'err':''); el.lastElementChild.textContent = SYNC==='ok'?'Progress saved to your teacher\'s class':SYNC==='err'?'Could not save to the class. Progress is kept on this device.':'Progress is kept on this device only'; }); }
 async function connect(){
@@ -494,7 +506,7 @@ async function connect(){
     else { await push(); }
     paintSync();
     if(OWNER){ renderNav(); watchClass(); loadAccess(); loadLogins(); }
-    loadBank(); watchBoard(); pushBoard();
+    loadBank(); watchBoard(); pushBoard(); loadClassDoc();
   }catch(e){ SYNC='err'; paintSync(); }
 }
 const clean=s=>String(s||'').replace(/<\/?(script|iframe|object|embed|style|link|meta)[^>]*>/gi,'').replace(/\son\w+\s*=/gi,' data-x=');
@@ -603,9 +615,9 @@ function scoreSheet(){ const s=scoreShown(); const ns=nextStep(); const tr=trend
 
 /* ---------- Learn ---------- */
 function goalCard(){ const x=todayXp(), g=S.goal, f=Math.min(1,x/g), C=2*Math.PI*24;
-  return `<div class="goal"><svg class="ring" viewBox="0 0 58 58" aria-hidden="true"><circle class="bgc" cx="29" cy="29" r="24"/><circle class="fgc" cx="29" cy="29" r="24" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-f)}" transform="rotate(-90 29 29)"/></svg><div><b>${x>=g?'Daily goal complete':'Daily goal'} · ${x} / ${g} XP</b><p>${x>=g?'Great work. Anything extra counts toward your weekly total.':streakNow()>0&&x===0?`Finish one lesson to keep your ${streakNow()}-day streak.`:'One lesson is about 10 to 15 XP.'}</p></div></div>`; }
+  return `<div class="goal"><svg class="ring" viewBox="0 0 58 58" aria-hidden="true"><circle class="bgc" cx="29" cy="29" r="24"/><circle class="fgc" cx="29" cy="29" r="24" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-f)}" transform="rotate(-90 29 29)"/></svg><div><b>${x>=g?'Daily goal complete':'Daily goal'} · ${x} / ${g} XP</b><p>${x>=g?'Great work. Anything extra counts toward your weekly total.':streakNow()>0&&x===0?`Finish one lesson to keep your ${streakNow()}-day streak.`:'One lesson is about 10 to 15 XP.'}</p><button class="glink2" id="frz" style="padding:4px 0;font-size:13px">${S.freeze||0} streak freeze${S.freeze===1?'':'s'}</button></div></div>`; }
 function vLearn(){
-  const cur=currentLesson(); let html=`<div class="wrap stack">${goalCard()}${climbCard()}${boardCard()}${wotdCard(true)}`; let lastSec=-1, k=0;
+  const cur=currentLesson(); let html=`<div class="wrap stack">${annCard()}${hwCard()}${goalCard()}${dailyCard()}${climbCard()}${boardCard()}${wotdCard(true)}`; let lastSec=-1, k=0;
   const offs=[0,-70,-100,-70,0,70,100,70];
   UNITS.forEach(u=>{
     if(u.sec!==lastSec){ lastSec=u.sec; const s=SECTIONS[u.sec]; html+=`<div class="sechead"><h3>Section ${u.sec+1} · ${s.name}</h3><span>${s.share}</span></div>`; }
@@ -623,6 +635,8 @@ function vLearn(){
   view.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>lessonSheet(LESSON[b.dataset.lesson]));
   const lb=document.getElementById('lbAll'); if(lb) lb.onclick=()=>boardSheet('week');
   view.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>masterySheet(UNIT[b.dataset.lv]));
+  const on=(id,f)=>{ const e=document.getElementById(id); if(e) e.onclick=f; };
+  on('frz',freezeSheet); on('dcGo',startDaily); on('dcRes',dailySheet); on('hwGo',startHw); on('annOk',()=>{ S.annSeen=CLS.ann.at; save(); vLearn(); });
   const cn=document.getElementById('clNext'); if(cn) cn.onclick=()=>{ const u=UNITS.filter(x=>unitDone(x)&&mLevel(x)<5).sort((a,b)=>mLevel(a)-mLevel(b)||a.n-b.n)[0]; if(u) masterySheet(u); };
   const cm=document.getElementById('clMock'); if(cm) cm.onclick=()=>{ TAB='train'; render(); window.scrollTo(0,0); };
   const wg=document.getElementById('wotdGo'); if(wg) wg.onclick=()=>{ TAB='words'; render(); window.scrollTo(0,0); };
@@ -654,9 +668,9 @@ function startPractice(){
 function startMistakes(){ const items=S.mistakes.map(id=>ITEM[id]).filter(Boolean).slice(0,8); if(items.length) startSession('mistakes', items); }
 function stopTimer(){ if(SES&&SES.tmr){ clearInterval(SES.tmr); SES.tmr=null; } }
 function stopAll(){ stopTimer(); if(SES){ clearInterval(SES.speedT); clearTimeout(SES.adv); } }
-function closeSession(){ stopAll(); LS.hidden=true; LS.innerHTML=''; document.body.style.overflow=''; SES=null; render(); }
+function closeSession(){ stopAll(); LS.hidden=true; LS.innerHTML=''; document.body.style.overflow=''; SES=null; render(); setTimeout(()=>{ if(LS.hidden && modal.hidden) checkBadges(false); },350); }
 function head(){ const pct=Math.round(SES.done/SES.total*100);
-  return `<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${SES.mode==='speed'?`<span class="pill" id="spd" style="font-size:15px">${Math.max(0,Math.ceil((SES.deadline-Date.now())/1000))}s · ${SES.firstTry} ✓</span>`:SES.mode==='mastery'?`<span class="pill" style="font-size:14px">Level ${SES.lesson.mlv} · ${SES.pass}/${SES.need} ✓</span>`:SES.mode==='lesson'?`<span class="chip energy${S.energy<5?' low':''}">${I.battery}${S.energy}</span>`:`<span class="pill">${SES.mode==='mistakes'?'Mistakes':SES.mode==='quiz'?'Word quiz':SES.mode==='official'?'Official SAT':SES.mode==='reading'?'Reading':'Practice'}</span>`}</div>`; }
+  return `<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${SES.mode==='speed'?`<span class="pill" id="spd" style="font-size:15px">${Math.max(0,Math.ceil((SES.deadline-Date.now())/1000))}s · ${SES.firstTry} ✓</span>`:SES.mode==='mastery'?`<span class="pill" style="font-size:14px">Level ${SES.lesson.mlv} · ${SES.pass}/${SES.need} ✓</span>`:SES.mode==='lesson'?`<span class="chip energy${S.energy<5?' low':''}">${I.battery}${S.energy}</span>`:`<span class="pill">${SES.mode==='mistakes'?'Mistakes':SES.mode==='daily'?'Daily challenge':SES.mode==='spaced'?'Review':SES.mode==='weak'?'Weak spot: '+SES.weakU.title:SES.mode==='hw'?'Homework':SES.mode==='quiz'?'Word quiz':SES.mode==='official'?'Official SAT':SES.mode==='reading'?'Reading':'Practice'}</span>`}</div>`; }
 function showItem(){
   stopTimer(); const it=SES.queue[0]; SES.sel=null; SES.checked=false; SES.item=it; SES.qStart=Date.now(); SES.limit=Math.round(limitOf(it)*(SES.tf||1));
   const u=UNIT[it.unit]; const tone=toneOf(u);
@@ -720,11 +734,13 @@ function feedback(ok, expl, ansText){
   // stats: only first attempts count toward accuracy
   if(first && it.t!=='m'){ S.ans++; const sk=it.stat||it.unit; const us=S.unit[sk]||(S.unit[sk]={r:0,n:0}); us.n++; if(ok){S.right++;us.r++;} }
   if(it.fixed && first){ S.bank=S.bank||{}; S.bank[it.id]=ok?1:0; }
+  if(first) qsMark(it, ok);
   if(it.word && !ok){ S.cards[it.word]=Object.assign({seen:0}, S.cards[it.word], {box:0, due:today()}); }
   else if(it.word && ok && !S.cards[it.word]){ const d=new Date(); d.setDate(d.getDate()+1); S.cards[it.word]={box:1, due:dkey(d), seen:1}; }
   if(ok){ sfx.good(); if(first) SES.firstTry++; SES.done++; SES.queue.shift();
-    if(SES.mode==='mistakes'||first){ const mi=S.mistakes.indexOf(it.id); if(mi>-1) S.mistakes.splice(mi,1); }
-  } else if(SES.mode==='speed'||SES.mode==='mastery'){ sfx.bad(); SES.done++; SES.queue.shift(); if(!S.mistakes.includes(it.id)) S.mistakes.unshift(it.id); S.mistakes=S.mistakes.slice(0,60);
+    if(SES.mode==='mistakes'||first){ const mi=S.mistakes.indexOf(it.id); if(mi>-1){ S.mistakes.splice(mi,1); S.fixed=(S.fixed||0)+1; } }
+    if(SES.mode==='spaced' && !first) qsMark(it, false);
+  } else if(SES.mode==='speed'||SES.mode==='mastery'||SES.mode==='daily'){ sfx.bad(); SES.done++; SES.queue.shift(); if(!S.mistakes.includes(it.id)) S.mistakes.unshift(it.id); S.mistakes=S.mistakes.slice(0,60);
   } else { sfx.bad(); SES.wrongOnce.add(it.id); SES.queue.push(SES.queue.shift()); if(!S.mistakes.includes(it.id)) S.mistakes.unshift(it.id); S.mistakes=S.mistakes.slice(0,60);
   }
   SES.tries++;
@@ -747,6 +763,7 @@ function outOfEnergy(){
 function finish(){
   if(SES.ended) return; SES.ended=true; stopAll();
   if(SES.mode==='mastery') return masteryDone();
+  if(SES.mode==='daily') return dailyDone();
   if(SES.mode==='speed'){ SES.total=Math.max(1,SES.done); }
   const secs=Math.round((Date.now()-SES.start)/1000); S.secs+=secs;
   const scored=SES.total-SES.queue.length; const acc=Math.round(SES.firstTry/Math.max(1,SES.total)*100);
@@ -757,11 +774,12 @@ function finish(){
     S.reads[r.id]={wpm:w, acc, best:Math.max(prev?prev.best:0,w), n:(prev?prev.n:0)+1, at:Date.now()}; (S.wpmLog=S.wpmLog||[]).unshift({ts:Date.now(),wpm:w,acc,id:r.id}); S.wpmLog=S.wpmLog.slice(0,30);
     note=`${w} words per minute · ${acc}% comprehension · effective speed ${Math.round(w*acc/100)}`; }
   else if(SES.mode==='speed'){ xp=5+Math.floor(SES.firstTry/2); const best=S.speedBest||0; S.speedBest=Math.max(best,SES.firstTry); note=`${SES.firstTry} right in 60 seconds${SES.firstTry>best&&best?' · new personal best!':` · best ${S.speedBest}`}`; }
+  else if(SES.mode==='hw'){ xp=15; (S.hwDone=S.hwDone||{})[SES.hw.id]={r:SES.firstTry, n:SES.total, at:Date.now()}; note='Homework done. Your teacher can see your result.'; }
   else if(SES.mode!=='official'){ if(S.energy<MAXE){ addEnergy(5); note='+5 energy refilled'; } }
   if(SES.eBonus) note=(note?note+' · ':'')+'+'+SES.eBonus+' bonus energy';
   const sNow=scoreShown(); const sD=(SES.score0!=null&&sNow!=null)?sNow-SES.score0:null;
   const before=todayXp(); const bumped=addXp(xp); const hitGoal=before<S.goal && todayXp()>=S.goal;
-  logEvent({k:SES.mode, l:SES.mode==='reading'?'Reading: '+SES.lesson.read.title+' ('+SES.lesson.wpm+' wpm)':SES.mode==='lesson'?(SES.lesson.grammar?'Grammar: '+SES.lesson.unit.title:(SES.lesson.vocab?'Words: ':'')+SES.lesson.unit.title+' · Part '+(SES.lesson.li+1)):SES.mode==='mistakes'?'Fixed mistakes':SES.mode==='quiz'?'Vocabulary quiz':SES.mode==='official'?'Official SAT practice':SES.mode==='speed'?'Word speed round':'Mixed practice', xp, acc, dur:secs});
+  logEvent({k:SES.mode, l:SES.mode==='reading'?'Reading: '+SES.lesson.read.title+' ('+SES.lesson.wpm+' wpm)':SES.mode==='lesson'?(SES.lesson.grammar?'Grammar: '+SES.lesson.unit.title:(SES.lesson.vocab?'Words: ':'')+SES.lesson.unit.title+' · Part '+(SES.lesson.li+1)):SES.mode==='mistakes'?'Fixed mistakes':SES.mode==='quiz'?'Vocabulary quiz':SES.mode==='official'?'Official SAT practice':SES.mode==='speed'?'Word speed round':SES.mode==='spaced'?'Spaced review':SES.mode==='weak'?'Weak spot: '+SES.weakU.title:SES.mode==='hw'?'Homework':'Mixed practice', xp, acc, dur:secs});
   save(); sfx.done();
   const mm=Math.floor(secs/60)+':'+pad(secs%60);
   LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--saffron)" d="M12 1.5l2.6 4.2 4.8-1.1-1.1 4.8 4.2 2.6-4.2 2.6 1.1 4.8-4.8-1.1L12 22.5l-2.6-4.2-4.8 1.1 1.1-4.8L1.5 12l4.2-2.6-1.1-4.8 4.8 1.1z"/><circle cx="12" cy="12" r="4" fill="var(--bg)"/></svg>
@@ -895,9 +913,11 @@ function vReview(){
   const m=S.mistakes.filter(id=>ITEM[id]); const byUnit={}; m.forEach(id=>{const u=ITEM[id].unit; byUnit[u]=(byUnit[u]||0)+1;});
   view.innerHTML=`<div class="wrap stack"><div><h1 style="font-size:28px">Review</h1><p class="muted" style="margin:4px 0 0">Practice rounds cost no energy. Each round you finish refills 5 energy and earns 5 XP.</p></div>
    <div class="card stack" style="gap:10px"><p class="lbl" style="margin:0">Your mistakes</p>${m.length?`<p style="margin:0"><b style="font-family:var(--f-disp);font-size:26px">${m.length}</b> question${m.length>1?'s':''} to fix</p><div class="seg">${Object.entries(byUnit).map(([u,c])=>`<span class="pill">${UNIT[u].title} · ${c}</span>`).join('')}</div><button class="btn bad" id="rM">Fix my mistakes</button>`:`<div class="empty">${I.check}<p>No mistakes waiting. Questions you miss will collect here.</p></div>`}</div>
+   <div class="card stack" style="gap:10px"><p class="lbl" style="margin:0">Spaced review</p>${dueQs().length?`<p style="margin:0"><b style="font-family:var(--f-disp);font-size:26px">${dueQs().length}</b> question${dueQs().length>1?'s':''} due today</p><p class="muted" style="margin:0;font-size:14px">Questions you got right come back after 1, 3, 7, 14 and 30 days, so you keep them for test day.</p><button class="btn" id="rS">Review ${Math.min(10,dueQs().length)} questions</button>`:`<p class="muted" style="margin:0">Nothing due today.${nextDueIn()?` Next review in ${nextDueIn()} day${nextDueIn()>1?'s':''}.`:' Questions you answer in lessons will come back here later.'}</p>`}</div>
+   ${(()=>{ const w=weakUnit(); return `<div class="card stack" style="gap:10px"><p class="lbl" style="margin:0">Fix my weak spot</p><p style="margin:0">${w?`Your weakest skill is <b>${w.u.title}</b> at ${w.p}% accuracy. Practice 8 questions on it.`:'Answer a few more questions and we will find your weakest skill.'}</p>${w?`<button class="btn bad" id="rW">Practice ${w.u.title}</button>`:''}</div>`; })()}
    ${officialCard()}
    <div class="card stack" style="gap:10px"><p class="lbl" style="margin:0">Mixed practice</p><p style="margin:0" class="muted">Six questions drawn from lessons you have finished.</p><button class="btn" id="rP">Start practice</button></div></div>`;
-  const a=document.getElementById('rM'); if(a) a.onclick=startMistakes; document.getElementById('rP').onclick=startPractice;
+  const a=document.getElementById('rM'); if(a) a.onclick=startMistakes; const rs=document.getElementById('rS'); if(rs) rs.onclick=startSpaced; const rw=document.getElementById('rW'); if(rw) rw.onclick=startWeak; document.getElementById('rP').onclick=startPractice;
   view.querySelectorAll('[data-ob]').forEach(b=>b.onclick=()=>startOfficial(b.dataset.ob));
   const od=document.getElementById('obD'); if(od) od.onclick=e=>{ const b=e.target.closest('[data-od]'); if(!b) return; OBD=+b.dataset.od; vReview(); };
 }
@@ -934,6 +954,7 @@ function vMe(){
    </div>
    ${trainCard(S)}
    ${growCard(S)}
+   ${badgeCard(S,true)}
    <div class="card"><p class="lbl">XP, last 7 days</p>${weekBars(S.hist)}</div>
    <div class="card"><p class="lbl">Accuracy by skill</p>${skillRows(S.unit)}<p class="muted" style="font-size:13px;margin:8px 0 0">Green 80%+, amber 60–79%, red below 60%. First tries only.</p></div>
    <div class="card"><p class="lbl">Recent activity</p>${logRows(S.log)}</div>
@@ -990,6 +1011,8 @@ function vClass(){
     <div class="tile" style="color:var(--good)">${I.target}<div><b style="color:var(--ink)">${accPct(tot.r,tot.n)??'–'}${tot.n?'%':''}</b><span>class accuracy</span></div></div>
     <div class="tile" style="color:var(--plum)">${I.gauge}<div><b style="color:var(--ink)">${avgSc??'–'}</b><span>average est. SAT R&amp;W</span></div></div>
    </div>
+   ${attentionCard(rows)}
+   ${teachCard(rows)}
    ${weakest?`<div class="card" style="border-color:var(--bad)"><p class="lbl" style="color:var(--bad)">Weakest skill right now</p><p style="margin:0"><b>${weakest.u.title}</b> at ${weakest.p}% class accuracy. A good candidate for your next lesson warm-up.</p></div>`:''}
    <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><p class="lbl" style="margin:0">Students</p><div class="seg" id="cSort">${[['active','Recent'],['score','Score'],['xp','Week XP'],['acc','Lowest accuracy'],['name','Name']].map(([k,l])=>`<button data-s="${k}" aria-pressed="${CSORT===k}" style="padding:5px 9px;font-size:13px">${l}</button>`).join('')}</div></div>
     ${rows.length?`<div class="tblscroll"><table class="roster"><thead><tr><th>Student</th><th>Est. score</th><th>Last active</th><th>Streak</th><th>Week XP</th><th>Lessons</th><th>Levels</th><th>Mock</th><th>Words</th><th>Accuracy</th></tr></thead><tbody>${rows.map((r,i)=>`<tr class="click" data-st="${esc(r.id)}" tabindex="0"><td><span class="who"><span class="av" style="background:${colors[i%colors.length]}">${esc((r.name[0]||'?').toUpperCase())}</span><span>${esc(r.name)}</span></span></td><td><b>${r.sc??'–'}</b></td><td>${ago(r.upd)}</td><td>${r.live}</td><td>${r.s.weekXp||0}</td><td>${r.s.lessonsDone||0}/${LESSONS.length}</td><td>${totalLv(r.st)}/${MAXLV}</td><td>${(r.st.mocks||[])[0]?`<b>${r.st.mocks[0].score}</b>`:'–'}</td><td>${r.s.words||0}</td><td>${r.acc==null?'–':`<span class="pill ${r.acc>=80?'good':r.acc<60?'bad':''}">${r.acc}%</span>`}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty"><p>No students yet. Share this app's link with your students. Each one appears here after their first lesson.</p></div>`}
@@ -997,7 +1020,7 @@ function vClass(){
    ${loginCard()}
    ${window.QADAM_SIGNOUT?bankCard(rows):''}
    <div class="card"><p class="lbl">Class accuracy by skill</p>${skillRows(classUnit)}</div></div>`;
-  wireLogins();
+  wireLogins(); wireTeach(rows);
   const bf=document.getElementById('bFile'); if(bf) bf.onchange=e=>{ if(e.target.files[0]) importBank(e.target.files[0]); };
   const ba=document.getElementById('bAll'); if(ba) ba.onclick=async()=>{ ba.disabled=true; for(const r of rows){ if(!(ACCESS&&ACCESS.has(r.id))) if(!await setAccess(r.id,true)) break; } BANK_MSG=BANK_MSG||'Every student on the list can now open the official questions.'; vClass(); };
   document.getElementById('cSort').onclick=e=>{const b=e.target.closest('[data-s]'); if(!b)return; CSORT=b.dataset.s; vClass();};
@@ -1009,6 +1032,7 @@ function studentSheet(r){ if(!r) return; const s=r.s, st=r.st;
    ${scoreCard(Object.assign({score:450,sN:0,sHist:{},dstat:{}},st),false)}
    ${trainCard(st)}
    ${growCard(st)}
+   ${badgeCard(st,false)}
    <div><p class="lbl">XP, last 7 days</p>${weekBars(st.hist||{})}</div>
    <div><p class="lbl">Accuracy by skill</p>${skillRows(st.unit||{})}</div>
    <div><p class="lbl">Recent activity</p>${logRows(st.log,15)}</div>
@@ -1024,10 +1048,10 @@ const MAXLV=UNITS.length*5, GMAP={bd:[1], fss:[0,2]};
 function unitDone(u,st=S){ return LESSONS.filter(l=>l.unit===u).every(l=>(st.lessons||{})[l.id]); }
 function mLevel(u,st=S){ return unitDone(u,st) ? Math.max(1,((st.mast||{})[u.id]||{}).lv||0) : 0; }
 function totalLv(st=S){ return UNITS.reduce((a,u)=>a+mLevel(u,st),0); }
-function unitPool(u, mc){ const ok=it=>it.d && (mc ? (!it.t && it.c && it.c.length===4) : (!it.t || it.t==='tap'));
-  let p=u.lessons.flat().filter(ok);
+function unitPool(u, mc, pub){ const ok=it=>it.d && (mc ? (!it.t && it.c && it.c.length===4) : (!it.t || it.t==='tap'));
+  let p=u.lessons.flat().concat(u.extra||[]).filter(ok);
   (GMAP[u.id]||[]).forEach(g=>GRAMMAR.filter(x=>x.grp===g).forEach(x=>{ p=p.concat(x.items.filter(ok)); }));
-  if(BANK) p=p.concat(BANK.filter(x=>x.unit===u.id && ok(x)));
+  if(BANK && !pub) p=p.concat(BANK.filter(x=>x.unit===u.id && ok(x)));
   return p; }
 function pickD(pool, want, avoid, taken=new Set()){ const out=[];
   want.forEach(d=>{ for(const x of [d,d+1,d-1,d+2,d-2].filter(x=>x>=1&&x<=3)){ const c=shuffle(pool.filter(it=>it.d===x && !taken.has(it.id))).sort((a,b)=>(avoid.has(a.id)?1:0)-(avoid.has(b.id)?1:0))[0];
@@ -1146,7 +1170,7 @@ function mockRows(rec){ const all=[]; [rec.m1,rec.m2].forEach((m,mi)=>{ if(!m) r
 function mockFinish(){ const M=S.mockLive; if(!M) return; clearInterval(MOCKT); const all=mockRows(M); const mods=M.m2?2:1;
   const nr=all.filter(x=>x.ok).length; const score=mockScale(M.m2?nr:nr*2, M.m2?all.length:all.length*2, M.route);
   all.forEach(x=>{ rate(x.it,x.ok); S.ans++; const sk=x.it.stat||x.it.unit; const us=S.unit[sk]||(S.unit[sk]={r:0,n:0}); us.n++; if(x.ok){S.right++;us.r++;}
-    if(x.it.fixed){ S.bank=S.bank||{}; S.bank[x.id]=x.ok?1:0; }
+    if(x.it.fixed){ S.bank=S.bank||{}; S.bank[x.id]=x.ok?1:0; } qsMark(x.it, x.ok);
     const mi=S.mistakes.indexOf(x.id); if(x.ok){ if(mi>-1) S.mistakes.splice(mi,1); } else if(mi<0) S.mistakes.unshift(x.id); });
   S.mistakes=S.mistakes.slice(0,60);
   const dom={}; all.forEach(x=>{ const s=(UNIT[x.u]||{}).sec; const d=dom[s]||(dom[s]=[0,0]); d[1]++; if(x.ok) d[0]++; });
@@ -1191,6 +1215,163 @@ function growCard(st){ const h=st.mocks||[];
   return `<div class="card"><p class="lbl">Skill levels · ${totalLv(st)} of ${MAXLV}</p><div class="lvrows">${UNITS.map(u=>{ const lv=mLevel(u,st); return `<div class="lvrow"><span>${u.title}</span><span class="pips sm" style="--tone:var(--${toneOf(u)})" aria-label="Level ${lv} of 5">${pipsHtml(lv)}</span></div>`; }).join('')}</div>
    <p class="lbl" style="margin:14px 0 8px">Mock tests</p>${h.length?mockHist(h):`<p class="muted" style="margin:0;font-size:14px">No mock tests yet.</p>`}</div>`; }
 
+/* ---------- Streak freezes ---------- */
+const dnum=k=>Math.round(Date.parse(k+'T00:00:00Z')/864e5);
+function missedDays(st){ return st.lastDay ? dnum(today())-dnum(st.lastDay)-1 : 99; }
+function freezeSheet(){ const f=S.freeze||0;
+  openModal(`<h2>${f} streak freeze${f===1?'':'s'}</h2><p>A streak freeze protects your streak if you miss a day. It is used up automatically.</p><div class="tipbox" style="--tone:var(--turq)"><b>How to earn one</b>You get a freeze every time your streak reaches a multiple of 7 days. You can hold up to 2.</div><button class="btn" data-close>Got it</button>`); }
+
+/* ---------- Daily challenge (same 5 questions for the whole class) ---------- */
+function hashStr(s){ let h=1779033703^s.length; for(let i=0;i<s.length;i++){ h=Math.imul(h^s.charCodeAt(i),3432918353); h=h<<13|h>>>19; } return h>>>0; }
+function rng(seed){ return ()=>{ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function dailyItems(day=today()){ const r=rng(hashStr('qadam-'+day));
+  const pool=UNITS.flatMap(u=>unitPool(u,true,true).map(it=>[u.id,it])).sort((a,b)=>a[1].id<b[1].id?-1:1); const out=[], used=new Set();
+  for(const d of [2,2,3,3,3]){ const c=pool.filter(([u,it])=>it.d===d && !used.has(u)); if(!c.length) continue; const [u,it]=c[Math.floor(r()*c.length)]; out.push(it); used.add(u); }
+  return out; }
+function dailyRows(){ const t=today(); return (BOARD||[]).filter(b=>b.dc&&b.dc.day===t).map(b=>({id:b.id, name:b.name||'Student', r:b.dc.r, n:b.dc.n, secs:b.dc.secs||0})).sort((a,b)=>b.r-a.r||a.secs-b.secs); }
+function dailyCard(){ const done=S.dc&&S.dc.day===today(); const rows=dailyRows(); const me=rows.findIndex(r=>r.id===UID); const others=rows.filter(r=>r.id!==UID).length;
+  return `<div class="card stack" style="gap:10px;border-color:var(--plum)"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><p class="lbl" style="margin:0;color:var(--plum)">Daily challenge</p>${(S.dcStreak||0)>1&&S.dc&&(S.dc.day===today()||S.dc.day===yday())?`<span class="pill">${S.dcStreak} days in a row</span>`:''}</div>
+   ${done?`<p style="margin:0"><b style="font-family:var(--f-disp);font-size:24px">${S.dc.r}/${S.dc.n}</b> today${me>-1?` · #${me+1} of ${rows.length} in your class`:''}. A new challenge comes tomorrow.</p>${rows.length?`<button class="btn ghost" id="dcRes">See class results</button>`:''}`
+   :`<p style="margin:0">5 tough questions, the same for your whole class. One try per day.${others?` <b>${others}</b> classmate${others>1?'s have':' has'} done it today.`:''}</p><button class="btn" id="dcGo" style="background:var(--plum);box-shadow:0 4px 0 var(--plum-d)">Start today's challenge</button>`}</div>`; }
+function dailySheet(){ const rows=dailyRows();
+  openModal(`<h2>Today's challenge</h2>${rows.length?`<ol class="lb">${rows.map((r,i)=>`<li class="${r.id===UID?'me':''}"><span class="rk" style="${i<3?`background:${MEDAL[i]};color:#fff`:''}">${i+1}</span><span class="nm">${esc(r.name)}${r.id===UID?' (you)':''}</span><b>${r.r}/${r.n} · ${mmss(r.secs)}</b></li>`).join('')}</ol>`:'<p class="muted">Nobody has finished it yet.</p>'}<p class="muted" style="font-size:13px">Ranked by questions right, then by time.</p><button class="btn ghost" data-close>Close</button>`); }
+function startDaily(){ if(S.dc&&S.dc.day===today()) return; const items=dailyItems(); if(items.length) startSession('daily', items); }
+function dailyDone(){ const secs=Math.round((Date.now()-SES.start)/1000); S.secs+=secs; const r=SES.firstTry, n=SES.total;
+  S.dcStreak=(S.dc&&S.dc.day===yday())?(S.dcStreak||0)+1:1; S.dc={day:today(), r, n, secs}; S.dcN=(S.dcN||0)+1; if(r===n) S.dcPerfect=(S.dcPerfect||0)+1;
+  const xp=10+2*r; const before=todayXp(); const bumped=addXp(xp); const hitGoal=before<S.goal&&todayXp()>=S.goal;
+  logEvent({k:'daily', l:'Daily challenge', xp, acc:Math.round(r/Math.max(1,n)*100), dur:secs}); save(); sfx.done();
+  LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><div class="crown" style="color:var(--plum)">${I.target}</div><h1 style="color:var(--plum)">${r===n?'Perfect!':r>=3?'Well done!':'Challenge done'}</h1><p class="muted" style="margin:0">${r} of ${n} right in ${mmss(secs)}. Come back tomorrow for a new one.</p>
+   <div class="res"><div style="--c:var(--saffron)"><span>Total XP</span><b>+${xp}</b></div><div style="--c:var(--plum)"><span>In a row</span><b>${S.dcStreak}</b></div><div style="--c:var(--good)"><span>Right</span><b>${r}/${n}</b></div></div>
+   ${bumped?`<p style="color:var(--saffron);font-weight:800;margin:8px 0 0">${S.streak}-day streak!</p>`:''}${hitGoal?`<p style="font-weight:800;color:var(--good);margin:0">Daily goal reached</p>`:''}</div></div></div>
+   <div class="ft"><div class="in">${BOARD?`<button class="btn ghost" id="dcR">See class results</button>`:''}<button class="btn" id="fC">Continue</button></div></div>`;
+  document.getElementById('fC').onclick=closeSession; const dr=document.getElementById('dcR'); if(dr) dr.onclick=()=>{ closeSession(); setTimeout(dailySheet,400); };
+}
+
+/* ---------- Spaced review of questions ---------- */
+const QINT=[0,1,3,7,14,30];
+const qsOk=it=>it && it.id && (it.c||it.t==='tap') && it.stat!=='voc' && !it.word && (!it.t || it.t==='tap');
+function qsMark(it, ok){ if(!qsOk(it)) return; S.qs=S.qs||{}; const c=S.qs[it.id]||{b:0}; const b=ok?Math.min(5,(c.b||0)+1):1; const d=new Date(); d.setDate(d.getDate()+QINT[b]); S.qs[it.id]={b, due:dkey(d)}; }
+function qsSeed(){ if(S.qsInit) return; S.qsInit=1; S.qs=S.qs||{}; let k=0;
+  LESSONS.filter(l=>S.lessons[l.id]).forEach(l=>l.items.forEach(it=>{ if(qsOk(it) && !S.qs[it.id]){ const d=new Date(); d.setDate(d.getDate()+(k++%14)); S.qs[it.id]={b:1, due:dkey(d)}; } })); }
+function dueQs(){ const t=today(); return Object.entries(S.qs||{}).filter(([id,c])=>c.due<=t && ITEM[id]).sort((a,b)=>a[1].due<b[1].due?-1:1).map(([id])=>id); }
+function nextDueIn(){ const ds=Object.values(S.qs||{}).map(c=>c.due).sort(); return ds.length?Math.max(1,dnum(ds[0])-dnum(today())):null; }
+function startSpaced(){ const ids=dueQs().slice(0,10); if(ids.length) startSession('spaced', ids.map(id=>ITEM[id])); }
+
+/* ---------- Fix my weak spot ---------- */
+function weakUnit(st=S){ return UNITS.map(u=>{ const s=(st.unit||{})[u.id]; return {u, p:s&&s.n>=5?Math.round(s.r/s.n*100):null}; }).filter(x=>x.p!=null).sort((a,b)=>a.p-b.p)[0]||null; }
+function startWeak(){ const w=weakUnit(); const u=w?w.u:UNITS[0]; const mis=new Set(S.mistakes);
+  const items=shuffle(unitPool(u,false)).sort((a,b)=>(mis.has(b.id)?1:0)-(mis.has(a.id)?1:0)).slice(0,8); if(items.length) startSession('weak', items, null, {weakU:u}); }
+
+/* ---------- Badges ---------- */
+const BADGES=[
+ ['first','First step','Finish your first lesson',s=>Object.keys(s.lessons||{}).length>0],
+ ['st7','On fire','Reach a 7-day streak',s=>(s.best||0)>=7],
+ ['dcp','Flawless','Get a perfect daily challenge',s=>(s.dcPerfect||0)>0],
+ ['sc600','600 club','Reach an estimated score of 600',s=>(scoreShown(s)||0)>=600],
+ ['w100','Word collector','Learn 100 words',s=>mastered(s)>=100],
+ ['fix50','Comeback','Fix 50 mistakes',s=>(s.fixed||0)>=50],
+ ['mock1','Test day','Finish a full mock test',s=>(s.mocks||[]).some(m=>m.mods===2)],
+ ['path','Path finisher','Finish every lesson on the path',s=>LESSONS.every(l=>(s.lessons||{})[l.id])],
+ ['lv5','Master','Reach Level 5 in any skill',s=>UNITS.some(u=>mLevel(u,s)>=5)],
+ ['dc10','Daily regular','Finish 10 daily challenges',s=>(s.dcN||0)>=10],
+ ['hw5','Homework hero','Finish 5 homework sets',s=>Object.keys(s.hwDone||{}).length>=5],
+ ['gram','Grammar guru','Practice every Grammar Guide topic',s=>GRAMMAR.every(g=>(s.lessons||{})['gr-'+g.id])],
+ ['read10','Bookworm','Finish 10 Reading Gym passages',s=>Object.keys(s.reads||{}).length>=10],
+ ['xp1k','1,000 XP','Earn 1,000 XP',s=>(s.xp||0)>=1000],
+ ['st30','Unstoppable','Reach a 30-day streak',s=>(s.best||0)>=30],
+ ['sc700','700 club','Reach an estimated score of 700',s=>(scoreShown(s)||0)>=700],
+ ['mock650','High flyer','Score 650 or more on a full mock test',s=>(s.mocks||[]).some(m=>m.mods===2&&m.score>=650)],
+ ['lv3all','All-rounder','Reach Level 3 in every skill',s=>UNITS.every(u=>mLevel(u,s)>=3)],
+ ['w500','Walking dictionary','Learn 500 words',s=>mastered(s)>=500],
+ ['xp5k','5,000 XP','Earn 5,000 XP',s=>(s.xp||0)>=5000],
+];
+const BTONE=['cobalt','turq','plum','coral','saffron','jade'];
+function badgeIcon(i, on){ return `<span class="bdg ${on?'on':''}" style="--tone:var(--${BTONE[i%BTONE.length]})">${I.medal}</span>`; }
+function checkBadges(silent){ S.badges=S.badges||{}; const nw=BADGES.filter(b=>!S.badges[b[0]] && b[3](S)); if(!nw.length) return; nw.forEach(b=>S.badges[b[0]]=Date.now()); save();
+  if(silent) return; const b=nw[0], i=BADGES.indexOf(b); sfx.done();
+  openModal(`<div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px"><div class="bdgbig">${badgeIcon(i,true)}</div><p class="lbl" style="margin:0">New badge</p><h2>${b[1]}</h2><p class="muted">${b[2]}.${nw.length>1?` You also earned ${nw.slice(1).map(x=>x[1]).join(', ')}.`:''}</p></div><button class="btn" data-close>Nice!</button>`); }
+function badgeCard(st, mine){ const got=st.badges||{}; const n=BADGES.filter(b=>got[b[0]]).length;
+  return `<div class="card"><p class="lbl">Badges · ${n} of ${BADGES.length}</p><div class="bdgs">${BADGES.map((b,i)=>`<div class="bdgc ${got[b[0]]?'':'off'}" title="${esc(b[2])}">${badgeIcon(i,!!got[b[0]])}<b>${b[1]}</b>${mine?`<small>${b[2]}</small>`:''}</div>`).join('')}</div></div>`; }
+
+/* ---------- Weekly league + class goal ---------- */
+function monday(d=new Date()){ const x=new Date(d); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
+function weekKeys(){ const m=monday(), out=new Set(); for(let x=new Date(m); dkey(x)<=today(); x.setDate(x.getDate()+1)) out.add(dkey(x)); return out; }
+function leagueLeft(){ const d=7-((new Date().getDay()+6)%7); return d===1?'Ends tonight':'Ends in '+d+' days'; }
+function classGoal(rows){ const n=Math.max(1,(BOARD||[]).length); return (CLS&&CLS.goal)||Math.max(300,150*n); }
+
+/* ---------- Weekly recap ---------- */
+function recapCheck(){ const wk=dkey(monday()); if(S.recapWk===wk) return; const had=S.recapWk; S.recapWk=wk; save(false); if(!had) return;
+  const lm=monday(); lm.setDate(lm.getDate()-7); const keys=[]; for(let i=0;i<7;i++){ const d=new Date(lm); d.setDate(d.getDate()+i); keys.push(dkey(d)); }
+  const xp=keys.reduce((a,k)=>a+(S.hist[k]||0),0); if(!xp) return; const days=keys.filter(k=>S.hist[k]).length;
+  const t0=+lm, t1=t0+7*864e5; const ev=(S.log||[]).filter(e=>e.ts>=t0&&e.ts<t1&&!e.quit);
+  const sk=Object.keys(S.sHist||{}).sort(); const at=k=>{ const p=sk.filter(x=>x<=k).pop(); return p?Math.round(S.sHist[p]/10)*10:null; };
+  const s0=at(dkey(new Date(t0-864e5))), s1=at(keys[6]); const bd=BADGES.filter(b=>(S.badges||{})[b[0]]>=t0&&(S.badges||{})[b[0]]<t1);
+  openModal(`<p class="lbl" style="margin:0">Your week in review</p><h2>${days>=5?'What a week!':days>=3?'Solid week!':'Every step counts'}</h2>
+   <div class="tiles"><div class="tile" style="color:var(--cobalt)">${I.bolt}<div><b style="color:var(--ink)">${xp}</b><span>XP earned</span></div></div><div class="tile" style="color:var(--saffron)">${I.flame}<div><b style="color:var(--ink)">${days} / 7</b><span>days practiced</span></div></div>
+    <div class="tile" style="color:var(--turq)">${I.book}<div><b style="color:var(--ink)">${ev.length}</b><span>rounds finished</span></div></div><div class="tile" style="color:var(--plum)">${I.gauge}<div><b style="color:var(--ink)">${s1==null?'–':s1}</b><span>est. score${s0!=null&&s1!=null&&s1!==s0?` (${s1>s0?'+':''}${s1-s0})`:''}</span></div></div></div>
+   ${bd.length?`<p style="margin:0"><b>New badges:</b> ${bd.map(b=>b[1]).join(', ')}</p>`:''}
+   <p class="muted">${days>=5?'Keep this rhythm and your score will follow.':'Try to practice on at least 5 days this week. Even 10 minutes counts.'} Har kuni bir qadam.</p><button class="btn" data-close>Start this week</button>`); }
+
+/* ---------- Teacher's class settings: announcement, homework, weekly goal ---------- */
+let CLS=null, CLS_MSG='';
+async function loadClassDoc(){ try{ const s=await DB.doc('class/main').get(); CLS=s.exists?(s.data()||{}):{}; }catch(e){ CLS=OWNER?{}:null; } if(LS.hidden) render(); }
+async function saveClassDoc(patch){ const next=Object.assign({},CLS||{},patch); try{ await DB.doc('class/main').set(next); CLS=next; CLS_MSG='Saved. Students see it the next time they open the app.'; }catch(e){ CLS_MSG='Could not save ('+((e&&e.code)||'error')+'). Paste the new database rules into Firebase first (see the note in the pull request).'; } vClass(); }
+function annCard(){ const a=CLS&&CLS.ann; if(!a||!a.text||(!OWNER&&S.annSeen===a.at)) return '';
+  return `<div class="card ann"><p class="lbl" style="margin:0 0 6px;color:var(--cobalt)">From your teacher</p><p style="margin:0;white-space:pre-wrap">${esc(a.text)}</p>${OWNER?'':'<button class="btn ghost sm" id="annOk" style="margin-top:10px">Got it</button>'}</div>`; }
+const hwUnits=hw=>(hw.units||[]).map(id=>UNIT[id]).filter(Boolean);
+const fmtDay=k=>{ try{ return new Date(k+'T12:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}); }catch(e){ return k; } };
+function hwCard(){ const hw=CLS&&CLS.hw; if(!hw||!hw.id||OWNER) return ''; const d=(S.hwDone||{})[hw.id]; const late=!d&&hw.due&&hw.due<today();
+  return `<div class="card stack" style="gap:10px;border-color:${d?'var(--good)':late?'var(--bad)':'var(--saffron)'}"><p class="lbl" style="margin:0">Homework from your teacher</p>
+   <p style="margin:0"><b>${hw.n} questions</b> on ${hwUnits(hw).map(u=>u.title).join(', ')}${hw.due?` · due ${fmtDay(hw.due)}`:''}${late?' · <b style="color:var(--bad)">late</b>':''}</p>${hw.note?`<p class="muted" style="margin:0">${esc(hw.note)}</p>`:''}
+   ${d?`<p style="margin:0;color:var(--good);font-weight:800">Done · ${d.r}/${d.n} right on the first try</p>`:`<button class="btn saff" id="hwGo">Start homework</button>`}</div>`; }
+function startHw(){ const hw=CLS&&CLS.hw; if(!hw) return; const us=hwUnits(hw); if(!us.length) return; const per=Math.ceil(hw.n/us.length);
+  const items=shuffle(us.flatMap(u=>shuffle(unitPool(u,false)).slice(0,per))).slice(0,hw.n); if(items.length) startSession('hw', items, null, {hw}); }
+function attention(rows){ const now=Date.now(), hw=CLS&&CLS.hw; const out=[];
+  rows.forEach(r=>{ const s=r.s, why=[]; const days=r.upd?Math.floor((now-r.upd)/864e5):99;
+    if(days>=3) why.push(['away', days>=99?'Never practiced':`No practice for ${days} days`]);
+    if((s.streak||0)>=3 && !r.live) why.push(['streak', `Lost a ${s.streak}-day streak`]);
+    const tr=trend(Object.assign({score:450,sN:0,sHist:{}},r.st)); if(tr&&tr.g<=-30) why.push(['drop', `Score down ${Math.abs(Math.round(tr.g))} this week`]);
+    if((s.ans||0)>=20 && r.acc!=null && r.acc<55) why.push(['acc', `Accuracy ${r.acc}%`]);
+    if((s.mistakes||0)>=15) why.push(['mis', `${s.mistakes} unfixed mistakes`]);
+    if(hw&&hw.id&&hw.due&&hw.due<today()&&!((r.st.hwDone||{})[hw.id])) why.push(['hw','Missed homework']);
+    if(why.length) out.push({r, why}); });
+  return out.sort((a,b)=>b.why.length-a.why.length); }
+function nudgeText(r, why){ const first=esc(r.name).split(' ')[0]; const k=why[0][0]; const link=location.href.split('#')[0];
+  const body={away:`we miss you on Qadam! Just 10 minutes today will get you back on track.`, streak:`your ${r.s.streak}-day streak ended, but you can start a new one today. One lesson is enough.`, drop:`your estimated score dipped a little this week. A round of "Fix my weak spot" in the Review tab will help a lot.`, acc:`try slowing down a little and reading every answer choice. Accuracy beats speed. The Review tab has your mistakes ready to fix.`, mis:`you have ${r.s.mistakes} mistakes waiting in the Review tab. Fixing them is the fastest way to raise your score.`, hw:`your homework on Qadam is still waiting. It only takes about 10 minutes.`}[k];
+  return `Hi ${first}, ${body} ${link}\nHar kuni bir qadam!`; }
+function nudgeSheet(r, why){ const t=nudgeText(r, why);
+  openModal(`<h2>Nudge ${esc(r.name)}</h2><p class="muted">Copy this and send it on Telegram or by text. You can edit it first.</p><textarea class="field" id="ngT" rows="5">${esc(t)}</textarea><div class="row"><button class="btn ghost" data-close>Close</button><button class="btn" id="ngC">Copy message</button></div>`);
+  document.getElementById('ngC').onclick=async e=>{ const v=document.getElementById('ngT').value; try{ await navigator.clipboard.writeText(v); e.target.textContent='Copied'; }catch(x){ const ta=document.getElementById('ngT'); ta.select(); e.target.textContent='Select and copy'; } }; }
+function attentionCard(rows){ const a=attention(rows);
+  return `<div class="card" style="border-color:${a.length?'var(--saffron)':'var(--line)'}"><p class="lbl">Needs attention${a.length?' · '+a.length:''}</p>${a.length?`<div class="stack" style="gap:10px">${a.map((x,i)=>`<div class="attn"><div style="min-width:0"><b>${esc(x.r.name)}</b><div class="seg" style="gap:4px;margin-top:4px">${x.why.map(w=>`<span class="pill ${w[0]==='away'||w[0]==='hw'?'bad':''}">${esc(w[1])}</span>`).join('')}</div></div><button class="btn sm ghost" data-ng="${i}">Nudge</button></div>`).join('')}</div>`:`<p class="muted" style="margin:0">Everyone is on track right now.</p>`}</div>`; }
+function teachCard(rows){ const c=CLS||{}, hw=c.hw||{}; const sel=new Set(LFORM_HW||hw.units||[]); const done=hw.id?rows.filter(r=>(r.st.hwDone||{})[hw.id]):[];
+  return `<div class="card stack" style="gap:12px"><p class="lbl" style="margin:0">Message, homework and class goal</p>
+   <label for="tAnn" style="font-weight:700">Announcement on every student's home screen</label><textarea class="field" id="tAnn" rows="3" maxlength="400" placeholder="e.g. Quiz on Thursday: bring a pencil!">${esc((c.ann&&c.ann.text)||'')}</textarea>
+   <div class="row"><button class="btn sm ghost" id="tAnnX">Remove</button><button class="btn sm" id="tAnnS">Post announcement</button></div>
+   <hr class="hr">
+   <p style="margin:0;font-weight:700">Homework</p>
+   ${hw.id?`<div class="tipbox" style="--tone:var(--saffron)"><b>Current · due ${hw.due?fmtDay(hw.due):'any time'}</b>${hw.n} questions on ${hwUnits(hw).map(u=>u.title).join(', ')}<br><span style="font-weight:700">${done.length} of ${rows.length} done</span>${done.length?`: ${done.map(r=>esc(r.name)+' ('+r.st.hwDone[hw.id].r+'/'+r.st.hwDone[hw.id].n+')').join(', ')}`:''}</div>`:''}
+   <div class="seg" id="tHwU">${UNITS.map(u=>`<button data-u="${u.id}" aria-pressed="${sel.has(u.id)}" style="padding:6px 10px;font-size:13px">${u.title}</button>`).join('')}</div>
+   <div class="row" style="align-items:center"><label style="font-weight:700;flex:none">Questions</label><div class="seg" id="tHwN">${[5,10,15,20].map(n=>`<button data-n="${n}" aria-pressed="${(LFORM_N||hw.n||10)===n}" style="padding:6px 10px">${n}</button>`).join('')}</div></div>
+   <div class="row" style="align-items:center"><label for="tHwD" style="font-weight:700;flex:none">Due</label><input class="field" type="date" id="tHwD" value="${esc(hw.due||'')}"></div>
+   <input class="field" id="tHwNote" maxlength="200" placeholder="Optional note, e.g. Review Tuesday's lesson first" value="${esc(hw.note||'')}">
+   <div class="row"><button class="btn sm ghost" id="tHwX">Clear homework</button><button class="btn sm" id="tHwS">${hw.id?'Set new homework':'Set homework'}</button></div>
+   <hr class="hr">
+   <div class="row" style="align-items:center"><label for="tGoal" style="font-weight:700;flex:none">Weekly class goal (XP)</label><input class="field" type="number" min="100" step="100" id="tGoal" style="min-width:96px" value="${c.goal||''}" placeholder="${Math.max(300,150*Math.max(1,(BOARD||[]).length))}"><button class="btn sm" id="tGoalS" style="flex:none">Save</button></div>
+   ${CLS_MSG?`<p class="muted" style="margin:0;font-size:14px">${esc(CLS_MSG)}</p>`:''}</div>`; }
+let LFORM_HW=null, LFORM_N=null;
+function wireTeach(rows){ const g=id=>document.getElementById(id); if(!g('tAnnS')) return;
+  const a=attention(rows); view.querySelectorAll('[data-ng]').forEach(b=>b.onclick=()=>{ const x=a[+b.dataset.ng]; nudgeSheet(x.r, x.why); });
+  g('tAnnS').onclick=()=>{ const t=g('tAnn').value.trim(); if(t) saveClassDoc({ann:{text:t, at:Date.now()}}); };
+  g('tAnnX').onclick=()=>saveClassDoc({ann:null});
+  g('tHwU').onclick=e=>{ const b=e.target.closest('[data-u]'); if(!b) return; const s=new Set(LFORM_HW||((CLS||{}).hw||{}).units||[]); s.has(b.dataset.u)?s.delete(b.dataset.u):s.add(b.dataset.u); LFORM_HW=[...s]; b.setAttribute('aria-pressed', String(s.has(b.dataset.u))); };
+  g('tHwN').onclick=e=>{ const b=e.target.closest('[data-n]'); if(!b) return; LFORM_N=+b.dataset.n; g('tHwN').querySelectorAll('[data-n]').forEach(x=>x.setAttribute('aria-pressed', String(x===b))); };
+  g('tHwS').onclick=()=>{ const units=LFORM_HW||((CLS||{}).hw||{}).units||[]; if(!units.length){ CLS_MSG='Pick at least one skill for the homework.'; return vClass(); }
+    saveClassDoc({hw:{id:'hw'+Date.now().toString(36), units, n:LFORM_N||((CLS||{}).hw||{}).n||10, due:g('tHwD').value||'', note:g('tHwNote').value.trim(), at:Date.now()}}); LFORM_HW=null; LFORM_N=null; };
+  g('tHwX').onclick=()=>saveClassDoc({hw:null});
+  g('tGoalS').onclick=()=>{ const v=Math.max(0,Math.round(+g('tGoal').value||0)); saveClassDoc({goal:v||null}); };
+}
+
 /* ---------- welcome ---------- */
 function welcome(){
   S.welcomed=true; save(false);
@@ -1209,8 +1390,9 @@ function welcome(){
 }
 
 /* ---------- boot ---------- */
+qsSeed(); checkBadges(true);
 render();
-if(!S.welcomed) welcome();
+if(!S.welcomed) welcome(); else recapCheck();
 setInterval(()=>{ if(LS.hidden) renderTop(); }, 60000);
 connect();
 try{ if(window.top===window && location.protocol==='https:' && !/claude\.ai|claudeusercontent/.test(location.host)){ const l=document.createElement('link'); l.rel='manifest'; l.href='manifest.webmanifest'; document.head.appendChild(l); if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{}); } }catch(e){}
