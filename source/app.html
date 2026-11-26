@@ -399,6 +399,7 @@ VUNITS.forEach((u,ui)=>{ u.n = ui; u.lessons.forEach((items,li)=>{
   items.forEach((it,k)=>{ it.id = id+'-'+(k+1); it.unit = u.id; it.stat = 'voc'; ITEM[it.id]=it; if(it.word && !it.t) CLOZE[it.word]=it; });
   VLESSONS.push({id, unit:u, li, items, n:VLESSONS.length, vocab:true});
 });});
+UNITS.forEach(u=>(u.extra||[]).forEach((it,k)=>{ it.id=u.id+'-x'+(k+1); it.unit=u.id; ITEM[it.id]=it; }));
 const UNIT = Object.fromEntries(UNITS.concat(VUNITS).map(u=>[u.id,u]));
 const LESSON = Object.fromEntries(LESSONS.concat(VLESSONS).map(l=>[l.id,l]));
 const SKILLS = UNITS.concat([{id:'voc', title:'Vocabulary'}]);
