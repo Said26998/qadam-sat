@@ -4,7 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
 <style>
-/* Layout: one phone-width column; sticky stats bar, scrolling skill path, fixed tab bar. Lessons open as a full-screen sheet.
+/* Layout: one phone-width column; sticky stats bar, grid of topic chests, fixed tab bar. Lessons open as a full-screen sheet.
    Palette: Rishtan ceramic cobalt + turquoise on porcelain, saffron for streak/XP. */
 :root{
   --bg:#F2F4FA; --surface:#FFFFFF; --sunk:#E7EBF5; --ink:#141B46; --muted:#59618A; --line:#D7DDEE;
@@ -74,24 +74,69 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .goal b{font-family:var(--f-disp);font-size:18px;display:block}
 .goal p{margin:2px 0 0;color:var(--muted);font-size:14px}
 
-/* path */
-.unit{border-radius:var(--r);color:var(--on);padding:14px 16px;display:flex;gap:12px;align-items:center;background:var(--tone);box-shadow:0 4px 0 var(--toned)}
-.unit .k{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
-.unit h2{font-size:20px;color:var(--on)}
-.unit .guide{margin-left:auto;flex:none;border:2px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:var(--on);border-radius:12px;padding:8px 10px;font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+/* topic chests */
 .sechead{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:10px;padding-inline:2px}
 .sechead h3{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-family:var(--f-ui);font-weight:800}
-.sechead span{font-size:12px;color:var(--muted)}
-.nodes{display:flex;flex-direction:column;align-items:center;gap:18px;padding-block:18px 8px}
-.node{position:relative;width:76px;height:70px;border-radius:50%;border:0;background:var(--tone);box-shadow:0 7px 0 var(--toned);display:grid;place-items:center;color:var(--on);transition:transform .08s}
-.node:active{transform:translateY(5px);box-shadow:0 2px 0 var(--toned)}
-.node svg{width:34px;height:34px}
-.node.locked{background:var(--sunk);box-shadow:0 7px 0 var(--line);color:var(--muted)}
-.node.done{background:var(--saffron);box-shadow:0 7px 0 var(--saffron-d)}
-.node .ringc{position:absolute;inset:-9px;border-radius:50%;border:4px solid var(--tone);opacity:.35;pointer-events:none}
-.bubble{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);background:var(--surface);color:var(--tone);border:2px solid var(--line);font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px;border-radius:10px;white-space:nowrap;animation:bob 1.6s ease-in-out infinite}
-.bubble::after{content:"";position:absolute;top:100%;left:50%;margin-left:-7px;border:7px solid transparent;border-top-color:var(--line)}
-@keyframes bob{50%{transform:translate(-50%,-5px)}}
+.sechead span{font-size:12px;color:var(--muted);text-align:right}
+.chests{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (min-width:500px){.chests{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.chest{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:12px 12px 12px;box-shadow:0 4px 0 var(--line);transition:transform .08s}
+.chest:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.chest:hover{border-color:var(--tone)}
+.chest .chsvg{width:68px;height:60px;align-self:center;margin:2px 0 6px}
+.chest .ck{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--tone)}
+.chest b{font-family:var(--f-disp);font-size:16px;line-height:1.2;overflow-wrap:anywhere;min-height:2.4em}
+.chest .cmeta{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--muted)}
+.chest .cmeta svg{width:14px;height:14px}
+.cbar{display:block;width:100%;height:8px;border-radius:99px;background:var(--sunk);overflow:hidden;margin:4px 0 2px}
+.cbar i{display:block;height:100%;background:var(--tone);border-radius:99px}
+.chest.open{border-color:color-mix(in srgb,var(--saffron) 60%,var(--line))}
+.chest.open .cbar i{background:var(--saffron)}
+.chest.open .cmeta{color:var(--saffron-d)}
+.chest.locked{background:var(--bg)}
+.chest.locked b,.chest.locked .ck{color:var(--muted)}
+.chest.next{border-color:var(--tone);box-shadow:0 4px 0 var(--toned)}
+.cnext{position:absolute;top:8px;right:8px;background:var(--tone);color:var(--on);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px;animation:bob2 1.6s ease-in-out infinite}
+@keyframes bob2{50%{transform:translateY(-3px)}}
+@media (prefers-reduced-motion:reduce){.cnext{animation:none}}
+.chsvg .ch-lid{fill:var(--tone)} .chsvg .ch-body{fill:var(--toned)} .chsvg .ch-band{fill:var(--saffron-d);opacity:.9} .chsvg .ch-lock{fill:var(--saffron)}
+.chsvg .ch-in{fill:#2A1A00} .chsvg .ch-glow{fill:var(--saffron);opacity:.3} .chsvg .ch-sp{fill:var(--saffron)}
+.chsvg.locked .ch-lid{fill:var(--line)} .chsvg.locked .ch-body{fill:var(--sunk);stroke:var(--line);stroke-width:2} .chsvg.locked .ch-band{fill:var(--line);opacity:1} .chsvg.locked .ch-lock{fill:var(--muted)} .chsvg.locked .ch-kh{fill:var(--bg)}
+/* continue card */
+.cont{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;border-radius:var(--r);padding:12px 14px;background:var(--tone);color:var(--on);box-shadow:0 5px 0 var(--toned);transition:transform .08s}
+.cont:active{transform:translateY(4px);box-shadow:0 1px 0 var(--toned)}
+.cont .ci{flex:none;width:56px;height:50px;background:rgba(255,255,255,.16);border-radius:12px;display:grid;place-items:center}
+.cont .ci .chsvg{width:44px;height:40px}
+.cont .ci .ch-lid{fill:#fff;opacity:.95} .cont .ci .ch-body{fill:rgba(255,255,255,.7)}
+.cont .ct{flex:1;min-width:0;display:flex;flex-direction:column}
+.cont small{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+.cont b{font-family:var(--f-disp);font-size:19px;line-height:1.2}
+.cont .ct span{font-size:13px;opacity:.9}
+.cont .cgo{flex:none;width:42px;height:42px;border-radius:50%;background:#fff;color:var(--tone);display:grid;place-items:center}.cont .cgo svg{width:24px;height:24px}
+/* inside a chest */
+.backb{display:inline-flex;align-items:center;gap:4px;align-self:flex-start;background:none;border:0;padding:6px 8px 6px 0;font-weight:800;color:var(--cobalt)}
+.backb svg{width:20px;height:20px}
+.chhero{display:flex;gap:14px;align-items:center;background:var(--surface);border:2px solid var(--line);border-top:6px solid var(--tone);border-radius:var(--r);padding:14px}
+.chhero .chsvg{width:84px;height:74px;flex:none}
+.chhero>div{min-width:0;flex:1}
+.chhero .k{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--tone)}
+.chhero h1{font-size:24px;line-height:1.15}
+.chhero p{margin:4px 0 0;font-size:14px;color:var(--muted)}
+.act{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:10px 12px;box-shadow:0 3px 0 var(--line)}
+.act:hover{border-color:var(--tone)}
+.act:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
+.act .ai{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--tone);color:var(--on);box-shadow:0 3px 0 var(--toned)}
+.act .ai svg{width:22px;height:22px}
+.act .at{flex:1;min-width:0}.act .at b{display:block;font-size:16px}.act .at small{display:block;color:var(--muted);font-size:13px;line-height:1.3}
+.act .pill{flex:none}
+.act.done .ai{background:var(--saffron);box-shadow:0 3px 0 var(--saffron-d)}
+.act.gold .ai{background:var(--saffron);box-shadow:0 3px 0 var(--saffron-d);color:#2A1A00}
+.act.bad .ai{background:var(--bad);box-shadow:0 3px 0 color-mix(in srgb,var(--bad) 70%,#000)}
+.act.locked{background:var(--bg)}.act.locked .ai{background:var(--sunk);color:var(--muted);box-shadow:0 3px 0 var(--line)}.act.locked .at b{color:var(--muted)}
+.act.cur{border-color:var(--tone)}
+.wlist{display:flex;flex-direction:column;padding:4px 14px}
+.wrow{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;padding-block:10px;border-top:1px solid var(--line)}.wrow:first-child{border-top:0}
+.wrow b{font-family:var(--f-disp);font-size:17px}.wrow i{color:var(--muted);font-size:13px}.wrow p{margin:2px 0 0;font-size:14px;color:var(--muted)}.wrow .pill{flex:none;margin-top:2px}
 
 /* bottom nav */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:2px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
@@ -287,9 +332,6 @@ details.deck[open] summary{margin-bottom:10px}
 .vbg .vset .row>*{min-width:0}
 .vbg .vbtn svg{flex:none}
 /* skill levels + mock test */
-.unit .lvb{margin-left:auto;display:flex;align-items:center;gap:4px;background:var(--saffron);border-color:transparent;color:#2A1A00}
-.unit .lvb svg{width:16px;height:16px}
-.unit .lvb+.guide{margin-left:0}
 .pips{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .pip{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
 .pip b{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--sunk);color:var(--muted);font-family:var(--f-disp);border:2px solid var(--line)}
@@ -379,6 +421,7 @@ const I = {
   me:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path stroke-linecap="round" d="M4 21c1.2-4 4.3-6 8-6s6.8 2 8 6"/></g></svg>',
   cls:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.8-3.4 3.2-5 6-5s5.2 1.6 6 5"/><path d="M16 5.2a3 3 0 0 1 0 5.6M18 15c1.6.6 2.6 2.2 3 5"/></g></svg>',
   book:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 3h11a3 3 0 0 1 3 3v15H7a2 2 0 0 1-2-2zm2 14v2h10v-2z"/></svg>',
+  back:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" d="M15 5l-7 7 7 7"/></svg>',
   target:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></g></svg>',
   crown:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 7.5l4.5 3.5L12 4l4.5 7L21 7.5 19 18H5zM5 19.5h14V21H5z"/></svg>',
   flag:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M5 21V4m0 0h11l-2 4 2 4H5"/></svg>',
@@ -592,7 +635,7 @@ function renderNav(){
   if(OWNER) tabs.push(['class','Class',I.cls]);
   document.getElementById('nav').innerHTML = tabs.map(([k,l,ic])=>`<button data-tab="${k}" ${TAB===k?'aria-current="page"':''}><span class="ic">${ic}</span>${l}</button>`).join('');
 }
-document.getElementById('nav').addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(!b)return; TAB=b.dataset.tab; render(); window.scrollTo(0,0); });
+document.getElementById('nav').addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(!b)return; TAB=b.dataset.tab; if(CHEST||WCHEST){ CHEST=WCHEST=null; if(CH_PUSHED){ CH_PUSHED=false; try{ history.replaceState(null,''); }catch(e){} } } render(); window.scrollTo(0,0); });
 document.getElementById('cEnergy').onclick=()=>energySheet();
 document.getElementById('cTheme').onclick=()=>{ setTheme(themeNow()==='dark'?'light':'dark'); if(TAB==='me') vMe(); };
 document.getElementById('cScore').onclick=()=>scoreSheet();
@@ -617,31 +660,92 @@ function scoreSheet(){ const s=scoreShown(); const ns=nextStep(); const tr=trend
 /* ---------- Learn ---------- */
 function goalCard(){ const x=todayXp(), g=S.goal, f=Math.min(1,x/g), C=2*Math.PI*24;
   return `<div class="goal"><svg class="ring" viewBox="0 0 58 58" aria-hidden="true"><circle class="bgc" cx="29" cy="29" r="24"/><circle class="fgc" cx="29" cy="29" r="24" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-f)}" transform="rotate(-90 29 29)"/></svg><div><b>${x>=g?'Daily goal complete':'Daily goal'} · ${x} / ${g} XP</b><p>${x>=g?'Great work. Anything extra counts toward your weekly total.':streakNow()>0&&x===0?`Finish one lesson to keep your ${streakNow()}-day streak.`:'One lesson is about 10 to 15 XP.'}</p><button class="glink2" id="frz" style="padding:4px 0;font-size:13px">${S.freeze||0} streak freeze${S.freeze===1?'':'s'}</button></div></div>`; }
+/* ---------- Topic chests ---------- */
+// Each topic (unit, word set, grammar topic) is a chest on a grid. Tapping one opens it and lists its activities.
+let CHEST=null, WCHEST=null, CH_PUSHED=false;
+function chestSvg(st){
+  const sp=st==='open'?'<g class="ch-sp"><path d="M12 6l1.2 2.6L16 9.8l-2.8 1.2L12 14l-1.2-3-2.8-1.2 2.8-1.2z"/><path d="M52 3l1 2.2 2.2 1-2.2 1L52 10l-1-2.8-2.2-1 2.2-1z"/><path d="M32 0l.9 2 2 .9-2 .9L32 6l-.9-2.2-2-.9 2-.9z"/></g>':'';
+  const lid=st==='open'?'<ellipse class="ch-glow" cx="32" cy="22" rx="24" ry="12"/><path class="ch-lid" d="M8 23 13 8h38l5 15z"/><rect class="ch-band" x="18" y="8" width="5" height="15"/><rect class="ch-band" x="41" y="8" width="5" height="15"/><path class="ch-in" d="M8 23h48v5H8z"/>'
+    :'<path class="ch-lid" d="M6 27v-8A11 11 0 0 1 17 8h30a11 11 0 0 1 11 11v8z"/><rect class="ch-band" x="17" y="8" width="5" height="19"/><rect class="ch-band" x="42" y="8" width="5" height="19"/>';
+  return `<svg class="chsvg ${st}" viewBox="0 0 64 56" aria-hidden="true">${sp}${lid}<rect class="ch-body" x="6" y="27" width="52" height="26" rx="4"/><rect class="ch-band" x="17" y="27" width="5" height="26"/><rect class="ch-band" x="42" y="27" width="5" height="26"/><rect class="ch-lock" x="27" y="22" width="10" height="12" rx="2.5"/>${st==='locked'?'<path class="ch-kh" d="M32 26.2a1.8 1.8 0 0 1 1 3.3V32h-2v-2.5a1.8 1.8 0 0 1 1-3.3z"/>':''}</svg>`; }
+// one chest tile; o = {id, attr, tone, st:'locked'|'closed'|'open', k, title, done, total, meta, next}
+function chestTile(o){ const pct=o.total?Math.round(o.done/o.total*100):0;
+  return `<button class="chest ${o.st}${o.next?' next':''}" ${o.attr}="${o.id}" style="--tone:var(--${o.tone});--toned:var(--${o.tone}d)" aria-label="${esc(o.title)}, ${o.st==='locked'?'locked':o.done+' of '+o.total+' done'}">${o.next?'<span class="cnext">Next</span>':''}${chestSvg(o.st)}<span class="ck">${o.k}</span><b>${o.title}</b><span class="cbar"><i style="width:${pct}%"></i></span><span class="cmeta">${o.meta}</span></button>`; }
+function chestOpen(kind, id){ if(kind==='w') WCHEST=id; else CHEST=id; try{ history.pushState({qadamChest:1},''); CH_PUSHED=true; }catch(e){ CH_PUSHED=false; } render(); window.scrollTo(0,0); }
+function chestClose(){ if(CH_PUSHED){ CH_PUSHED=false; try{ history.back(); return; }catch(e){} } CHEST=WCHEST=null; render(); window.scrollTo(0,0); }
+window.addEventListener('popstate',()=>{ CH_PUSHED=false; if(CHEST||WCHEST){ CHEST=WCHEST=null; if(!modal.hidden) closeModal(); if(LS.hidden) render(); } });
+function unitInfo(u){ const ls=LESSONS.filter(l=>l.unit===u); const done=ls.filter(l=>S.lessons[l.id]).length; const open=unlocked(ls[0]);
+  return {ls, done, open, st:!open?'locked':done===ls.length?'open':'closed', lv:mLevel(u)}; }
+function continueCard(){ const l=currentLesson(); if(!l) return '';
+  const t=toneOf(l.unit); const first=l.n===0;
+  return `<button class="cont" id="contGo" style="--tone:var(--${t});--toned:var(--${t}d)"><span class="ci">${chestSvg('closed')}</span><span class="ct"><small>${first?'Start here':'Continue'}</small><b>${l.unit.title}</b><span>Lesson ${l.li+1} of ${l.unit.lessons.length} · ${l.items.length} questions</span></span><span class="cgo">${I.star}</span></button>`; }
 function vLearn(){
-  const cur=currentLesson(); let html=`<div class="wrap stack">${annCard()}${hwCard()}${goalCard()}${dailyCard()}${climbCard()}${boardCard()}${wotdCard(true)}`; let lastSec=-1, k=0;
-  const offs=[0,-70,-100,-70,0,70,100,70];
+  if(CHEST && UNIT[CHEST]) return vChest(UNIT[CHEST]);
+  const cur=currentLesson(); let html=`<div class="wrap stack">${annCard()}${hwCard()}${goalCard()}${continueCard()}${dailyCard()}`; let lastSec=-1;
   UNITS.forEach(u=>{
-    if(u.sec!==lastSec){ lastSec=u.sec; const s=SECTIONS[u.sec]; html+=`<div class="sechead"><h3>Section ${u.sec+1} · ${s.name}</h3><span>${s.share}</span></div>`; }
-    const t=toneOf(u);
-    html+=`<section style="--tone:var(--${t});--toned:var(--${t}d)"><div class="unit"><div style="min-width:0"><div class="k">Unit ${u.n+1}</div><h2>${u.title}</h2></div>${mLevel(u)?`<button class="guide lvb" data-lv="${u.id}" aria-label="Skill level ${mLevel(u)} of 5">${I.crown}Lv ${mLevel(u)}</button>`:''}<button class="guide" data-guide="${u.id}">Guide</button></div><div class="nodes">`;
-    LESSONS.filter(l=>l.unit===u).forEach(l=>{
-      const done=!!S.lessons[l.id], open=unlocked(l), isCur=cur&&cur.id===l.id;
-      const off=offs[k++%offs.length];
-      html+=`<button class="node ${done?'done':open?'':'locked'}" style="transform:translateX(${off}px)" data-lesson="${l.id}" aria-label="${u.title}, lesson ${l.li+1}${done?', completed':open?'':', locked'}">${isCur?'<span class="ringc"></span><span class="bubble">Start</span>':''}${done?I.check:open?I.star:I.lock}</button>`;
-    });
-    html+=`</div></section>`;
+    if(u.sec!==lastSec){ if(lastSec>=0) html+='</div>'; lastSec=u.sec; const s=SECTIONS[u.sec]; const us=UNITS.filter(x=>x.sec===u.sec); const dn=us.filter(x=>unitDone(x)).length;
+      html+=`<div class="sechead"><h3>${s.name}</h3><span>${dn} of ${us.length} chests opened</span></div><div class="chests">`; }
+    const f=unitInfo(u);
+    html+=chestTile({id:u.id, attr:'data-chest', tone:toneOf(u), st:f.st, k:'Unit '+(u.n+1), title:u.title, done:f.done, total:f.ls.length, next:cur&&cur.unit===u,
+      meta:f.st==='locked'?`${I.lock}Locked`:f.lv?`${I.crown}Level ${f.lv}`:`${f.done}/${f.ls.length} lessons`});
   });
-  html+=`<p class="muted" style="text-align:center;font-size:14px">${LESSONS.length} lessons · ${Object.keys(ITEM).length} original SAT-style questions</p></div>`;
+  html+=`</div>${climbCard()}${boardCard()}${wotdCard(true)}<p class="muted" style="text-align:center;font-size:14px">${UNITS.length} topic chests · ${LESSONS.length} lessons · ${Object.keys(ITEM).length} original SAT-style questions</p></div>`;
   view.innerHTML=html;
-  view.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>lessonSheet(LESSON[b.dataset.lesson]));
+  view.querySelectorAll('[data-chest]').forEach(b=>b.onclick=()=>chestOpen('u', b.dataset.chest));
   const lb=document.getElementById('lbAll'); if(lb) lb.onclick=()=>boardSheet('week');
-  view.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>masterySheet(UNIT[b.dataset.lv]));
   const on=(id,f)=>{ const e=document.getElementById(id); if(e) e.onclick=f; };
+  on('contGo',()=>{ const l=currentLesson(); if(l) lessonSheet(l); });
   on('frz',freezeSheet); on('dcGo',startDaily); on('dcRes',dailySheet); on('hwGo',startHw); on('annOk',()=>{ S.annSeen=CLS.ann.at; save(); vLearn(); });
   const cn=document.getElementById('clNext'); if(cn) cn.onclick=()=>{ const u=UNITS.filter(x=>unitDone(x)&&mLevel(x)<5).sort((a,b)=>mLevel(a)-mLevel(b)||a.n-b.n)[0]; if(u) masterySheet(u); };
   const cm=document.getElementById('clMock'); if(cm) cm.onclick=()=>{ TAB='train'; render(); window.scrollTo(0,0); };
   const wg=document.getElementById('wotdGo'); if(wg) wg.onclick=()=>{ TAB='words'; render(); window.scrollTo(0,0); };
-  view.querySelectorAll('[data-guide]').forEach(b=>b.onclick=()=>{ const u=UNIT[b.dataset.guide]; const st=S.unit[u.id]; openModal(`<div style="--tone:var(--${toneOf(u)})"><div class="qtype">Unit ${u.n+1} guide</div></div><h2>${u.title}</h2><p>${u.tip}</p>${st&&st.n?`<p class="muted">Your accuracy here: ${accPct(st.r,st.n)}% over ${st.n} questions.</p>`:''}<button class="btn" data-close>Got it</button>`); });
+}
+function actRow(o){ return `<button class="act ${o.st||''}" ${o.attr||''}><span class="ai">${o.icon}</span><span class="at"><b>${o.title}</b><small>${o.sub}</small></span>${o.pill?`<span class="pill ${o.good?'good':''}">${o.pill}</span>`:''}</button>`; }
+function chestHero(o){ return `<button class="backb" id="chBack">${I.back}<span>${o.back}</span></button>
+  <div class="chhero" style="--tone:var(--${o.tone});--toned:var(--${o.tone}d)">${chestSvg(o.st)}<div><div class="k">${o.k}</div><h1>${o.title}</h1><div class="cbar"><i style="width:${o.total?Math.round(o.done/o.total*100):0}%"></i></div><p>${o.sub}</p></div></div>`; }
+function vChest(u){
+  const f=unitInfo(u), t=toneOf(u), st=S.unit[u.id], m=(S.mast||{})[u.id]||{}; const cur=currentLesson();
+  const mis=S.mistakes.filter(id=>ITEM[id]&&ITEM[id].unit===u.id);
+  const ob=BANK?BANK.filter(x=>x.unit===u.id):[];
+  let h=`<div class="wrap stack" style="--tone:var(--${t});--toned:var(--${t}d)">`+chestHero({back:'All topics', tone:t, st:f.st, k:`Unit ${u.n+1} · ${SECTIONS[u.sec].name}`, title:u.title, done:f.done, total:f.ls.length,
+    sub:f.st==='locked'?'Finish the topics before this one to unlock it.':`${f.done} of ${f.ls.length} lessons done${st&&st.n?` · ${accPct(st.r,st.n)}% accuracy over ${st.n} questions`:''}`});
+  h+=`<div class="tipbox"><b>Strategy</b>${u.tip}</div><p class="lbl" style="margin:4px 0 0">Lessons</p><div class="stack" style="gap:8px">`;
+  f.ls.forEach(l=>{ const r=S.lessons[l.id], open=unlocked(l), isCur=cur&&cur.id===l.id;
+    h+=actRow({attr:`data-lesson="${l.id}"`, st:r?'done':open?(isCur?'cur':''):'locked', icon:r?I.check:open?I.star:I.lock, title:`Lesson ${l.li+1}`, sub:`${l.items.length} questions${r?` · best ${r.best}%`:open?' · +10 XP':' · finish the lesson before it'}`, pill:r?'Done':open?(isCur?'Start':'Open'):'Locked', good:!!r}); });
+  h+=`</div><p class="lbl" style="margin:4px 0 0">Level up</p><div class="stack" style="gap:8px">`;
+  h+=actRow({attr:`data-lv="${u.id}"`, st:f.lv?'gold':'locked', icon:I.crown, title:f.lv?`Skill level ${f.lv} · ${LVN[f.lv]}`:'Skill levels', sub:f.lv?(f.lv>=5?'Mastered. Replay the Master challenge any time.':`Level ${f.lv+1} challenge · 8 questions · no energy${m.tries?` · last ${m.last}/8`:''}`):`Finish all ${f.ls.length} lessons to reach Level 1`, pill:f.lv?`<span class="pips sm" style="--tone:var(--saffron)">${pipsHtml(f.lv)}</span>`:''});
+  h+=`</div><p class="lbl" style="margin:4px 0 0">Practice</p><div class="stack" style="gap:8px">`;
+  h+=actRow({attr:'data-tp', st:f.done?'':'locked', icon:I.redo, title:'Topic practice', sub:f.done?'8 mixed questions on this skill · no energy · +5 energy':'Finish Lesson 1 to unlock practice'});
+  if(mis.length) h+=actRow({attr:'data-tm', st:'bad', icon:I.target, title:'Fix my mistakes here', sub:`${mis.length} question${mis.length>1?'s':''} you missed in this topic`, pill:String(mis.length)});
+  if(ob.length){ const dn=ob.filter(x=>x.id in (S.bank||{})).length; h+=actRow({attr:'data-to', icon:I.flag, title:'Official SAT questions', sub:`Real College Board questions · 5 per round`, pill:`${dn}/${ob.length}`}); }
+  h+=`</div></div>`;
+  view.innerHTML=h;
+  document.getElementById('chBack').onclick=chestClose;
+  view.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>lessonSheet(LESSON[b.dataset.lesson]));
+  view.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>masterySheet(u));
+  const tp=view.querySelector('[data-tp]'); if(tp) tp.onclick=()=>{ if(!f.done){ openModal(`<h2>Not yet</h2><p class="muted">Finish Lesson 1 of ${esc(u.title)} first, then practice it here as often as you like.</p><button class="btn ghost" data-close>OK</button>`); return; } startTopic(u); };
+  const tm=view.querySelector('[data-tm]'); if(tm) tm.onclick=()=>startSession('mistakes', mis.slice(0,8).map(id=>ITEM[id]));
+  const to=view.querySelector('[data-to]'); if(to) to.onclick=()=>startOfficial(u.id);
+}
+function startTopic(u){ const mis=new Set(S.mistakes); const done=new Set(LESSONS.filter(l=>l.unit===u&&S.lessons[l.id]).flatMap(l=>l.items.map(i=>i.id)));
+  // questions from finished lessons first, then the topic's extra questions, missed ones on top
+  const pool=unitPool(u,false,true).filter(it=>done.has(it.id)||!LESSONS.some(l=>l.unit===u&&l.items.includes(it)));
+  const items=shuffle(pool).sort((a,b)=>(mis.has(b.id)?1:0)-(mis.has(a.id)?1:0)).slice(0,8); if(items.length) startSession('weak', items, null, {weakU:u, topic:true}); }
+function setTile(u){ const ls=VLESSONS.filter(l=>l.unit===u); const ws=VSETS[u.n].words; const mm=ws.filter(w=>(S.cards[w[0]]||{}).box>=4).length; const dn=ls.filter(l=>S.lessons[l.id]).length;
+  return chestTile({id:u.id, attr:'data-wchest', tone:'s5', st:dn===ls.length?'open':'closed', k:'Set '+(u.n+1), title:u.title, done:dn, total:ls.length, meta:`${mm}/${ws.length} mastered`}); }
+function vWChest(u){
+  const ls=VLESSONS.filter(l=>l.unit===u); const ws=VSETS[u.n].words; const dn=ls.filter(l=>S.lessons[l.id]).length; const mm=ws.filter(w=>(S.cards[w[0]]||{}).box>=4).length;
+  let h=`<div class="wrap stack" style="--tone:var(--s5);--toned:var(--s5d)">`+chestHero({back:'All word sets', tone:'s5', st:dn===ls.length?'open':'closed', k:`Set ${u.n+1}${VSETS[u.n].book?' · Vocabook':''}`, title:u.title, done:dn, total:ls.length, sub:`${dn} of ${ls.length} parts done · ${mm} of ${ws.length} words mastered`});
+  h+=`<p class="lbl" style="margin:4px 0 0">Lessons</p><div class="stack" style="gap:8px">`;
+  ls.forEach(l=>{ const r=S.lessons[l.id], open=unlocked(l);
+    h+=actRow({attr:`data-vl="${l.id}"`, st:r?'done':open?'':'locked', icon:r?I.check:open?I.star:I.lock, title:`Part ${l.li+1}`, sub:`${l.items.length} questions${r?` · best ${r.best}%`:open?' · +10 XP':' · finish the part before it'}`, pill:r?'Done':open?'Open':'Locked', good:!!r}); });
+  h+=`</div><p class="lbl" style="margin:4px 0 0">Practice</p><div class="stack" style="gap:8px">`;
+  h+=actRow({attr:'data-wf', icon:I.cards, title:'Flashcards for this set', sub:`All ${ws.length} words · Learned or Still learning · +5 XP`});
+  h+=`</div><p class="lbl" style="margin:4px 0 0">Words in this set</p><div class="card wlist">${ws.map(w=>{ const c=S.cards[w[0]]; return `<div class="wrow"><div><b>${w[0]}</b> <i>${w[1]}</i><p>${esc(w[2])}</p></div><span class="pill ${c&&c.box>=4?'good':''}">${!c?'New':c.box>=4?'Learned':'Learning'}</span></div>`; }).join('')}</div></div>`;
+  view.innerHTML=h;
+  document.getElementById('chBack').onclick=chestClose;
+  view.querySelectorAll('[data-vl]').forEach(x=>x.onclick=()=>lessonSheet(LESSON[x.dataset.vl]));
+  view.querySelector('[data-wf]').onclick=()=>cardSession(ws.slice());
 }
 function lessonSheet(l){
   const done=!!S.lessons[l.id];
@@ -671,7 +775,7 @@ function stopTimer(){ if(SES&&SES.tmr){ clearInterval(SES.tmr); SES.tmr=null; } 
 function stopAll(){ stopTimer(); if(SES){ clearInterval(SES.speedT); clearTimeout(SES.adv); } }
 function closeSession(){ stopAll(); LS.hidden=true; LS.innerHTML=''; document.body.style.overflow=''; SES=null; render(); setTimeout(()=>{ if(LS.hidden && modal.hidden) checkBadges(false); },350); }
 function head(){ const pct=Math.round(SES.done/SES.total*100);
-  return `<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${SES.mode==='speed'?`<span class="pill" id="spd" style="font-size:15px">${Math.max(0,Math.ceil((SES.deadline-Date.now())/1000))}s · ${SES.firstTry} ✓</span>`:SES.mode==='mastery'?`<span class="pill" style="font-size:14px">Level ${SES.lesson.mlv} · ${SES.pass}/${SES.need} ✓</span>`:SES.mode==='lesson'?`<span class="chip energy${S.energy<5?' low':''}">${I.battery}${S.energy}</span>`:`<span class="pill">${SES.mode==='mistakes'?'Mistakes':SES.mode==='daily'?'Daily challenge':SES.mode==='spaced'?'Review':SES.mode==='weak'?'Weak spot: '+SES.weakU.title:SES.mode==='hw'?'Homework':SES.mode==='quiz'?'Word quiz':SES.mode==='official'?'Official SAT':SES.mode==='reading'?'Reading':'Practice'}</span>`}</div>`; }
+  return `<div class="hd"><button class="x" id="lsX" aria-label="Quit">${I.x}</button><div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${SES.mode==='speed'?`<span class="pill" id="spd" style="font-size:15px">${Math.max(0,Math.ceil((SES.deadline-Date.now())/1000))}s · ${SES.firstTry} ✓</span>`:SES.mode==='mastery'?`<span class="pill" style="font-size:14px">Level ${SES.lesson.mlv} · ${SES.pass}/${SES.need} ✓</span>`:SES.mode==='lesson'?`<span class="chip energy${S.energy<5?' low':''}">${I.battery}${S.energy}</span>`:`<span class="pill">${SES.mode==='mistakes'?'Mistakes':SES.mode==='daily'?'Daily challenge':SES.mode==='spaced'?'Review':SES.mode==='weak'?(SES.topic?'Practice: ':'Weak spot: ')+SES.weakU.title:SES.mode==='hw'?'Homework':SES.mode==='quiz'?'Word quiz':SES.mode==='official'?'Official SAT':SES.mode==='reading'?'Reading':'Practice'}</span>`}</div>`; }
 function showItem(){
   stopTimer(); const it=SES.queue[0]; SES.sel=null; SES.checked=false; SES.item=it; SES.qStart=Date.now(); SES.limit=Math.round(limitOf(it)*(SES.tf||1));
   const u=UNIT[it.unit]; const tone=toneOf(u);
@@ -757,7 +861,7 @@ function feedback(ok, expl, ansText){
 function quitAsk(){ openModal(`<h2>Leave this ${SES.mode==='lesson'?'lesson':'round'}?</h2><p class="muted">Your progress in this ${SES.mode==='lesson'?'lesson':'round'} will be lost. Energy you used stays used.</p><div class="row"><button class="btn ghost" id="mQuit">Quit</button><button class="btn" data-close>Keep going</button></div>`); document.getElementById('mQuit').onclick=()=>{ closeModal(); logEvent({k:SES.mode,l:SES.lesson?SES.lesson.unit.title+' · L'+(SES.lesson.li+1):'Practice',xp:0,acc:null,quit:true}); save(); closeSession(); }; }
 function outOfEnergy(){
   logEvent({k:'lesson',l:SES.lesson.unit.title+' · L'+(SES.lesson.li+1),xp:0,acc:accPct(SES.firstTry,SES.tries),quit:true}); save();
-  LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><div style="color:var(--turq);width:110px">${I.battery}</div><h1 style="color:var(--turq)">Out of energy</h1><p class="muted">Energy refills by 1 every 6 minutes (next in about ${nextEnergyMin()} min). A practice round costs nothing and refills 5 right away.</p></div></div></div><div class="ft"><div class="in"><button class="btn" id="oP">Practice to refill energy</button><button class="btn ghost" id="oQ">Back to path</button></div></div>`;
+  LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><div style="color:var(--turq);width:110px">${I.battery}</div><h1 style="color:var(--turq)">Out of energy</h1><p class="muted">Energy refills by 1 every 6 minutes (next in about ${nextEnergyMin()} min). A practice round costs nothing and refills 5 right away.</p></div></div></div><div class="ft"><div class="in"><button class="btn" id="oP">Practice to refill energy</button><button class="btn ghost" id="oQ">Back</button></div></div>`;
   document.getElementById('oP').onclick=()=>{ stopTimer(); LS.hidden=true; SES=null; startPractice(); };
   document.getElementById('oQ').onclick=closeSession;
 }
@@ -780,7 +884,7 @@ function finish(){
   if(SES.eBonus) note=(note?note+' · ':'')+'+'+SES.eBonus+' bonus energy';
   const sNow=scoreShown(); const sD=(SES.score0!=null&&sNow!=null)?sNow-SES.score0:null;
   const before=todayXp(); const bumped=addXp(xp); const hitGoal=before<S.goal && todayXp()>=S.goal;
-  logEvent({k:SES.mode, l:SES.mode==='reading'?'Reading: '+SES.lesson.read.title+' ('+SES.lesson.wpm+' wpm)':SES.mode==='lesson'?(SES.lesson.grammar?'Grammar: '+SES.lesson.unit.title:(SES.lesson.vocab?'Words: ':'')+SES.lesson.unit.title+' · Part '+(SES.lesson.li+1)):SES.mode==='mistakes'?'Fixed mistakes':SES.mode==='quiz'?'Vocabulary quiz':SES.mode==='official'?'Official SAT practice':SES.mode==='speed'?'Word speed round':SES.mode==='spaced'?'Spaced review':SES.mode==='weak'?'Weak spot: '+SES.weakU.title:SES.mode==='hw'?'Homework':'Mixed practice', xp, acc, dur:secs});
+  logEvent({k:SES.mode, l:SES.mode==='reading'?'Reading: '+SES.lesson.read.title+' ('+SES.lesson.wpm+' wpm)':SES.mode==='lesson'?(SES.lesson.grammar?'Grammar: '+SES.lesson.unit.title:(SES.lesson.vocab?'Words: ':'')+SES.lesson.unit.title+' · Part '+(SES.lesson.li+1)):SES.mode==='mistakes'?'Fixed mistakes':SES.mode==='quiz'?'Vocabulary quiz':SES.mode==='official'?'Official SAT practice':SES.mode==='speed'?'Word speed round':SES.mode==='spaced'?'Spaced review':SES.mode==='weak'?(SES.topic?'Practice: ':'Weak spot: ')+SES.weakU.title:SES.mode==='hw'?'Homework':'Mixed practice', xp, acc, dur:secs});
   save(); sfx.done();
   const mm=Math.floor(secs/60)+':'+pad(secs%60);
   LS.innerHTML=`<div class="bd"><div class="in"><div class="done-hero"><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--saffron)" d="M12 1.5l2.6 4.2 4.8-1.1-1.1 4.8 4.2 2.6-4.2 2.6 1.1 4.8-4.8-1.1L12 22.5l-2.6-4.2-4.8 1.1 1.1-4.8L1.5 12l4.2-2.6-1.1-4.8 4.8 1.1z"/><circle cx="12" cy="12" r="4" fill="var(--bg)"/></svg>
@@ -806,7 +910,7 @@ function vTrain(){
    <div class="stack" style="gap:8px">${READS.map(r=>{ const x=rd[r.id]; return `<button class="trow" data-rd="${r.id}" style="--tone:var(--plum)"><span><b>${r.title}</b><small>${r.genre} · ${r.words} words · ${DNAME[r.d]}</small></span><span class="pill ${x?'good':''}">${x?`${x.wpm} wpm · ${x.acc}%`:'New'}</span></button>`; }).join('')}</div>
    <h2 style="font-size:20px;margin:10px 0 0">Grammar Guide</h2>
    <p class="muted" style="margin:0;font-size:14px">${gd} of ${GRAMMAR.length} topics practiced. Each topic explains the rule, shows examples, then gives you six practice questions.</p>
-   ${GRP.map((gn,gi)=>`<p class="lbl" style="margin:6px 0 0">${gn}</p><div class="stack" style="gap:8px">${GRAMMAR.filter(g=>g.grp===gi).map(g=>{ const x=S.lessons['gr-'+g.id]; return `<button class="trow" data-gr="${g.id}" style="--tone:var(--coral)"><span><b>${g.title}</b><small>${g.rules.length} rules · ${g.items.length} questions</small></span><span class="pill ${x&&x.best>=80?'good':''}">${x?'Best '+x.best+'%':'Start'}</span></button>`; }).join('')}</div>`).join('')}
+   ${GRP.map((gn,gi)=>`<p class="lbl" style="margin:6px 0 0">${gn}</p><div class="chests">${GRAMMAR.filter(g=>g.grp===gi).map(g=>{ const x=S.lessons['gr-'+g.id]; return chestTile({id:g.id, attr:'data-gr', tone:'s4', st:x?'open':'closed', k:g.rules.length+' rules', title:g.title, done:x?1:0, total:1, meta:x?'Best '+x.best+'%':g.items.length+' questions'}); }).join('')}</div>`).join('')}
   </div>`;
   wireMock();
   view.querySelectorAll('[data-rd]').forEach(b=>b.onclick=()=>startReading(READS.find(r=>r.id===b.dataset.rd)));
@@ -853,11 +957,10 @@ function startSpeed(){ const seen=WORDS.filter(w=>S.cards[w[0]]).map(w=>w[0]); c
   SES.speedT=setInterval(()=>{ if(!SES||SES.mode!=='speed') return; const el=document.getElementById('spd'); const left=Math.max(0,Math.ceil((SES.deadline-Date.now())/1000)); if(el) el.textContent=left+'s · '+SES.firstTry+' ✓'; if(left<=0) finish(); },250); }
 function vWords(){
   const due=dueCards(); const learning=WORDS.filter(w=>S.cards[w[0]]&&S.cards[w[0]].box<4).length; const m=mastered();
-  const setCard=u=>{ const ls=VLESSONS.filter(l=>l.unit===u); const ws=VSETS[u.n].words; const mm=ws.filter(w=>(S.cards[w[0]]||{}).box>=4).length;
-    return `<div class="card vset"><div class="vh"><div><div class="k">Set ${u.n+1}</div><h3>${u.title}</h3></div><span class="pill ${mm===10?'good':''}">${mm}/10 mastered</span></div><p class="vw">${ws.map(w=>w[0]).join(' · ')}</p><div class="row">${ls.map(l=>{ const done=!!S.lessons[l.id], open=unlocked(l); return `<button class="vbtn ${done?'done':open?'':'locked'}" data-vl="${l.id}" aria-label="${u.title}, part ${l.li+1}${done?', completed':open?'':', locked'}">${done?I.check:open?I.star:I.lock}<span>Part ${l.li+1}</span></button>`; }).join('')}</div></div>`; };
+  if(WCHEST && UNIT[WCHEST]) return vWChest(UNIT[WCHEST]);
   const own=VUNITS.filter(u=>!VSETS[u.n].book), book=VUNITS.filter(u=>VSETS[u.n].book);
   const bookDone=book.reduce((t,u)=>t+VSETS[u.n].words.filter(w=>(S.cards[w[0]]||{}).box>=4).length,0);
-  const sets=own.map(setCard).join('')+(book.length?`<h2 style="font-size:20px;margin-top:6px">SATashkent Vocabook</h2><p class="muted" style="margin:0;font-size:14px">${book.length*10} more words from the Vocabook word list (College Panda 400 and real exam words), with short definitions and examples. ${bookDone} mastered.</p>`+Array.from({length:Math.ceil(book.length/10)},(_,g)=>{ const part=book.slice(g*10,g*10+10); const m=part.reduce((t,u)=>t+VSETS[u.n].words.filter(w=>(S.cards[w[0]]||{}).box>=4).length,0); return `<details class="card deck vbg"><summary>Sets ${g*10+1}–${g*10+part.length} · ${m}/${part.length*10} mastered</summary><div class="stack" style="gap:10px;margin-top:10px">${part.map(setCard).join('')}</div></details>`; }).join(''):'');
+  const sets=`<div class="chests">${own.map(setTile).join('')}</div>`+(book.length?`<h2 style="font-size:20px;margin-top:6px">SATashkent Vocabook</h2><p class="muted" style="margin:0;font-size:14px">${book.length*10} more words from the Vocabook word list (College Panda 400 and real exam words), with short definitions and examples. ${bookDone} mastered.</p>`+Array.from({length:Math.ceil(book.length/10)},(_,g)=>{ const part=book.slice(g*10,g*10+10); const m=part.reduce((t,u)=>t+VSETS[u.n].words.filter(w=>(S.cards[w[0]]||{}).box>=4).length,0); return `<details class="card deck vbg"><summary>Sets ${g*10+1}–${g*10+part.length} · ${m}/${part.length*10} mastered</summary><div class="chests" style="margin-top:10px">${part.map(setTile).join('')}</div></details>`; }).join(''):'');
   view.innerHTML=`<div class="wrap stack"><div><h1 style="font-size:28px">Words</h1><p class="muted" style="margin:4px 0 0">${WORDS.length} high-value SAT words in ${VSETS.length} themed sets. Learn a set with its two lessons, then keep it fresh with flashcards and the daily quiz.</p></div>
   ${wotdCard(false)}
   <div class="tiles"><div class="tile" style="color:var(--jade)">${I.cards}<div><b style="color:var(--ink)">${m} / ${WORDS.length}</b><span>words mastered</span></div></div><div class="tile" style="color:var(--saffron)">${I.clock}<div><b style="color:var(--ink)">${Math.min(10,due.length)}</b><span>cards ready</span></div></div></div>
@@ -872,7 +975,7 @@ function vWords(){
   document.getElementById('wBk').onclick=()=>cardSession(shuffle(WORDS.filter(isLearned)).slice(0,15));
   document.getElementById('wQ').onclick=startQuiz;
   document.getElementById('wS').onclick=startSpeed;
-  view.querySelectorAll('[data-vl]').forEach(x=>x.onclick=()=>lessonSheet(LESSON[x.dataset.vl]));
+  view.querySelectorAll('[data-wchest]').forEach(x=>x.onclick=()=>chestOpen('w', x.dataset.wchest));
 }
 function cardSession(list){
   let q=list.slice(), n=0, total=list.length, reviewed=0; const start=Date.now(); const again=new Set();
@@ -1379,7 +1482,7 @@ function welcome(){
   openModal(`<div style="text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center"><svg viewBox="0 0 24 24" width="64" height="64" aria-hidden="true" style="color:var(--cobalt)"><path fill="currentColor" d="M12 1.5l2.6 4.2 4.8-1.1-1.1 4.8 4.2 2.6-4.2 2.6 1.1 4.8-4.8-1.1L12 22.5l-2.6-4.2-4.8 1.1 1.1-4.8L1.5 12l4.2-2.6-1.1-4.8 4.8 1.1z"/><circle cx="12" cy="12" r="3.6" fill="var(--surface)"/></svg><h2>Welcome to Qadam</h2><p class="muted"><i>Qadam</i> means “step” in Uzbek.</p></div>
   <p>Nobody climbs a mountain in one jump. You climb it one step at a time, and the SAT works the same way. A few focused minutes today and a few more tomorrow add up to a score you will be proud of.</p>
   <div class="stack" style="gap:8px">
-   <div class="tipbox" style="--tone:var(--cobalt)"><b>Learn</b>Follow the path through every Reading and Writing skill, one short lesson at a time.</div>
+   <div class="tipbox" style="--tone:var(--cobalt)"><b>Learn</b>Every Reading and Writing skill is a chest. Open one to find its lessons, level-up challenges and practice.</div>
    <div class="tipbox" style="--tone:var(--jade)"><b>Words</b>Build your SAT vocabulary with word sets, flashcards, and a daily quiz.</div>
    <div class="tipbox" style="--tone:var(--plum)"><b>Train</b>Time your reading in the Reading Gym and master every SAT grammar rule in the Grammar Guide.</div>
    <div class="tipbox" style="--tone:var(--coral)"><b>Review</b>Every mistake is a lesson. Fix yours here and refill your energy.</div>
