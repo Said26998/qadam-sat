@@ -367,6 +367,10 @@ details.deck[open] summary{margin-bottom:10px}
 .mkrev p{margin:0}.mkrev .ans{font-weight:700}
 .mkhist{display:flex;gap:8px;flex-wrap:wrap}.mkhist span{border:2px solid var(--line);border-radius:12px;padding:6px 10px;display:flex;flex-direction:column;line-height:1.15}
 .mkhist b{font-family:var(--f-disp);font-size:20px}.mkhist small{font-size:12px;color:var(--muted)}
+.mksteps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.mksteps span{border:2px solid var(--line);border-radius:12px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;line-height:1.15;text-align:center;position:relative}
+.mksteps b{font-family:var(--f-disp);font-size:18px}.mksteps small{font-size:11px;color:var(--muted)}.mksteps svg{width:14px;height:14px;position:absolute;top:4px;right:4px}
+.mksteps .done{border-color:var(--good);color:var(--good)}.mksteps .cur{border-color:var(--cobalt);color:var(--cobalt)}.mksteps .lock{opacity:.6}
+#mkGo svg{width:18px;height:18px;vertical-align:-3px;margin-right:6px}
 .bdgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
 .bdgc{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;font-size:13px}
 .bdgc b{font-size:13px;line-height:1.2}.bdgc small{font-size:11px;color:var(--muted);line-height:1.25}.bdgc.off b{color:var(--muted)}
@@ -696,7 +700,7 @@ function vLearn(){
   const on=(id,f)=>{ const e=document.getElementById(id); if(e) e.onclick=f; };
   on('contGo',()=>{ const l=currentLesson(); if(l) lessonSheet(l); });
   on('frz',freezeSheet); on('dcGo',startDaily); on('dcRes',dailySheet); on('hwGo',startHw); on('annOk',()=>{ S.annSeen=CLS.ann.at; save(); vLearn(); });
-  const cn=document.getElementById('clNext'); if(cn) cn.onclick=()=>{ const u=UNITS.filter(x=>unitDone(x)&&mLevel(x)<5).sort((a,b)=>mLevel(a)-mLevel(b)||a.n-b.n)[0]; if(u) masterySheet(u); };
+  const cn=document.getElementById('clNext'); if(cn) cn.onclick=()=>{ const u=nextClimb().u; if(u) masterySheet(u); };
   const cm=document.getElementById('clMock'); if(cm) cm.onclick=()=>{ TAB='train'; render(); window.scrollTo(0,0); };
   const wg=document.getElementById('wotdGo'); if(wg) wg.onclick=()=>{ TAB='words'; render(); window.scrollTo(0,0); };
 }
@@ -713,7 +717,7 @@ function vChest(u){
   f.ls.forEach(l=>{ const r=S.lessons[l.id], open=unlocked(l), isCur=cur&&cur.id===l.id;
     h+=actRow({attr:`data-lesson="${l.id}"`, st:r?'done':open?(isCur?'cur':''):'locked', icon:r?I.check:open?I.star:I.lock, title:`Lesson ${l.li+1}`, sub:`${l.items.length} questions${r?` · best ${r.best}%`:open?' · +10 XP':' · finish the lesson before it'}`, pill:r?'Done':open?(isCur?'Start':'Open'):'Locked', good:!!r}); });
   h+=`</div><p class="lbl" style="margin:4px 0 0">Level up</p><div class="stack" style="gap:8px">`;
-  h+=actRow({attr:`data-lv="${u.id}"`, st:f.lv?'gold':'locked', icon:I.crown, title:f.lv?`Skill level ${f.lv} · ${LVN[f.lv]}`:'Skill levels', sub:f.lv?(f.lv>=5?'Mastered. Replay the Master challenge any time.':`Level ${f.lv+1} challenge · 8 questions · no energy${m.tries?` · last ${m.last}/8`:''}`):`Finish all ${f.ls.length} lessons to reach Level 1`, pill:f.lv?`<span class="pips sm" style="--tone:var(--saffron)">${pipsHtml(f.lv)}</span>`:''});
+  h+=actRow({attr:`data-lv="${u.id}"`, st:f.lv?'gold':'locked', icon:I.crown, title:f.lv?`Skill level ${f.lv} · ${LVN[f.lv]}`:'Skill levels', sub:f.lv?(f.lv>=5?'Mastered. Replay the Master challenge any time.':lvLock(u,f.lv+1)?`Level ${f.lv+1} locked · ${lvLock(u,f.lv+1).why}`:`Level ${f.lv+1} challenge · 8 questions · no energy${m.tries?` · last ${m.last}/8`:''}`):`Finish all ${f.ls.length} lessons to reach Level 1`, pill:f.lv?`<span class="pips sm" style="--tone:var(--saffron)">${pipsHtml(f.lv)}</span>`:''});
   h+=`</div><p class="lbl" style="margin:4px 0 0">Practice</p><div class="stack" style="gap:8px">`;
   h+=actRow({attr:'data-tp', st:f.done?'':'locked', icon:I.redo, title:'Topic practice', sub:f.done?'8 mixed questions on this skill · no energy · +5 energy':'Finish Lesson 1 to unlock practice'});
   if(mis.length) h+=actRow({attr:'data-tm', st:'bad', icon:I.target, title:'Fix my mistakes here', sub:`${mis.length} question${mis.length>1?'s':''} you missed in this topic`, pill:String(mis.length)});
@@ -1152,6 +1156,18 @@ const MAXLV=UNITS.length*5, GMAP={bd:[1], fss:[0,2]};
 function unitDone(u,st=S){ return LESSONS.filter(l=>l.unit===u).every(l=>(st.lessons||{})[l.id]); }
 function mLevel(u,st=S){ return unitDone(u,st) ? Math.max(1,((st.mast||{})[u.id]||{}).lv||0) : 0; }
 function totalLv(st=S){ return UNITS.reduce((a,u)=>a+mLevel(u,st),0); }
+/* In-order unlocking: Level 2 and 3 challenges go unit by unit in path order, and Level 3 opens only once every unit is at Level 2.
+   From Level 4 up, challenges are free in any order. The teacher account skips every lock so it can preview. */
+const SEQ_LV=3, MOCK_SEQ=3;
+function lvLock(u,N,st=S){ if(OWNER||N<2||N>SEQ_LV) return null;
+  const prev=UNITS.find(x=>x.n<u.n && mLevel(x,st)<N); if(prev) return {u:prev, why:`Reach Level ${N} in ${prev.title} first. Levels ${2}–${SEQ_LV} are climbed in path order.`};
+  if(N>2){ const low=UNITS.find(x=>mLevel(x,st)<N-1); if(low) return {u:low, why:`Level ${N} opens once every unit is at Level ${N-1}. Next up: ${low.title}${mLevel(low,st)?'':' (finish its lessons)'}.`}; }
+  return null; }
+function nextClimb(){ const c=UNITS.filter(x=>unitDone(x)&&mLevel(x)<5).sort((a,b)=>mLevel(a)-mLevel(b)||a.n-b.n); return {u:c.find(x=>!lvLock(x,mLevel(x)+1)), top:c[0]}; }
+function mocksDone(st=S){ return Math.max(st.mockDone||0,(st.mocks||[]).filter(x=>x.mods===2).length); }
+function mockNo(st=S){ return mocksDone(st)+1; }
+function mockLock(st=S){ const n=mockNo(st); if(OWNER||n<2||n>MOCK_SEQ) return null; const at=UNITS.filter(u=>mLevel(u,st)>=n).length;
+  const low=UNITS.find(u=>mLevel(u,st)<n); return low?{n, at, low}:null; }
 function unitPool(u, mc, pub){ const ok=it=>it.d && (mc ? (!it.t && it.c && it.c.length===4) : (!it.t || it.t==='tap'));
   let p=u.lessons.flat().concat(u.extra||[]).filter(ok);
   (GMAP[u.id]||[]).forEach(g=>GRAMMAR.filter(x=>x.grp===g).forEach(x=>{ p=p.concat(x.items.filter(ok)); }));
@@ -1163,7 +1179,11 @@ function pickD(pool, want, avoid, taken=new Set()){ const out=[];
   return out; }
 const pipsHtml=(lv,big)=>[1,2,3,4,5].map(i=>big?`<span class="pip ${i<=lv?'on':''}"><b>${i}</b><small>${LVN[i]}</small></span>`:`<i class="${i<=lv?'on':''}"></i>`).join('');
 function masterySheet(u){ const lv=mLevel(u), m=(S.mast||{})[u.id]||{}; const nx=Math.min(5,lv+1), spec=MLV[Math.max(2,nx)]; const tone=`--tone:var(--${toneOf(u)})`;
-  const timed=spec.force||!S.relaxed;
+  const timed=spec.force||!S.relaxed; const lk=lv>0&&lv<5?lvLock(u,nx):null;
+  if(lk){ openModal(`<div style="${tone}"><div class="qtype">Unit ${u.n+1} · Skill level</div></div><h2>${u.title}</h2><div class="pips" style="${tone}">${pipsHtml(lv,true)}</div>
+    <p>You are at <b>Level ${lv} · ${LVN[lv]}</b>. The Level ${nx} challenge is locked for now.</p><div class="tipbox" style="${tone}"><b>Why</b>${lk.why}</div>
+    ${unitDone(lk.u)?`<button class="btn" id="mvTo">Go to ${esc(lk.u.title)}</button>`:''}<button class="btn ghost" data-close>OK</button>`);
+    const t=document.getElementById('mvTo'); if(t) t.onclick=()=>{ closeModal(); masterySheet(lk.u); }; return; }
   openModal(`<div style="${tone}"><div class="qtype">Unit ${u.n+1} · Skill level</div></div><h2>${u.title}</h2><div class="pips" style="${tone}">${pipsHtml(lv,true)}</div>
    ${lv===0?`<p class="muted">Finish all ${u.lessons.length} lessons in this unit to reach Level 1. Then you can climb to Level 5 with harder challenges.</p><button class="btn ghost" data-close>OK</button>`:
    `<p>${lv>=5?'You have mastered this skill. Replay the Master challenge any time to stay sharp.':`You are at <b>Level ${lv} · ${LVN[lv]}</b>. Pass a challenge to reach <b>Level ${nx} · ${LVN[nx]}</b>.`}</p>
@@ -1189,15 +1209,16 @@ function masteryDone(){ const u=SES.lesson.unit, L=SES.lesson.mlv; const secs=Ma
     <div class="res"><div style="--c:var(--saffron)"><span>Total XP</span><b>+${xp}</b></div><div style="--c:var(--good)"><span>On time</span><b>${SES.pass}/${SES.total}</b></div><div style="--c:var(--plum)"><span>SAT score</span><b>${scoreShown()??S.sN+'/'+CAL}</b></div></div>
     ${bumped?`<p style="color:var(--saffron);font-weight:800;display:flex;gap:6px;align-items:center;margin:8px 0 0"><span style="width:24px;display:inline-block">${I.flame}</span>${S.streak}-day streak!</p>`:''}
     ${hitGoal?`<p style="font-weight:800;color:var(--good);margin:0">Daily goal reached</p>`:''}
-  </div></div></div><div class="ft"><div class="in">${pass&&L<5?`<button class="btn" id="mvNext">Try Level ${L+1}</button>`:!pass?`<button class="btn" id="mvNext">Try again</button>`:''}<button class="btn ${pass&&L>=5?'':'ghost'}" id="fC">Continue</button></div></div>`;
+  </div></div></div><div class="ft"><div class="in">${pass&&L<5&&!lvLock(u,L+1)?`<button class="btn" id="mvNext">Try Level ${L+1}</button>`:pass&&L<5&&nextClimb().u?`<button class="btn" id="mvNx2">Next: ${esc(nextClimb().u.title)}, Level ${mLevel(nextClimb().u)+1}</button>`:!pass?`<button class="btn" id="mvNext">Try again</button>`:''}<button class="btn ${pass&&L>=5?'':'ghost'}" id="fC">Continue</button></div></div>`;
   document.getElementById('fC').onclick=closeSession;
   const n=document.getElementById('mvNext'); if(n) n.onclick=()=>{ stopAll(); SES=null; startMastery(u, pass?L+1:L); };
+  const n2=document.getElementById('mvNx2'); if(n2) n2.onclick=()=>{ const v=nextClimb().u; stopAll(); SES=null; startMastery(v, mLevel(v)+1); };
 }
 function climbCard(){ const done=UNITS.filter(u=>unitDone(u)); if(!done.length) return ''; const all=done.length===UNITS.length, tl=totalLv();
-  const next=done.filter(u=>mLevel(u)<5).sort((a,b)=>mLevel(a)-mLevel(b)||a.n-b.n)[0];
+  const nc=nextClimb(), next=nc.u, held=!next&&nc.top;
   return `<div class="card stack" style="gap:10px"><p class="lbl" style="margin:0;color:var(--saffron-d)">${all?'Path complete · keep climbing':'Level up your skills'}</p>
    <div class="lvbar" role="progressbar" aria-valuenow="${tl}" aria-valuemin="0" aria-valuemax="${MAXLV}"><i style="width:${tl/MAXLV*100}%"></i></div>
-   <p style="margin:0"><b>${tl} of ${MAXLV}</b> skill levels. ${next?`Next: <b>${next.title}</b>, Level ${mLevel(next)+1}.`:'Every skill is at Master level. Amazing work!'}${all?' Take a timed mock test to see where you stand.':''}</p>
+   <p style="margin:0"><b>${tl} of ${MAXLV}</b> skill levels. ${next?`Next: <b>${next.title}</b>, Level ${mLevel(next)+1}.`:held?lvLock(nc.top,mLevel(nc.top)+1).why:'Every skill is at Master level. Amazing work!'}${all?' Take a timed mock test to see where you stand.':''}</p>
    <div class="row">${next?`<button class="btn" id="clNext">Level up</button>`:''}<button class="btn ghost" id="clMock">Mock test</button></div></div>`; }
 
 /* ---------- Mock test (2 adaptive modules, like the digital SAT) ---------- */
@@ -1211,10 +1232,12 @@ function buildModule(key, taken, uof){ const used=new Set(S.mockUsed||[]); const
   return ids; }
 function mockModule(M, key){ const taken=new Set(M.taken||[]); M.uof=M.uof||{}; const ids=buildModule(key, taken, M.uof); M.taken=[...taken];
   M.ids=ids; M.ans={}; M.flag=[]; M.cur=0; M.ord={}; ids.forEach(id=>{ M.ord[id]=ITEM[id].fixed?[0,1,2,3]:shuffle([0,1,2,3]); }); M.deadline=Date.now()+MOCK_MIN*60000; }
-function mockStartAsk(){ openModal(`<h2>Start a mock test?</h2><p>Two modules, 27 questions each, with 32 minutes per module. That is about 65 minutes, just like the Reading and Writing section of the digital SAT.</p>
+function mockStartAsk(){ const lk=mockLock(); if(lk){ openModal(`<h2>Mock test ${lk.n} is locked</h2><p>${mockLockTxt(lk)}</p><div class="row">${unitDone(lk.low)?`<button class="btn" id="mkTo">Level up ${esc(lk.low.title)}</button>`:''}<button class="btn ghost" data-close>OK</button></div>`);
+    const t=document.getElementById('mkTo'); if(t) t.onclick=()=>{ closeModal(); masterySheet(lk.low); }; return; }
+  openModal(`<h2>Start mock test ${mockNo()}?</h2><p>Two modules, 27 questions each, with 32 minutes per module. That is about 65 minutes, just like the Reading and Writing section of the digital SAT.</p>
   <div class="tipbox" style="--tone:var(--cobalt)"><b>How it works</b>You will not see answers until the end. You can skip, go back, and mark questions for review. If Module 1 goes well, Module 2 is harder, and a harder Module 2 unlocks higher scores. The clock keeps running if you leave the app.</div>
   <div class="row"><button class="btn ghost" data-close>Not now</button><button class="btn" id="mkYes">Start Module 1</button></div>`);
-  document.getElementById('mkYes').onclick=()=>{ closeModal(); const M={ts:Date.now(), mod:1, stage:'m1', route:null}; mockModule(M,'m1'); S.mockLive=M; save(false); mockOpen(); }; }
+  document.getElementById('mkYes').onclick=()=>{ closeModal(); const M={ts:Date.now(), mod:1, stage:'m1', route:null, no:mockNo()}; mockModule(M,'m1'); S.mockLive=M; save(false); mockOpen(); }; }
 function mockResume(){ const M=S.mockLive; if(!M) return; if(M.stage==='break'){ LS.hidden=false; document.body.style.overflow='hidden'; mockBreak(false); } else mockOpen(); }
 function mockOpen(){ LS.hidden=false; document.body.style.overflow='hidden'; clearInterval(MOCKT); MOCKT=setInterval(mockTick,500); mockShow(); mockTick(); }
 function mockLeft(){ const M=S.mockLive; return M?Math.max(0,Math.ceil((M.deadline-Date.now())/1000)):0; }
@@ -1280,19 +1303,20 @@ function mockFinish(){ const M=S.mockLive; if(!M) return; clearInterval(MOCKT); 
   const dom={}; all.forEach(x=>{ const s=(UNIT[x.u]||{}).sec; const d=dom[s]||(dom[s]=[0,0]); d[1]++; if(x.ok) d[0]++; });
   const secs=(M.m1?M.m1.secs:0)+(M.m2?M.m2.secs:0); S.secs+=secs;
   const prevBest=Math.max(0,...(S.mocks||[]).filter(x=>x.mods===2).map(x=>x.score));
-  const entry={ts:Date.now(), score, r:all.filter(x=>x.ok).length, n:all.length, mods, route:M.m2?M.route:null, secs, dom, m1:M.m1?M.m1.right:0, m2:M.m2?M.m2.right:null};
+  const entry={ts:Date.now(), no:M.no||mockNo(), score, r:all.filter(x=>x.ok).length, n:all.length, mods, route:M.m2?M.route:null, secs, dom, m1:M.m1?M.m1.right:0, m2:M.m2?M.m2.right:null};
+  if(mods===2) S.mockDone=mocksDone()+1;
   (S.mocks=S.mocks||[]).unshift(entry); S.mocks=S.mocks.slice(0,20);
   S.mockUsed=M.ids.concat(M.m1?M.m1.ids:[]).concat(S.mockUsed||[]).filter((v,i,a)=>a.indexOf(v)===i).slice(0,300);
   S.mockRev={m1:M.m1, m2:M.m2||null, uof:M.uof, entry}; delete S.mockLive;
   const xp=15*mods+(mods===2&&prevBest&&score>prevBest?10:0); const bumped=addXp(xp);
-  logEvent({k:'mock', l:`Mock test${mods<2?' (Module 1 only)':''} · est. ${score}`, xp, acc:Math.round(entry.r/Math.max(1,entry.n)*100), dur:secs});
+  logEvent({k:'mock', l:`Mock test ${entry.no}${mods<2?' (Module 1 only)':''} · est. ${score}`, xp, acc:Math.round(entry.r/Math.max(1,entry.n)*100), dur:secs});
   save(); sfx.done(); mockReport(S.mockRev, {xp, bumped, pb:mods===2&&prevBest>0&&score>prevBest});
 }
 function mockReport(rec, extra){ const e=rec.entry, all=mockRows(rec); LS.hidden=false; document.body.style.overflow='hidden';
   const sec=[1,0,3,2].filter(s=>e.dom[s]).map(s=>{ const [r,n]=e.dom[s]; const p=Math.round(r/n*100); const col=p>=80?'var(--good)':p>=60?'var(--saffron)':'var(--bad)';
     return `<div class="srow"><div style="display:flex;justify-content:space-between;gap:8px"><span>${SECTIONS[s].name}</span><b>${r}/${n}</b></div><div class="sbar"><i style="width:${p}%;background:${col}"></i></div></div>`; }).join('');
   const lo=Math.max(200,e.score-40), hi=Math.min(800,e.score+40);
-  LS.innerHTML=`<div class="hd"><button class="x" id="mrX" aria-label="Close">${I.x}</button><div style="flex:1;font-weight:800">Mock test results</div></div><div class="bd"><div class="in">
+  LS.innerHTML=`<div class="hd"><button class="x" id="mrX" aria-label="Close">${I.x}</button><div style="flex:1;font-weight:800">Mock test${e.no?' '+e.no:''} results</div></div><div class="bd"><div class="in">
    <div class="done-hero" style="padding-top:8px"><p class="lbl" style="margin:0">Estimated SAT Reading and Writing</p><h1 class="mkscore">${e.score}</h1><p class="muted" style="margin:0">Likely range ${lo} to ${hi} · ${band(e.score)}${e.mods<2?' · Module 1 only, so this is a rough estimate':''}</p>
     ${extra&&extra.pb?`<p style="font-weight:800;color:var(--good);margin:0">New personal best!</p>`:''}</div>
    <div class="res" style="grid-template-columns:repeat(${e.mods<2?2:3},minmax(0,1fr))"><div style="--c:var(--cobalt)"><span>Module 1</span><b>${e.m1}/27</b></div>${e.mods>1?`<div style="--c:var(--plum)"><span>Module 2 · ${e.route==='hard'?'harder':'standard'}</span><b>${e.m2}/27</b></div>`:''}<div style="--c:var(--saffron)"><span>${extra?'XP earned':'Time'}</span><b>${extra?'+'+extra.xp:mmss(e.secs)}</b></div></div>
@@ -1307,12 +1331,17 @@ function mockReport(rec, extra){ const e=rec.entry, all=mockRows(rec); LS.hidden
   LS.querySelector('.bd').scrollTop=0;
   document.getElementById('mrX').onclick=closeSession; document.getElementById('mrC').onclick=closeSession;
 }
-function mockHist(h){ return `<div class="mkhist">${h.slice(0,6).map(x=>`<span><b>${x.score}</b><small>${new Date(x.ts).toLocaleDateString(undefined,{month:'short',day:'numeric'})}${x.mods<2?' · M1 only':''}</small></span>`).join('')}</div>`; }
-function mockCard(){ const M=S.mockLive, h=S.mocks||[]; const full=h.filter(x=>x.mods===2); const best=full.length?Math.max(...full.map(x=>x.score)):null;
-  return `<div class="card stack" style="gap:10px;border-color:var(--cobalt)"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 style="font-size:20px">Mock test</h2>${best!=null?`<span class="pill good">Best ${best}</span>`:''}</div>
+function mockHist(h){ return `<div class="mkhist">${h.slice(0,6).map(x=>`<span><b>${x.score}</b><small>${x.no?'#'+x.no+' · ':''}${new Date(x.ts).toLocaleDateString(undefined,{month:'short',day:'numeric'})}${x.mods<2?' · M1 only':''}</small></span>`).join('')}</div>`; }
+function mockLockTxt(lk){ return `Mock test ${lk.n} opens when every unit reaches <strong>Level ${lk.n} · ${LVN[lk.n]}</strong>. You have ${lk.at} of ${UNITS.length} there. Next up: <strong>${esc(lk.low.title)}</strong>${unitDone(lk.low)?'':' (finish its lessons first)'}.`; }
+function mockSteps(){ const d=mocksDone(); return `<div class="mksteps">${Array.from({length:MOCK_SEQ},(_,i)=>{ const n=i+1; const st=n<=d?'done':n===d+1?(mockLock()?'lock':'cur'):'lock';
+    return `<span class="${st}">${st==='done'?I.check:st==='lock'?I.lock:''}<b>${n}</b><small>${n===1?'Start':'All Level '+n}</small></span>`; }).join('')}<span class="${d>=MOCK_SEQ?'cur':'lock'}"><b>${MOCK_SEQ+1}+</b><small>Free</small></span></div>`; }
+function mockCard(){ const M=S.mockLive, h=S.mocks||[]; const full=h.filter(x=>x.mods===2); const best=full.length?Math.max(...full.map(x=>x.score)):null; const lk=M?null:mockLock(), no=M&&M.no?M.no:mockNo();
+  return `<div class="card stack" style="gap:10px;border-color:var(--cobalt)"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 style="font-size:20px">Mock test ${no}</h2>${best!=null?`<span class="pill good">Best ${best}</span>`:''}</div>
    <p style="margin:0" class="muted">A timed test like the digital SAT: 2 modules of 27 questions, 32 minutes each. Module 2 gets harder if Module 1 goes well. Answers are shown at the end.</p>
+   ${mockSteps()}
+   <p style="margin:0;font-size:14px" class="muted">${mocksDone()>=MOCK_SEQ?'You have finished the first '+MOCK_SEQ+' mock tests, so you can take as many more as you like.':`Mock tests unlock in order. Mock 1 is open to everyone. Mock 2 and Mock 3 each open when every unit reaches that skill level. After Mock ${MOCK_SEQ}, take as many as you like.`}</p>
    ${h.length?mockHist(h):''}
-   ${M?`<button class="btn saff" id="mkGo">${M.stage==='break'?'Continue to Module 2':'Resume Module '+M.mod+' · '+mmss(mockLeft())+' left'}</button>`:`<button class="btn" id="mkGo">Start mock test</button>`}
+   ${M?`<button class="btn saff" id="mkGo">${M.stage==='break'?'Continue to Module 2':'Resume Module '+M.mod+' · '+mmss(mockLeft())+' left'}</button>`:lk?`<div class="tipbox" style="--tone:var(--cobalt)"><b>Locked</b>${mockLockTxt(lk)}</div><button class="btn ghost" id="mkGo">${I.lock}<span>Mock test ${lk.n} locked</span></button>`:`<button class="btn" id="mkGo">Start mock test ${no}</button>`}
    ${S.mockRev&&!M?`<button class="btn ghost" id="mkRv">Review my last test</button>`:''}</div>`; }
 function wireMock(){ const g=document.getElementById('mkGo'); if(g) g.onclick=()=>S.mockLive?mockResume():mockStartAsk(); const r=document.getElementById('mkRv'); if(r) r.onclick=()=>mockReport(S.mockRev); }
 function growCard(st){ const h=st.mocks||[];
