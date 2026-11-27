@@ -1676,6 +1676,437 @@ fss:[
 ],
 };
 UNITS.forEach(u=>{ if(MORE3[u.id]) u.lessons.push(MORE3[u.id]); });
+/* ---------- Round 2: "More lessons" (added 2026-11-27). Two new lessons per unit, all original.
+   u.core = the lessons that existed before; levels still need only those, so nobody loses progress. ---------- */
+UNITS.forEach(u=>{ u.core=u.lessons.length; });
+const MORE4 = {
+ci:[[
+ {d:2,p:"Lichens, which look like flat patches of paint on rocks and tree bark, are not single organisms. Each lichen is a partnership between a fungus and an alga or bacterium. The fungus provides structure and holds moisture, while its partner makes food through photosynthesis. Together they survive on bare rock, in deserts, and on Antarctic cliffs where neither partner could live alone.",
+  q:Q_MAIN, c:["A lichen is a partnership that lets two organisms survive in places where neither could live alone.","Fungi are more important to a lichen than algae are.","Lichens grow mainly in Antarctica.","Photosynthesis is impossible on bare rock."],
+  e:"Every sentence builds toward the partnership and what it makes possible. Antarctica is only one of several examples, and the text never ranks the partners."},
+ {d:2,p:"The following text is from a short story.<br><br>Before the concert, Timur had practiced the opening bars until his fingers ached. Now, standing in the wings, he could not remember a single note. Then the lights dimmed, the audience fell silent, and his hands, as if they belonged to someone else, began to play.",
+  q:"Which choice best describes what happens in the text?", c:["A nervous performer finds that his practice carries him through despite his fear.","A performer forgets the music and leaves the stage.","A musician decides that his practice was a waste of time.","An audience refuses to quiet down for a performance."],
+  e:"He panics in the wings, but his hands play \"as if they belonged to someone else\": the hours of practice take over. He never leaves the stage, and the audience does fall silent."},
+ {d:3,p:"Economist Dilshod Nazarov studied weekly bazaars in rural Uzbekistan. Officials had predicted that the bazaars would disappear once large supermarkets opened nearby. Nazarov found instead that many bazaars grew: shoppers still bought packaged groceries at supermarkets but visited bazaars to buy fresh produce, meet neighbors, and hear local news, roles the supermarkets did not fill.",
+  q:Q_MAIN, c:["Rural bazaars survived the arrival of supermarkets because they served purposes that supermarkets did not.","Supermarkets in rural Uzbekistan failed because shoppers preferred bazaars for all their purchases.","Officials encouraged supermarkets to open near bazaars.","Bazaars sell fresher produce than supermarkets at lower prices."],
+  e:"The text says shoppers \"still bought packaged groceries at supermarkets,\" so the supermarkets did not fail. Prices are never mentioned. The point is that bazaars filled different roles."},
+ {d:2,p:"Sea otters often float on their backs and use rocks to crack open shellfish. Researchers studying otters along the California coast found that individual otters tend to specialize: some eat mainly sea urchins, while others eat mainly crabs or snails. The otters that specialize in hard-shelled snails are the most frequent tool users.",
+  q:"According to the text, which otters use tools most often?", c:["Otters that mainly eat hard-shelled snails","Otters that eat sea urchins and crabs equally","The youngest otters in a group","Otters that live farthest from the coast"],
+  e:"The last sentence answers the question directly. The text never mentions age or distance from the coast."},
+ {d:3,p:"Some critics fault architect Zaha Hadid's buildings for being impractical, pointing to curved walls that make furniture hard to arrange. Her defenders respond that the buildings were never meant to be judged only as containers for furniture. Hadid's designs, they argue, invite visitors to move through space in new ways, and in doing so they changed what many architects believed a building could look like.",
+  q:Q_MAIN, c:["Hadid's defenders argue that her buildings should be valued for how they changed ideas about architecture, not only for their practicality.","Hadid's buildings are impractical, so critics are right to dismiss them.","Hadid designed furniture that fits curved walls.","Most architects now refuse to design buildings with straight walls."],
+  e:"The critics' view is set up so the defenders can answer it, and the text ends on their answer. \"Most architects now refuse\" goes far beyond \"changed what many architects believed.\""},
+ {d:3,p:"The following text is adapted from a 1911 short story.<br><br>The new teacher arrived in the village on a gray afternoon. The children had been told to expect someone stern, and they stood in a silent row at the schoolhouse door. She looked at them for a long moment. Then she knelt in the mud, picked up a small frog that had hopped onto the step, and asked whether anyone knew its name.",
+  q:Q_MAIN, c:["The teacher's first act surprises children who expected her to be strict.","The children are afraid of the frog on the step.","The teacher is unhappy to have arrived on a gray day.","The village children have never attended school before."],
+  e:"The children expect \"someone stern,\" and the teacher kneels in the mud to ask about a frog. The contrast between expectation and action is the point."},
+],[
+ {d:2,p:"In the 1970s, the Brazilian city of Curitiba could not afford to build a subway. Instead, planners gave buses their own lanes and built raised, tube-shaped stations where passengers paid before boarding. Because buses no longer sat in traffic or waited at the door while riders paid, they moved almost as quickly as trains, at a fraction of the cost. Cities around the world later copied the system.",
+  q:Q_MAIN, c:["Curitiba created an affordable bus system that worked almost as well as a subway and became a model for other cities.","Curitiba eventually built a subway after its bus system failed.","Passengers in Curitiba preferred trains to buses.","The raised stations were the most expensive part of Curitiba's system."],
+  e:"The text moves from the problem (no money for a subway) to the solution and its success. Nothing says the system failed or ranks its costs."},
+ {d:2,p:"In a study of 300 households, researchers found that families who ate dinner together at least four nights a week threw away less food than families who rarely did. The researchers suggest that shared meals encourage planning: when one person cooks for everyone, groceries are bought with specific meals in mind.",
+  q:"According to the text, why might shared meals reduce food waste?", c:["They lead families to buy groceries with particular meals in mind.","They require smaller portions than separate meals.","They are usually cooked by more than one person.","They happen only four nights a week."],
+  e:"The researchers' explanation is planning: groceries \"bought with specific meals in mind.\" The text says one person cooks, not several."},
+ {d:3,p:"Musicologist Shahlo Rahimova studied recordings of shashmaqam, the classical music of Bukhara and Samarkand, made between 1920 and 1990. Many listeners assume that the tradition was passed down unchanged for centuries. Rahimova found, however, that performers regularly shortened long pieces, added new instruments, and adjusted melodies to suit radio broadcasts, all while describing their performances as faithful to tradition.",
+  q:Q_MAIN, c:["Rahimova's research shows that shashmaqam changed during the twentieth century even as performers presented it as unchanged.","Rahimova argues that radio broadcasts damaged shashmaqam beyond repair.","Shashmaqam was invented in 1920.","Performers of shashmaqam refused to use new instruments."],
+  e:"\"However\" turns from the common assumption to Rahimova's finding: real change, described as faithfulness. She never judges the changes as damage."},
+ {d:2,p:"Every evening Grandmother Zebo set out two cups of tea, although Grandfather had been gone for three years. When her granddaughter finally asked why, Zebo only smiled and said that some habits are a way of keeping someone company.",
+  q:Q_MAIN, c:["Zebo continues a daily habit as a way of remembering her husband.","Zebo has forgotten that her husband is gone.","Zebo wants her granddaughter to drink more tea.","Zebo expects her husband to return soon."],
+  e:"Her answer, that habits can be \"a way of keeping someone company,\" shows she knows he is gone and keeps the ritual to stay close to his memory."},
+ {d:3,p:"Tardigrades, animals less than a millimeter long, can survive being dried out for years. As they dry, they produce a protein that forms a glass-like gel inside their cells, holding delicate molecules in place until water returns. When scientists inserted the gene for this protein into yeast, the yeast also became more tolerant of drying out.",
+  q:"According to the text, what happened when scientists inserted the gene into yeast?", c:["The yeast became better able to survive drying out.","The yeast stopped needing water entirely.","The yeast grew to the size of tardigrades.","The yeast began producing water inside its cells."],
+  e:"\"More tolerant of drying out\" means better able to survive it. \"Stopped needing water entirely\" is a big overstatement."},
+ {d:3,p:"Many people assume that a forest left alone will return to its original state after a fire. Ecologist Ana Reyes studied pine forests burned by intense wildfires and found that in many areas, shrubs took over the burned ground and blocked pine seedlings for decades. Where fires had burned less intensely, by contrast, young pines returned within a few years.",
+  q:Q_MAIN, c:["Reyes found that how a pine forest recovers after a fire depends on how intense the fire was.","Pine forests can never recover after a wildfire.","Shrubs are more resistant to fire than pines are.","Low-intensity fires cause more damage than high-intensity fires."],
+  e:"The text contrasts intense fires (shrubs take over) with milder ones (pines return quickly). \"Never recover\" ignores the milder fires."},
+]],
+ev:[[
+ {d:2,p:"A student claims that in the poem \"Winter Orchard,\" the speaker finds hope in a bleak setting.",
+  q:"Which quotation from the poem most effectively illustrates the claim?", c:["\"The branches stand like bare black wire, / but each one holds a bud wrapped tight against the cold.\"","\"The snow has buried every path I knew.\"","\"In summer, children climbed these trees.\"","\"The wind is louder than my voice.\""],
+  e:"The claim has two parts: a bleak setting and hope. \"Bare black wire\" is bleak, and the bud waiting to open is hope. The snow quotation is bleak only."},
+ {d:2,p:"A researcher hypothesizes that office workers recycle more when recycling bins are placed closer to them than trash bins are.",
+  q:"Which finding, if true, would most directly support the hypothesis?", c:["In offices where recycling bins were moved next to desks and trash bins were moved to the hallway, recycling rose sharply.","Most office workers said in a survey that they support recycling.","Recycling bins cost less than trash bins.","Offices with more workers produced more trash."],
+  e:"The hypothesis is about where the bins are placed. Only the bin-moving result tests placement and shows the predicted effect."},
+ {d:3,p:"Archaeologist Bekzod Usmonov claims that a walled settlement in the Fergana Valley was built mainly for defense.",
+  q:"Which finding, if true, would most directly weaken Usmonov's claim?", c:["The walls were less than a meter high and had wide gaps at regular intervals.","Arrowheads were found inside the walls.","About 500 people lived in the settlement.","Similar walls surround other ancient towns in the region."],
+  e:"Low walls full of gaps could not stop attackers, which undercuts a defensive purpose. Arrowheads, if anything, support the claim."},
+ {d:2,p:"In the novel, the narrator describes Rustam as someone who hides his kindness behind a gruff manner.",
+  q:"Which quotation from the novel most effectively illustrates this description?", c:["\"'Take it and stop thanking me,' Rustam grumbled, pushing the warm bread into the boy's hands without looking at him.\"","\"Rustam spoke kindly to everyone he met.\"","\"Rustam rarely spoke, and when he did, he complained about the weather.\"","\"The boy had never met Rustam before.\""],
+  e:"Giving bread is kind; grumbling and not looking at the boy is gruff. Only that quotation shows both halves of the description."},
+ {d:3,p:"Psychologists hypothesize that short rest breaks during study sessions improve memory because, during the breaks, the brain replays what was just learned.",
+  q:"Which finding, if true, would most directly support the hypothesis?", c:["During rest breaks, participants' brain activity repeated patterns recorded while they were learning, and those with more repetition remembered more.","Participants said they enjoyed studying more when they took breaks.","Participants who took breaks spent more total time studying.","Most students do not take breaks while studying."],
+  e:"The hypothesis names a cause: replay during breaks. Only the brain-activity finding shows replay and links it to memory. More total study time would be a different explanation."},
+ {d:3,p:"Economist Malika Tosheva argues that free public transit mainly benefits riders who already use buses, rather than drawing drivers out of their cars.",
+  q:"If Tosheva is correct, which result would be most expected after a city makes its buses free?", c:["Bus trips increase mostly among people who rode buses before, while car traffic stays about the same.","Car traffic falls sharply as drivers switch to buses.","The number of bus trips falls.","The city builds several new bus routes."],
+  e:"Tosheva predicts gains for existing riders and little change for drivers. A sharp drop in car traffic is what her critics would predict."},
+],[
+ {d:2,p:"A student claims that the narrator of a memoir feels torn between two homes.",
+  q:"Which quotation from the memoir most effectively illustrates the claim?", c:["\"In Tashkent I missed the sea; by the sea I caught myself listening for the sound of Tashkent's trams.\"","\"I never wanted to leave Tashkent.\"","\"The sea was colder than I had expected.\"","\"My parents moved often for work.\""],
+  e:"Being torn means missing each place while in the other. Only that quotation shows longing in both directions."},
+ {d:2,p:"Botanists hypothesize that a desert flower blooms only after heavy rain because its seeds contain a chemical that must be washed away before they can sprout.",
+  q:"Which finding, if true, would most directly support the hypothesis?", c:["In a lab, seeds rinsed repeatedly with water sprouted, while seeds kept moist without rinsing did not.","The flower is brightly colored.","Heavy rain is rare in the desert.","Many desert animals eat the flower's seeds."],
+  e:"Rinsing washes the chemical away; simply keeping seeds moist does not. That comparison isolates the cause the botanists propose."},
+ {d:3,p:"A historian claims that a 17th-century merchant's letters were written for publication rather than as private messages to his family.",
+  q:"Which finding, if true, would most directly weaken the historian's claim?", c:["The letters contain household instructions, private jokes, and requests that they be burned after reading.","The letters were published fifty years after the merchant's death.","The merchant wrote more than 300 letters.","Other merchants of the period also wrote letters."],
+  e:"Asking that letters be burned shows the writer did not expect a public audience. Being published long after his death says nothing about his intent."},
+ {d:3,p:"A student claims that in a play, the character Laylo is both proud of her success and worried that it has cost her friendships.",
+  q:"Which quotation from the play most effectively illustrates the claim?", c:["\"I won the prize I wanted most,\" Laylo says, \"and yet my phone hasn't rung all week.\"","\"I won the prize I wanted most,\" Laylo says.","\"My friends are coming to dinner tonight,\" Laylo says.","\"I don't care about prizes,\" Laylo says."],
+  e:"The claim has two parts. The full quotation shows pride (the prize) and worry (no one has called). The shorter version shows only pride."},
+ {d:2,p:"A nutrition researcher claims that teenagers who sleep less tend to eat more sugary snacks.",
+  q:"Which finding, if true, would most directly support the researcher's claim?", c:["In a survey of 1,000 teenagers, those who slept under seven hours a night reported eating sugary snacks nearly twice as often as those who slept eight hours or more.","Teenagers sleep less, on average, than younger children do.","Sugary snacks are often cheaper than fruit.","Some teenagers who sleep eight hours a night eat sugary snacks."],
+  e:"Support must connect less sleep with more sugary snacks. Only the survey comparison does that."},
+ {d:3,p:"After ecologists introduced a fish species to a lake, the number of dragonflies around the lake fell. The ecologists concluded that the fish were eating dragonfly larvae, which live in the water.",
+  q:"Which finding, if true, would most strongly support the ecologists' conclusion?", c:["Dragonfly larvae were found in the stomachs of many of the introduced fish.","Dragonflies also declined at nearby lakes that had no introduced fish.","The introduced fish grew larger each year.","Adult dragonflies lay their eggs in water."],
+  e:"Larvae in the fishes' stomachs is direct evidence of the cause. Declines at lakes without the fish would point to some other cause and weaken the conclusion."},
+]],
+qe:[[
+ {d:1,p:tbl("Books borrowed from a school library in one month",["Genre","Grade 9","Grade 12"],[["Mystery","42","18"],["Science fiction","35","40"],["History","12","31"],["Poetry","8","6"]])+"<p>A librarian notes that grade 12 students borrowed more history books than grade 9 students did, borrowing ______</p>",
+  q:"Which choice most effectively uses data from the table to complete the statement?", c:["31 history books, compared with 12 for grade 9.","12 history books, compared with 31 for grade 9.","40 science fiction books.","18 mystery books, compared with 42 for grade 9."],
+  e:"Find the History row: grade 12 borrowed 31 and grade 9 borrowed 12. The reversed choice swaps the two grades."},
+ {d:2,p:bars("Average daily steps of participants in a walking program","Steps",[["Week 1",4200],["Week 2",5100],["Week 3",6300],["Week 4",6200],["Week 5",7400]])+"<p>The program's director claims that participants' daily steps increased in almost every week of the program.</p>",
+  q:"Which choice most effectively uses data from the graph to support the claim?", c:["Steps rose from 4,200 in week 1 to 7,400 in week 5, falling only slightly in week 4.","Participants took 6,300 steps in week 3.","Steps fell from week 3 to week 4.","Participants took fewer than 5,000 steps in week 1."],
+  e:"\"Almost every week\" needs the overall rise plus the one small exception. A single week's number cannot show a pattern."},
+ {d:2,p:tbl("Trees planted and still alive after three years",["Species","Planted","Surviving"],[["Elm","200","150"],["Oak","200","170"],["Maple","200","96"],["Pine","200","182"]])+"<p>A forester claims that pine had the highest survival rate of the four species.</p>",
+  q:"Which choice most effectively uses data from the table to support the forester's claim?", c:["Of the 200 pines planted, 182 survived, more than for any other species.","Of the 200 oaks planted, 170 survived.","Maple had the fewest surviving trees.","Each species had 200 trees planted."],
+  e:"Because every species started at 200, the species with the most survivors has the highest rate. Pine's 182 tops the column."},
+ {d:3,p:tbl("Average commute and share of workers who bike, four cities",["City","Average commute (minutes)","Workers who bike (%)"],[["A","22","18"],["B","35","4"],["C","27","11"],["D","31","6"]])+"<p>An urban researcher hypothesized that cities where more workers bike tend to have shorter average commutes. The data support this hypothesis because ______</p>",
+  q:"Which choice most effectively uses data from the table to complete the text?", c:["the city with the highest share of bikers, City A, has the shortest commute, and the city with the lowest share, City B, has the longest.","City C has an average commute of 27 minutes.","City B has the longest commute of the four cities.","City D has a higher share of bikers than City B does."],
+  e:"A pattern needs both variables. Only the correct choice links the most biking to the shortest commute and the least biking to the longest."},
+ {d:3,p:bars("Monthly visitors to a national park","Thousands of visitors",[["Jan",12],["Apr",45],["Jul",98],["Oct",40]])+"<p>Park managers added a shuttle bus to reduce traffic jams on the park's roads. They chose to run the shuttle only from May through September, reasoning that ______</p>",
+  q:"Which choice most effectively uses data from the graph to complete the text?", c:["visitor numbers in July are far higher than in January, April, or October.","the park had 12 thousand visitors in January.","visitor numbers were about the same in April and October.","the park receives more visitors in winter than in summer."],
+  e:"The shuttle runs in the warm months because that is when crowds peak. July's 98 thousand, far above the other months, supports that choice. The winter claim is false."},
+ {d:3,p:tbl("Minutes spent reading per day, before and after an 8-week trial of a reading app",["Group","Before","After"],[["App users","18","31"],["Non-users","17","19"]])+"<p>A researcher concludes that the app, rather than a general rise in reading among all students, explains most of the app users' gain.</p>",
+  q:"Which choice most effectively uses data from the table to support the researcher's conclusion?", c:["Reading time rose from 18 to 31 minutes for app users but only from 17 to 19 minutes for non-users.","App users read for 31 minutes per day after the trial.","Non-users read for 17 minutes per day before the trial.","Both groups read more after the trial than before it."],
+  e:"To rule out a general rise, compare the two groups' gains: 13 minutes versus 2. \"Both groups read more\" points toward a general rise, the opposite of the conclusion."},
+],[
+ {d:1,p:bars("Tickets sold for a school play","Tickets",[["Thu",120],["Fri",210],["Sat",260],["Sun",150]])+"<p>The drama teacher notes that the play sold the most tickets on ______</p>",
+  q:"Which choice most effectively uses data from the graph to complete the statement?", c:["Saturday, with 260 tickets.","Friday, with 210 tickets.","Sunday, with 150 tickets.","Thursday, with 120 tickets."],
+  e:"The tallest bar is Saturday at 260."},
+ {d:2,p:tbl("Survey respondents who use each news source daily (%)",["Source","Ages 18–29","Ages 50–64"],[["Social media","62","28"],["Television","19","55"],["Newspapers","7","24"],["Podcasts","30","12"]])+"<p>A media researcher claims that the older group in the survey relies more on traditional news sources than the younger group does.</p>",
+  q:"Which choice most effectively uses data from the table to support the claim?", c:["55% of people aged 50–64 watch television news daily, compared with 19% of people aged 18–29.","62% of people aged 18–29 use social media for news daily.","30% of people aged 18–29 listen to news podcasts daily.","7% of people aged 18–29 read newspapers daily."],
+  e:"The claim compares two groups on a traditional source. Only the television choice gives both groups' numbers for a traditional source."},
+ {d:2,p:tbl("Three types of light bulbs",["Bulb","Power used (watts)","Lifespan (hours)"],[["Incandescent","60","1,000"],["Halogen","43","2,000"],["LED","9","25,000"]])+"<p>Although LED bulbs cost more to buy, an engineer argues that they save money over time because they ______</p>",
+  q:"Which choice most effectively uses data from the table to complete the text?", c:["use 9 watts and last 25,000 hours, compared with 60 watts and 1,000 hours for incandescent bulbs.","last 2,000 hours, longer than incandescent bulbs.","use 43 watts of power.","were the newest of the three types."],
+  e:"Saving money over time comes from using less power and lasting longer. The 2,000-hour and 43-watt figures belong to halogen bulbs."},
+ {d:3,p:bars("Share of a reef covered by living coral","Percent",[["2000",52],["2005",47],["2010",30],["2015",33],["2020",36]])+"<p>A marine biologist claims that the reef suffered its steepest decline between 2005 and 2010 but has partly recovered since then.</p>",
+  q:"Which choice most effectively uses data from the graph to support the claim?", c:["Coral cover dropped from 47% to 30% between 2005 and 2010, then rose to 36% by 2020.","Coral cover was 52% in 2000.","Coral cover rose between 2010 and 2015.","Coral cover in 2020 was lower than in 2000."],
+  e:"The claim has two parts, the steep drop and the partial recovery. Only one choice gives data for both."},
+ {d:3,p:tbl("Average test score by hours slept the night before",["Hours of sleep","Students","Average score"],[["Under 6","40","71"],["6–7","85","78"],["7–8","90","83"],["Over 8","35","80"]])+"<p>A student claims that the more students slept before the test, the higher their scores were.</p>",
+  q:"Which choice most effectively uses data from the table to weaken the student's claim?", c:["Students who slept over 8 hours averaged 80, lower than the 83 averaged by students who slept 7–8 hours.","Students who slept under 6 hours averaged 71.","More students slept 7–8 hours than any other amount.","Students who slept 6–7 hours scored higher than those who slept under 6."],
+  e:"If more sleep always meant higher scores, the over-8 group would score highest. It does not, which weakens the claim. The 6–7 versus under-6 comparison supports it."},
+ {d:3,p:tbl("Seabird nesting on two islands, 2022",["Island","Nests","Chicks that fledged"],[["North (rats present)","120","18"],["South (rats removed in 2019)","115","74"]])+"<p>Conservationists removed rats from South Island in 2019 because rats eat seabird eggs. Data from 2022 suggest that the effort helped the birds, since ______</p>",
+  q:"Which choice most effectively uses data from the table to complete the text?", c:["South Island's 115 nests produced 74 fledged chicks, while North Island's 120 nests produced only 18.","North Island had more nests than South Island did.","South Island had 115 nests in 2022.","both islands had more than 100 nests."],
+  e:"The effect of removing rats shows up in chick survival. Comparing chicks from a similar number of nests on each island makes the point."},
+]],
+inf:[[
+ {d:2,p:"Bats that hunt insects use echolocation: they send out calls and listen for the echoes. Some moths can hear these calls, and when they detect a bat, they drop suddenly toward the ground. Researchers found that moths of one species whose ears did not work were caught by bats far more often than moths of the same species with working ears. This finding suggests that ______",
+  q:Q_LOGIC, c:["the moths' ability to hear bat calls helps them escape.","bats rely on sight rather than echolocation to find moths.","moths without working ears are more common than moths with working ears.","bats prefer to hunt moths that fly close to the ground."],
+  e:"The only difference between the two groups is hearing, and the hearing moths escaped more often. So hearing helps them escape."},
+ {d:2,p:"A 19th-century farmer's diary records the date each spring when the first apple blossoms opened in his orchard. Modern records from the same orchard show the blossoms opening, on average, eleven days earlier. Because the orchard still grows the same apple varieties, the change most likely reflects ______",
+  q:Q_LOGIC, c:["a change in conditions such as spring temperatures rather than a change in the trees.","an error in the farmer's diary.","the planting of new apple varieties.","a decline in the number of bees in the orchard."],
+  e:"\"Same varieties\" rules out a change in the trees, so the cause must be in their conditions. The new-varieties choice contradicts the text."},
+ {d:3,p:"In one experiment, participants solved puzzles in either a tidy room or a messy room. Afterward, those in the tidy room were more likely to choose a healthy snack, while those in the messy room came up with more creative ideas when asked for new uses of a ping-pong ball. These results suggest that ______",
+  q:Q_LOGIC, c:["orderly and disorderly settings may each encourage different kinds of behavior.","messy rooms make people unhealthy.","tidy rooms improve every kind of thinking.","most people prefer to work in messy rooms."],
+  e:"Each room had its own benefit, so neither is simply better. \"Every kind of thinking\" ignores the messy room's creative advantage."},
+ {d:3,p:"When the old bridge in the town of Sayram was replaced, residents expected the café beside it to close, since car traffic would now cross the river a kilometer to the north. Instead, the café became busier than ever. The old bridge had been turned into a walkway lined with benches, and families now spent their evenings strolling across it. The café's success therefore most likely depended on ______",
+  q:Q_LOGIC, c:["the walkers who now gathered at the old bridge rather than on passing car traffic.","the new bridge being built a kilometer to the north.","residents avoiding the new walkway.","the café lowering its prices."],
+  e:"Car traffic left, yet business grew, and the new thing nearby is the busy walkway. Prices are never mentioned."},
+ {d:3,p:"Seeds of a certain wildflower sprout only after they have passed through the digestive system of a particular bird. In a region where that bird has become rare, botanists have found very few young plants, even though older plants still produce plenty of seeds each year. The botanists conclude that ______",
+  q:Q_LOGIC, c:["the decline of the bird is likely limiting the growth of new wildflowers.","the older plants have stopped producing seeds.","the wildflower is spreading to new regions.","the bird prefers other kinds of seeds."],
+  e:"Seeds are still produced, so the missing step is the bird. The text directly contradicts the claim that older plants stopped producing seeds."},
+ {d:2,p:"Archaeologists found that pottery in an ancient town changed suddenly around 900 BCE: decorated bowls in the local style gave way to plain bowls identical to those made in a city 300 kilometers away. Other parts of daily life, such as house design and burial customs, did not change. These findings suggest that around 900 BCE, the town ______",
+  q:Q_LOGIC, c:["adopted the distant city's pottery style without changing many of its other customs.","was conquered and resettled by people from the distant city.","stopped making pottery altogether.","began sending decorated bowls to the distant city."],
+  e:"If newcomers had replaced the population, houses and burials would likely have changed too. Only pottery changed, so the town borrowed a style."},
+],[
+ {d:2,p:"Researchers tracked shoppers in a supermarket that played background music at different tempos. On days when slow music played, shoppers walked more slowly through the aisles and spent more money than on days when fast music played. The researchers concluded that ______",
+  q:Q_LOGIC, c:["slower music might encourage shoppers to spend more time and money in a store.","shoppers dislike fast music.","music has no effect on how people shop.","the store should stop playing music."],
+  e:"Slow music was linked to slower walking and more spending. Nothing in the text shows what shoppers liked or disliked."},
+ {d:3,p:"Moving glaciers can carry rocks far from where the rocks formed. In a flat region, geologists found large granite boulders resting on limestone, although the nearest granite bedrock lies 400 kilometers to the north. The geologists most likely concluded that ______",
+  q:Q_LOGIC, c:["glaciers once moved through the region from the north.","the limestone formed on top of the boulders.","people recently carried the boulders into the region.","granite can easily form from limestone."],
+  e:"The first sentence gives the tool: glaciers move rocks. Granite from the north lying on local limestone suggests a glacier brought it."},
+ {d:2,p:"Nigora checked the mailbox three times before noon, although the mail never arrived until the afternoon. When her brother asked what she was waiting for, she said, \"Nothing,\" and went back to the window.",
+  q:"Based on the text, what can most reasonably be inferred about Nigora?", c:["She is anxiously hoping for a particular piece of mail.","She dislikes her brother.","She works at the post office.","She is expecting no mail at all."],
+  e:"Her actions (checking three times, returning to the window) say more than her one-word answer. Taking \"Nothing\" literally ignores the evidence."},
+ {d:3,p:"Many languages add basic color words in a similar order. A language with only three color words almost always has words for black, white, and red, and a language that adds a fourth word usually adds either green or yellow. A linguist studying a language with exactly four basic color words would therefore most likely expect to find ______",
+  q:Q_LOGIC, c:["words for black, white, red, and either green or yellow.","words for blue and purple but not for red.","no word for white.","words only for colors found in plants."],
+  e:"Follow the pattern: three words give black, white, red, and the fourth is usually green or yellow."},
+ {d:3,p:"A company let half of its employees choose their own working hours while the other half kept a fixed schedule. After six months, the two groups had completed similar amounts of work, but the employees with flexible hours had taken fewer sick days. These results suggest that flexible hours ______",
+  q:Q_LOGIC, c:["may improve employees' well-being without reducing how much they accomplish.","greatly increase how much work employees complete.","prevent illness among workers at every company.","are preferred by most managers."],
+  e:"Similar output plus fewer sick days supports a modest claim. \"Greatly increase\" contradicts \"similar amounts of work,\" and \"every company\" overgeneralizes from one."},
+ {d:2,p:"Pots of honey found in ancient Egyptian tombs have been reported to be still edible after thousands of years. Honey contains very little water and is slightly acidic, and most bacteria cannot grow in such conditions. It is therefore likely that ______",
+  q:Q_LOGIC, c:["honey's low water content and acidity help it resist spoiling.","ancient Egyptians added preservatives to their honey.","bacteria grow best in honey.","all foods placed in tombs remained edible."],
+  e:"The text gives two properties that stop bacteria, which explains why honey lasts. Preservatives are never mentioned."},
+]],
+wic:[[
+ {d:2,p:"The scientist's explanation was so ______ that even students with no background in chemistry could follow it.",
+  q:Q_WORD, c:["lucid","convoluted","tentative","lengthy"],
+  e:"If beginners could follow it, the explanation was \"lucid,\" meaning clear. \"Convoluted\" means tangled and hard to follow, the opposite."},
+ {d:2,p:"Although the ruins look ______ today, records show that the city was once crowded with markets, temples, and workshops.",
+  q:Q_WORD, c:["desolate","bustling","renovated","enormous"],
+  e:"\"Although\" sets up a contrast with \"once crowded,\" so the ruins must now look empty: \"desolate.\" \"Bustling\" repeats the crowded idea instead of contrasting with it."},
+ {d:3,p:"The committee's report was deliberately ______: it listed several possible causes of the budget shortfall but declined to name any one of them as the most important.",
+  q:Q_WORD, c:["noncommittal","decisive","fraudulent","celebratory"],
+  e:"Refusing to choose among causes is being \"noncommittal.\" \"Decisive\" is the opposite, and nothing suggests the report was dishonest."},
+ {d:2,p:"The following text is from a 1905 novel.<br><br>The storm had passed, but the sea was still <u>sullen</u>, rolling in long gray swells that broke heavily against the rocks.",
+  q:"As used in the text, what does the word \"sullen\" most nearly mean?", c:["dark and threatening","resentful","quiet","motionless"],
+  e:"Gray, heavy swells after a storm describe a dark, threatening sea. \"Resentful\" is the meaning for a sulking person, and \"motionless\" clashes with \"rolling.\""},
+ {d:3,p:"Early reviewers found the novelist's plots ______, complaining that they could predict every ending by the second chapter.",
+  q:Q_WORD, c:["formulaic","labyrinthine","innovative","ambiguous"],
+  e:"Endings you can predict early come from plots that follow a formula: \"formulaic.\" \"Labyrinthine\" (maze-like) and \"ambiguous\" would make endings harder to predict."},
+ {d:3,p:"Rather than ______ the findings of earlier researchers, the new study builds on them, using the same methods with a much larger group of participants.",
+  q:Q_WORD, c:["repudiate","corroborate","extend","adopt"],
+  e:"\"Rather than\" needs the opposite of building on earlier work. \"Repudiate\" means reject. \"Corroborate,\" \"extend,\" and \"adopt\" all describe building on the work."},
+],[
+ {d:2,p:"Camels are well suited to desert travel: they can go for days without water and ______ heat that would exhaust most other animals.",
+  q:Q_WORD, c:["withstand","avoid","produce","measure"],
+  e:"Being \"well suited\" to the desert means camels can endure, or \"withstand,\" the heat. Avoiding the heat would not show they are suited to it."},
+ {d:2,p:"The mayor's decision to <u>table</u> the proposal until spring disappointed residents who had hoped for an immediate vote.",
+  q:"As used in the text, what does the word \"table\" most nearly mean?", c:["postpone discussion of","present formally","arrange neatly","reject permanently"],
+  e:"\"Until spring\" and the disappointed hope for \"an immediate vote\" show the proposal was put off, not rejected forever."},
+ {d:3,p:"The historian's account of the war is notably ______: she gives equal attention to the views of soldiers, civilians, and political leaders on every side.",
+  q:Q_WORD, c:["evenhanded","partisan","cursory","sensational"],
+  e:"Equal attention to every side is \"evenhanded,\" or fair. \"Partisan\" means taking one side."},
+ {d:3,p:"Because the chemical is ______ even in tiny amounts, workers who handle it must wear gloves and masks at all times.",
+  q:Q_WORD, c:["potent","inert","soluble","scarce"],
+  e:"Precautions for tiny amounts mean the chemical has a strong effect: \"potent.\" \"Inert\" means it has no effect at all."},
+ {d:2,p:"Kamila's first attempts at pottery were clumsy, but with daily practice her technique became increasingly ______.",
+  q:Q_WORD, c:["refined","careless","erratic","hesitant"],
+  e:"\"But\" contrasts with \"clumsy,\" and daily practice suggests improvement: \"refined.\" The other words describe a technique that has not improved."},
+ {d:3,p:"The following text is from a 1920 essay.<br><br>The old merchant had a <u>singular</u> way of bargaining: he praised the buyer's choice so warmly that the buyer felt embarrassed to argue about the price.",
+  q:"As used in the text, what does the word \"singular\" most nearly mean?", c:["unusual","lonely","single","grammatical"],
+  e:"The colon introduces a strange, distinctive method, so \"singular\" means unusual. \"Single\" and \"grammatical\" are other meanings of the word that do not fit."},
+]],
+ts:[[
+ {d:2,p:"<u>Most people think of sand as a nearly endless resource.</u> Yet the sand used in concrete must have sharp, angular grains, and desert sand, worn smooth by the wind, does not work. As construction booms worldwide, some regions now face shortages of usable sand, and illegal sand mining has damaged rivers and coastlines.",
+  q:"Which choice best describes the function of the underlined sentence in the text as a whole?", c:["It presents a common assumption that the rest of the text challenges.","It states the main conclusion of a study described later in the text.","It gives an example of the damage caused by illegal sand mining.","It explains why desert sand cannot be used in concrete."],
+  e:"\"Yet\" right after the sentence signals that what follows will challenge it. No study is described."},
+ {d:2,p:"The following text is from a short story.<br><br>At first the stranger answered the villagers' questions with a single word. By the end of the week, he was telling stories at the teahouse until midnight, and by the end of the month, no one could remember the village without him.",
+  q:"Which choice best describes the overall structure of the text?", c:["It traces a gradual change in how the stranger fits into village life.","It describes a conflict between the stranger and the villagers and then its resolution.","It compares the stranger with another newcomer to the village.","It explains why the stranger came to the village."],
+  e:"The time markers (at first, by the end of the week, by the end of the month) trace step-by-step change. There is no conflict, only quietness that fades."},
+ {d:3,p:"Researchers have long known that crows can use sticks as tools. A recent study went further. Crows were given a short stick that could not reach a piece of food and a long stick placed inside a narrow box. The crows used the short stick to pull out the long one and then used the long stick to reach the food. Few animals other than humans and great apes have shown this kind of planning.",
+  q:"Which choice best describes the main purpose of the text?", c:["To describe a study suggesting that crows can plan a sequence of tool uses","To argue that crows are more intelligent than great apes","To explain how crows make tools out of sticks","To question whether crows really use tools"],
+  e:"The text reports a study and ends by naming what it shows: planning. It compares crows with apes but never ranks them."},
+ {d:3,p:"Some critics argue that translated poems always lose the music of the original. <u>Translator Otabek Jalilov concedes that rhyme and rhythm rarely survive the journey from one language to another.</u> He argues, however, that a skilled translator can recreate a poem's effect by finding new patterns of sound in the second language, as he did in his Uzbek versions of Spanish ballads.",
+  q:"Which choice best describes the function of the underlined sentence in the text as a whole?", c:["It acknowledges part of the critics' position before the text presents Jalilov's counterargument.","It provides the main evidence for the critics' claim.","It describes the technique Jalilov uses to translate rhyme.","It explains why Spanish ballads are hard to translate."],
+  e:"\"Concedes\" means he admits part of the other side's point, and the next sentence's \"however\" turns to his own argument."},
+ {d:2,p:"The following text is from a 1912 novel.<br><br>The house had nine rooms, and Madina's aunt kept eight of them closed. Dust sheets covered the chairs, the clocks had been allowed to stop, and the curtains stayed drawn even at noon. Only the kitchen, warm and bright, seemed to belong to the living.",
+  q:"Which choice best describes the function of the final sentence in the text as a whole?", c:["It contrasts one lively room with the stillness of the rest of the house.","It explains why Madina's aunt closed the other rooms.","It introduces a character who lives in the kitchen.","It suggests that the house will soon be sold."],
+  e:"\"Only\" sets the warm, bright kitchen against the dusty, stopped, dark rooms before it. No reason for closing the rooms is given."},
+ {d:3,p:"Engineers once designed skyscrapers to be as stiff as possible so they would resist the wind. Very tall buildings, however, sway in strong winds no matter how stiff they are. Many modern towers therefore have a huge weight near the top that swings opposite to the building's sway, reducing the movement felt by people inside.",
+  q:"Which choice best describes the overall structure of the text?", c:["It describes an older approach, notes its limitation, and then presents a newer solution.","It explains a problem and argues that it cannot be solved.","It compares two buildings and explains why one is taller.","It presents a theory and then gives evidence that disproves it."],
+  e:"Old approach (stiffness), limitation (\"however,\" they still sway), newer solution (\"therefore,\" a swinging weight)."},
+],[
+ {d:2,p:"Mosquitoes find people partly by detecting the carbon dioxide we breathe out. Once they are close, they rely on other cues, such as body heat and the smell of skin. This is why some people seem to attract more mosquitoes than others: their skin gives off chemicals that mosquitoes find especially appealing.",
+  q:"Which choice best describes the main purpose of the text?", c:["To explain how mosquitoes locate people and why some people attract more of them","To recommend ways to avoid mosquito bites","To argue that carbon dioxide is the only cue mosquitoes use","To describe how mosquitoes spread disease"],
+  e:"The text explains a process and then a consequence of it. It names several cues, so \"only cue\" is wrong, and it gives no advice."},
+ {d:3,p:"Many museums display ancient Greek statues as gleaming white marble. <u>Traces of paint found on the statues tell a different story.</u> Using ultraviolet light, researchers have detected remains of bright blues, reds, and golds, showing that many statues were once vividly painted.",
+  q:"Which choice best describes the function of the underlined sentence in the text as a whole?", c:["It signals that the evidence described next will challenge a common image of Greek statues.","It describes how museums clean their statues.","It states that the paint was added by modern restorers.","It summarizes the collection of a single museum."],
+  e:"\"A different story\" turns away from the white-marble image and sets up the evidence that follows."},
+ {d:2,p:"The following text is from a 1903 novel.<br><br>The letter lay on the table all morning. Feruza walked past it on her way to the garden, again on her way back, and a third time with a basket of apples, each time slowing a little more. At last she set down the basket, picked up the letter, and carried it, still unopened, to the window.",
+  q:"Which choice best describes the overall structure of the text?", c:["It shows a character's growing pull toward an object she has been avoiding.","It lists a character's daily chores in the order she does them.","It reveals what a letter says and how the character reacts.","It contrasts two characters' attitudes toward a letter."],
+  e:"Each pass she slows \"a little more\" until she finally picks it up. The letter stays unopened, so its contents are never revealed."},
+ {d:3,p:"Some economists measure a country's well-being only by its total production of goods and services. Economist Gulnoza Saidova argues that this measure leaves out unpaid work, such as caring for children and older relatives, which in many households takes up more hours than paid jobs do. Ignoring such work, she contends, makes economies that depend heavily on it look poorer than they really are.",
+  q:"Which choice best describes the main purpose of the text?", c:["To present Saidova's argument that a common economic measure overlooks important work","To explain how a country's total production is calculated","To argue that unpaid work should be replaced by paid work","To show that caring for relatives takes more time than any paid job"],
+  e:"The text introduces a measure only so Saidova can criticize it. \"In many households\" is far narrower than \"any paid job.\""},
+ {d:3,p:"Monarch butterflies travel up to 4,000 kilometers to spend the winter in the mountains of central Mexico. <u>No single butterfly makes the round trip.</u> The monarchs that fly south in autumn are the great-grandchildren of those that left Mexico the previous spring, yet they find their way to the same forests.",
+  q:"Which choice best describes the function of the underlined sentence in the text as a whole?", c:["It introduces a surprising fact that the next sentence explains in more detail.","It contradicts the claim that monarchs migrate to Mexico.","It gives the distance that monarchs travel.","It explains how the butterflies find the same forests."],
+  e:"The next sentence explains why no butterfly makes the round trip: several generations share the journey. How they navigate is left as a mystery."},
+ {d:2,p:"The following text is from a 1919 poem. The speaker is addressing a river.<br><br>You carried my grandfather's boats to market,<br>my father's logs to the mill;<br>now you carry only light<br>and children's paper ships.",
+  q:"Which choice best describes the overall structure of the text?", c:["It describes how the river's role has changed across generations.","It argues that the river should be used for trade again.","It describes a flood that destroyed the mill.","It compares the river with the sea."],
+  e:"Grandfather, father, now: the poem moves through generations, from working river to quiet, playful river. It makes no argument."},
+]],
+ct:[[
+ {d:2,p:"<p><b>Text 1</b><br>Some nutrition writers advise eating many small meals throughout the day. They claim this keeps metabolism high and therefore helps people lose weight.</p><p><b>Text 2</b><br>In controlled studies, people who ate the same total calories in two or three meals lost just as much weight as people who ate six small meals. What matters, the researchers concluded, is how much people eat, not how often.</p>",
+  q:"Based on the texts, how would the researchers in Text 2 most likely respond to the claim in Text 1?", c:["By arguing that meal frequency matters less for weight loss than total calories eaten","By agreeing that frequent small meals raise metabolism","By recommending that people eat only one meal a day","By claiming that weight loss is impossible without exercise"],
+  e:"Text 2's results show no benefit from more frequent meals and point to total intake instead."},
+ {d:3,p:"<p><b>Text 1</b><br>Many readers complain that novelist Hamid Ergashev ends his books abruptly, leaving major questions unanswered. They see this as carelessness, as if he simply lost interest in his own stories.</p><p><b>Text 2</b><br>Ergashev's endings are deliberate. He has said in interviews that he wants readers to keep thinking about his characters after the last page, and his drafts show that he rewrote his final chapters several times to make them more open.</p>",
+  q:"Based on the texts, how would the author of Text 2 most likely respond to the readers described in Text 1?", c:["The readers mistake an intentional choice for carelessness.","The readers are right that Ergashev's open endings are a flaw.","Ergashev's endings became more complete with each draft.","Ergashev agrees that he lost interest in his stories."],
+  e:"Text 2 accepts that the endings are open but denies the cause: they are \"deliberate.\" The drafts made the endings more open, not more complete."},
+ {d:3,p:"<p><b>Text 1</b><br>Many astronomers think the best places to search for life beyond Earth are planets orbiting other stars at just the right distance for liquid water to exist on their surfaces.</p><p><b>Text 2</b><br>Some of the most promising places may be much closer. Moons such as Jupiter's Europa and Saturn's Enceladus lie far outside the zone where surface water could stay liquid, yet beneath their icy crusts they appear to hold oceans kept warm from within.</p>",
+  q:"Based on the texts, how would the author of Text 2 most likely respond to the astronomers in Text 1?", c:["By noting that liquid water may exist in places that do not meet the astronomers' distance requirement","By agreeing that only planets at the right distance from a star can hold water","By arguing that life cannot exist beneath ice","By claiming that Europa and Enceladus orbit other stars"],
+  e:"Text 2's moons are outside the \"right distance\" zone yet seem to have liquid water, which expands where to look."},
+ {d:2,p:"<p><b>Text 1</b><br>Homework in elementary school does little to improve learning, some researchers argue. Studies find only a weak link between time spent on homework and test scores for young children.</p><p><b>Text 2</b><br>Even if homework barely raises young children's test scores, it may build habits such as planning and working independently, and those habits pay off in later grades.</p>",
+  q:"Based on the texts, how would the author of Text 2 most likely respond to the researchers in Text 1?", c:["By suggesting that homework may have benefits that test scores do not capture","By rejecting the studies' findings about test scores","By agreeing that homework should be eliminated","By arguing that young children should get more homework than older students"],
+  e:"\"Even if\" accepts the test-score finding, then points to other benefits. So Text 2 does not reject the studies."},
+ {d:3,p:"<p><b>Text 1</b><br>Historian Sanjar Rahimov argues that the caravan cities on Central Asia's old trade routes began to decline in the 1500s, when European ships opened sea routes to Asia and drew trade away from the overland roads.</p><p><b>Text 2</b><br>Records from the region's caravanserais show that overland trade remained strong well into the 1600s. The cities' decline, argues historian Zarina Olimova, owed more to wars between local states, which made the roads dangerous, than to competition from ships.</p>",
+  q:"Based on the texts, how would Olimova most likely respond to Rahimov's argument?", c:["She would say he overstates the effect of sea routes and overlooks the role of regional wars.","She would agree that sea routes made overland trade collapse in the 1500s.","She would argue that the caravan cities never declined.","She would claim that European ships traveled overland."],
+  e:"Olimova accepts the decline but disputes the cause and the timing: trade stayed strong into the 1600s, and wars mattered more."},
+ {d:3,p:"<p><b>Text 1</b><br>Many ecologists have assumed that city parks are too small and too disturbed by people to support much wildlife.</p><p><b>Text 2</b><br>A survey of 50 parks in one city recorded more than 200 bee species, including several rare ones. The researchers noted that parks with a wide variety of flowering plants, even small parks, supported the most species.</p>",
+  q:"Based on the texts, how would the researchers in Text 2 most likely respond to the assumption in Text 1?", c:["By pointing to evidence that even small city parks can support many species","By agreeing that small parks support little wildlife","By arguing that bees are the only animals found in parks","By claiming that parks must be enlarged before they can be studied"],
+  e:"Text 2's survey directly counters the assumption, and \"even small parks\" answers the size concern."},
+],[
+ {d:2,p:"<p><b>Text 1</b><br>Some architects argue that government buildings should have walls of glass, since transparent walls signal openness and honesty.</p><p><b>Text 2</b><br>Glass walls make buildings expensive to heat and cool, and visitors often report feeling watched rather than welcomed. Openness, these critics say, depends on how a government behaves, not on what its buildings are made of.</p>",
+  q:"Based on the texts, how would the critics in Text 2 most likely respond to the architects in Text 1?", c:["By arguing that transparent buildings do not by themselves make a government open","By agreeing that glass buildings signal honesty","By claiming that glass is cheaper than stone","By arguing that government buildings should have no windows"],
+  e:"Text 2's last sentence answers Text 1 directly: openness comes from behavior, not building materials."},
+ {d:3,p:"<p><b>Text 1</b><br>Identical twins raised apart often show striking similarities in personality. Some psychologists conclude from this that personality is largely inherited.</p><p><b>Text 2</b><br>Twins raised apart were often placed by agencies that matched families by background, so the twins grew up in similar homes. Their shared traits may reflect similar environments as much as shared genes.</p>",
+  q:"Based on the texts, how would the author of Text 2 most likely respond to the psychologists' conclusion in Text 1?", c:["It may overlook the possibility that similar upbringings help explain the twins' similarities.","It is correct because the twins grew up in completely different homes.","It ignores evidence that identical twins are not genetically identical.","It shows that environment has no effect on personality."],
+  e:"Text 2 offers another explanation, similar homes, without denying a role for genes."},
+ {d:2,p:"<p><b>Text 1</b><br>Critic Dildora Yuldasheva praises the film for its long, quiet scenes, which she says let viewers feel the slow passing of time in the mountain village where it is set.</p><p><b>Text 2</b><br>Critic Botir Nurmatov found the same scenes tedious. Although he admires the film's photography, he argues that its pacing tests the patience of even devoted viewers.</p>",
+  q:"Which choice best describes a difference in how the two critics view the film?", c:["Yuldasheva sees the film's slow pace as a strength, while Nurmatov sees it as a weakness.","Yuldasheva dislikes the film's photography, while Nurmatov admires it.","Both critics believe the film is too short.","Nurmatov finds the setting unrealistic, while Yuldasheva does not discuss the setting."],
+  e:"They disagree about the same feature, the long quiet scenes. Yuldasheva never mentions the photography."},
+ {d:3,p:"<p><b>Text 1</b><br>Many historians describe the invention of the mechanical clock in medieval Europe as the moment when ordinary people began to organize their days by the hour.</p><p><b>Text 2</b><br>For centuries after clocks appeared in town towers, most rural workers still timed their days by the sun and by church bells that rang only a few times a day. Clock time, this historian argues, spread slowly and unevenly, reaching most households only with cheap pocket watches in the 1800s.</p>",
+  q:"Based on the texts, how would the author of Text 2 most likely respond to the historians in Text 1?", c:["By arguing that the shift to clock time happened far more gradually than they suggest","By denying that mechanical clocks were invented in medieval Europe","By agreeing that clocks quickly changed daily life for most people","By claiming that church bells kept better time than clocks"],
+  e:"Text 2 accepts the invention but challenges the timing of its effect: centuries, not a single \"moment.\""},
+ {d:3,p:"<p><b>Text 1</b><br>Conservation groups often focus on large, appealing animals such as tigers and pandas. Critics call this unscientific, since many less charming species play larger roles in their ecosystems.</p><p><b>Text 2</b><br>Protecting a tiger means protecting the forest it roams, along with the countless insects, plants, and fungi that share it. Appealing animals attract funding that ends up benefiting whole ecosystems.</p>",
+  q:"Based on the texts, how would the author of Text 2 most likely respond to the critics discussed in Text 1?", c:["Focusing on appealing animals can also protect the less charming species the critics care about.","Less charming species do not matter to ecosystems.","Tigers play the largest role in every ecosystem.","Conservation money should be divided equally among all species."],
+  e:"Text 2 answers the critics on their own terms: protecting the tiger protects the insects, plants, and fungi too."},
+ {d:2,p:"<p><b>Text 1</b><br>Online reviews help shoppers make better choices, some economists argue, because they let buyers learn from the experiences of thousands of other customers.</p><p><b>Text 2</b><br>Studies have found that a large share of online reviews are written by people who were paid or given free products, and that shoppers struggle to tell such reviews apart from genuine ones.</p>",
+  q:"Based on the texts, how would the author of Text 2 most likely respond to the economists' argument?", c:["Reviews are less useful when many of them are not honest accounts of customers' experiences.","Shoppers should never buy products online.","Paid reviews are easier to spot than genuine ones.","Reviews are helpful because thousands of customers write them."],
+  e:"The economists assume reviews reflect real experiences. Text 2 says many do not, and shoppers cannot tell which. It never says to stop shopping online."},
+]],
+tr:[[
+ {d:1,p:"Ostriches are the largest living birds. ______ they cannot fly; their wings are far too small to lift their heavy bodies.",
+  q:Q_TRANS, c:["However,","Therefore,","For example,","Similarly,"],
+  e:"Birds are expected to fly, so \"cannot fly\" is a contrast: \"However.\""},
+ {d:2,p:"The first version of the app crashed often and drained phone batteries. ______ the developers rewrote much of its code before releasing a second version.",
+  q:Q_TRANS, c:["Consequently,","Nevertheless,","In contrast,","For instance,"],
+  e:"The rewrite is a result of the problems, so \"Consequently\" fits. \"Nevertheless\" would suggest they rewrote it despite the problems."},
+ {d:2,p:"Many spices once traveled thousands of kilometers to reach European kitchens. Cinnamon, ______ came from Sri Lanka, and nutmeg came from a small group of islands in what is now Indonesia.",
+  q:Q_TRANS, c:["for example,","however,","therefore,","instead,"],
+  e:"Cinnamon and nutmeg are examples of spices that traveled far."},
+ {d:3,p:"Scientists expected the drought to harm the region's oak trees, which need plenty of water. ______ the oaks survived with little damage, while the supposedly hardier pines nearby lost many of their needles.",
+  q:Q_TRANS, c:["Surprisingly,","Predictably,","Similarly,","In other words,"],
+  e:"The result goes against what scientists expected, so \"Surprisingly\" fits. \"Predictably\" says the opposite."},
+ {d:3,p:"Most of the bazaar's vendors sell food: dried fruit, bread, spices, and fresh vegetables. ______ a small section near the north gate is devoted to hand-painted ceramics and embroidered textiles.",
+  q:Q_TRANS, c:["That said,","Likewise,","As a result,","Specifically,"],
+  e:"The ceramics section is an exception to \"most vendors sell food.\" \"That said\" introduces a qualification. \"Specifically\" would introduce more detail about the food."},
+ {d:3,p:"The new railway cut the travel time between the two cities from six hours to just over two. ______ many people who once moved to the capital for work now commute there from their hometowns.",
+  q:Q_TRANS, c:["As a result,","Even so,","By contrast,","Previously,"],
+  e:"Commuting became possible because the trip got shorter, a cause and effect relationship."},
+],[
+ {d:2,p:"The ancient city was abandoned around 1400. ______ its ruins were buried by sand and forgotten for nearly five hundred years.",
+  q:Q_TRANS, c:["Afterward,","Previously,","In contrast,","For instance,"],
+  e:"Being buried and forgotten happened after the abandonment, so a time transition, \"Afterward,\" fits."},
+ {d:2,p:"Solar panels produce no electricity at night. ______ many solar power plants now store energy in large batteries during the day so they can supply power after sunset.",
+  q:Q_TRANS, c:["For this reason,","Similarly,","In other words,","By contrast,"],
+  e:"Storing energy is a response to the night-time problem, so \"For this reason\" fits."},
+ {d:3,p:"The critic praised the novel's vivid descriptions of the mountains. ______ she found its characters flat and its dialogue stiff.",
+  q:Q_TRANS, c:["However,","Accordingly,","Indeed,","Likewise,"],
+  e:"Praise is followed by criticism, a contrast. \"Indeed\" and \"Likewise\" would continue the praise."},
+ {d:3,p:"Researchers found that the medicine lowered blood pressure in adults under fifty. ______ it had almost no effect on patients over seventy, a group the researchers plan to study further.",
+  q:Q_TRANS, c:["In contrast,","Moreover,","Thus,","For example,"],
+  e:"One age group responded and another did not, which is a contrast."},
+ {d:3,p:"The poet rarely used rhyme in her early work. ______ her later collections are full of carefully rhymed sonnets, a change critics link to the years she spent translating classical Persian poetry.",
+  q:Q_TRANS, c:["By contrast,","Similarly,","For instance,","That is,"],
+  e:"\"Rarely used rhyme\" and \"full of rhymed sonnets\" are opposites, so the sentences contrast."},
+ {d:2,p:"To prepare for the exam, Kamron reviewed his old mistakes every evening. ______ he took a full, timed practice test every Saturday morning.",
+  q:Q_TRANS, c:["Additionally,","Instead,","However,","In conclusion,"],
+  e:"The practice test is a second, added part of his preparation. \"Instead\" would mean it replaced the evening reviews."},
+]],
+rs:[[
+ {d:2,p:notes(["The Registan is a public square in Samarkand.","It is framed by three madrasas (Islamic schools).","The Ulugh Beg Madrasa was completed in 1420.","The Tilya-Kori Madrasa was completed around 1660."]),
+  q:"The student wants to emphasize that the Registan's madrasas were built at very different times. "+Q_RS, c:["The Registan's Ulugh Beg Madrasa was completed in 1420, while its Tilya-Kori Madrasa was not finished until around 1660.","The Registan, a public square in Samarkand, is framed by three madrasas.","The Ulugh Beg Madrasa was completed in 1420.","Madrasas are Islamic schools, and three of them frame the Registan."],
+  e:"\"Very different times\" needs two dates to compare. Only one choice gives both."},
+ {d:2,p:notes(["Axolotls are salamanders native to lakes near Mexico City.","Unlike most salamanders, they keep their gills as adults.","Axolotls can regrow lost limbs.","They can also regrow parts of their heart and spinal cord."]),
+  q:"The student wants to emphasize how far the axolotl's ability to regrow body parts extends. "+Q_RS, c:["Axolotls can regrow not only lost limbs but also parts of their heart and spinal cord.","Axolotls, salamanders native to lakes near Mexico City, can regrow lost limbs.","Unlike most salamanders, axolotls keep their gills as adults.","Axolotls are salamanders that live near Mexico City."],
+  e:"\"How far it extends\" calls for the full range, limbs plus heart and spinal cord. Limbs alone shows less."},
+ {d:3,p:notes(["Two schools tried different class start times.","School A started classes at 7:30 a.m.","School B started classes at 8:45 a.m.","Students at School B slept 40 minutes more per night, on average.","Attendance at School B was 6% higher."]),
+  q:"The student wants to suggest that later start times may benefit students. "+Q_RS, c:["At School B, where classes started at 8:45 a.m. rather than 7:30 a.m., students slept 40 minutes more per night and had 6% higher attendance.","School A started classes at 7:30 a.m., and School B started at 8:45 a.m.","Two schools tried different start times to study student sleep.","Students at School B slept about 40 minutes more per night."],
+  e:"The choice must link the later start time to benefits. The sleep-only choice never mentions start times, and the times-only choice gives no benefits."},
+ {d:3,p:notes(["Alisher Navoi (1441–1501) was a poet and statesman in Herat.","He wrote mainly in Chagatai Turkic.","At the time, Persian was considered the main literary language of the region.","In one work, he argued that Turkic was at least as rich a literary language as Persian."]),
+  q:"The student wants to explain why Navoi's choice of language was significant. "+Q_RS, c:["Navoi wrote mainly in Chagatai Turkic at a time when Persian was considered the region's main literary language, and he argued that Turkic was just as rich.","Alisher Navoi, who lived from 1441 to 1501, was a poet and statesman in Herat.","Persian was considered the main literary language of Navoi's region.","Navoi was a statesman as well as a poet."],
+  e:"Significance comes from the contrast: he chose Turkic when Persian dominated, and he defended that choice."},
+ {d:2,p:notes(["The Aral Sea was once the fourth-largest lake in the world.","In the 1960s, the rivers feeding it were diverted to irrigate cotton fields.","By 2010, it had shrunk to about 10% of its original area.","A dam built in 2005 has helped its northern part recover."]),
+  q:"The student wants to emphasize the scale of the Aral Sea's decline. "+Q_RS, c:["Once the world's fourth-largest lake, the Aral Sea had shrunk to about 10% of its original area by 2010.","A dam built in 2005 has helped the northern part of the Aral Sea recover.","In the 1960s, rivers feeding the Aral Sea were diverted to irrigate cotton.","The Aral Sea was once the fourth-largest lake in the world."],
+  e:"Scale means how big the loss was: from fourth-largest to about a tenth of its size. The cause and the recovery are not the scale."},
+ {d:3,p:notes(["Researchers compared two fertilizers on tomato plants.","Fertilizer X increased yield by 20%.","Fertilizer Y increased yield by 18%.","Fertilizer Y costs half as much as Fertilizer X."]),
+  q:"The student wants to make a case for choosing Fertilizer Y. "+Q_RS, c:["Although Fertilizer Y raised tomato yields slightly less than Fertilizer X did (18% versus 20%), it costs only half as much.","Fertilizer X increased tomato yields by 20%, more than Fertilizer Y did.","Researchers compared two fertilizers on tomato plants.","Fertilizer Y increased tomato yields by 18%."],
+  e:"The case for Y is its price for nearly the same result. A choice that leads with Fertilizer X’s bigger gain argues for the other fertilizer."},
+],[
+ {d:2,p:notes(["Hedy Lamarr was a film actress in the 1930s and 1940s.","During World War II, she co-invented a radio system with composer George Antheil.","The system rapidly switched frequencies so that signals could not be jammed.","Similar \"frequency hopping\" ideas are used today in Wi-Fi and Bluetooth."]),
+  q:"The student wants to emphasize the lasting impact of Lamarr's invention. "+Q_RS, c:["Ideas similar to the frequency-hopping system that Hedy Lamarr co-invented during World War II are used today in Wi-Fi and Bluetooth.","Hedy Lamarr was a film actress who co-invented a radio system with George Antheil.","Lamarr's system switched frequencies rapidly so signals could not be jammed.","Lamarr acted in films in the 1930s and 1940s."],
+  e:"\"Lasting impact\" means a link to today. Only one choice connects the invention to present-day technology."},
+ {d:2,p:notes(["The cheetah can run up to about 110 kilometers per hour.","It can keep this speed for only about 30 seconds.","The pronghorn, a North American mammal, can run about 90 kilometers per hour.","The pronghorn can keep up a high speed for several minutes."]),
+  q:"The student wants to contrast the running abilities of the two animals. "+Q_RS, c:["While the cheetah is faster, reaching about 110 kilometers per hour, the pronghorn can keep up a high speed far longer: several minutes rather than about 30 seconds.","The cheetah can run about 110 kilometers per hour for about 30 seconds.","The pronghorn is a North American mammal that can run about 90 kilometers per hour.","Both the cheetah and the pronghorn are fast runners."],
+  e:"A contrast needs both animals and a difference between them. The \"both are fast\" choice shows a similarity instead."},
+ {d:3,p:notes(["A survey asked 500 teenagers where they learn most of their new words.","45% said from reading for fun.","30% said from videos and social media.","25% said from school lessons."]),
+  q:"The student wants to emphasize that most surveyed teenagers learn new words outside of school lessons. "+Q_RS, c:["Three-quarters of the surveyed teenagers said they learn most new words outside school lessons: 45% from reading for fun and 30% from videos and social media.","25% of the surveyed teenagers said they learn most new words from school lessons.","45% of the surveyed teenagers said they learn most new words from reading for fun.","A survey asked 500 teenagers where they learn most of their new words."],
+  e:"\"Most\" needs a majority. 45% alone is not a majority, but 45% plus 30% is three-quarters."},
+ {d:3,p:notes(["Paleontologists found a dinosaur fossil in Uzbekistan's Kyzylkum Desert.","The dinosaur, named Timurlengia, lived about 90 million years ago.","It was a relative of Tyrannosaurus rex but only about the size of a horse.","Its well-preserved braincase showed that it had excellent hearing."]),
+  q:"The student wants to introduce Timurlengia to an audience unfamiliar with it. "+Q_RS, c:["Timurlengia, a horse-sized relative of Tyrannosaurus rex, lived about 90 million years ago in what is now Uzbekistan's Kyzylkum Desert.","Its braincase showed that it had excellent hearing.","Paleontologists often search for fossils in deserts.","Like Tyrannosaurus rex, it lived millions of years ago."],
+  e:"An introduction names the animal and tells what, when, and where. Two choices use \"it\" without ever saying what \"it\" is."},
+ {d:2,p:notes(["In 1953, Tenzing Norgay and Edmund Hillary reached the summit of Mount Everest.","They were the first people confirmed to do so.","Everest is 8,849 meters tall.","Today, hundreds of climbers reach the summit each year."]),
+  q:"The student wants to emphasize how common reaching Everest's summit has become since 1953. "+Q_RS, c:["Since Tenzing Norgay and Edmund Hillary first reached Everest's summit in 1953, the climb has become so common that hundreds of people reach the top each year.","Everest is 8,849 meters tall.","In 1953, Tenzing Norgay and Edmund Hillary became the first people confirmed to reach Everest's summit.","Tenzing Norgay and Edmund Hillary climbed Mount Everest."],
+  e:"\"How common it has become\" needs the change from the first climb to today's hundreds."},
+ {d:3,p:notes(["A city added protected bike lanes on Main Street in 2022.","Bike trips on Main Street rose from 300 to 1,100 per day.","Car traffic on Main Street fell by 8%.","Sales at shops on Main Street rose by 12%."]),
+  q:"The student wants to reassure shop owners who fear that bike lanes will hurt their business. "+Q_RS, c:["After protected bike lanes were added to Main Street in 2022, sales at shops there rose by 12%.","Bike trips on Main Street rose from 300 to 1,100 per day.","Car traffic on Main Street fell by 8% after the bike lanes were added.","The city added protected bike lanes on Main Street in 2022."],
+  e:"Shop owners care about sales. The car-traffic fact might even worry them more."},
+]],
+bd:[[
+ {d:2,p:"The Zarafshan River gives its name to a valley rich in ______ its water has irrigated farms there for more than two thousand years.",
+  q:Q_CONV, c:["orchards;","orchards,","orchards","orchards, which"],
+  e:"Both sides are complete sentences, so a semicolon joins them. A comma alone makes a comma splice, and no punctuation makes a run-on."},
+ {d:2,p:"The museum's newest exhibit includes three kinds of ______ painted ceramics, woven carpets, and silver jewelry.",
+  q:Q_CONV, c:["objects:","objects;","objects, such as:","objects"],
+  e:"A complete sentence introduces a list, so a colon is correct. A semicolon needs a complete sentence after it, and a colon never follows \"such as.\""},
+ {d:3,p:"Biologist Dilnoza Rashidova, who has studied snow leopards in the Pamir Mountains for more than a ______ uses hidden cameras to track the animals' movements.",
+  q:Q_CONV, c:["decade,","decade","decade;","decade—"],
+  e:"The extra information began with a comma after \"Rashidova,\" so it must end with a comma too. A dash cannot close a comma pair."},
+ {t:'tap', d:3, s:"The festival drew thousands of *visitors,* however, many residents complained about the noise.",
+  e:"Two complete sentences surround \"however,\" so a comma cannot join them. It should read \"visitors; however, many residents...\""},
+ {d:2,p:"When the bridge finally opened in ______ the ferry that had carried passengers across the river for decades stopped running.",
+  q:Q_CONV, c:["1936,","1936;","1936.","1936"],
+  e:"\"When the bridge finally opened in 1936\" is an introductory clause, not a full sentence, so it ends with a comma, not a semicolon or period."},
+ {d:3,p:"Many plants rely on animals to spread their ______ cherry trees, for instance, depend on birds that eat the fruit and drop the pits far away.",
+  q:Q_CONV, c:["seeds;","seeds,","seeds","seeds, where"],
+  e:"Both halves are complete sentences, and \"for instance\" does not join them. A semicolon is needed."},
+],[
+ {d:2,p:"The expedition set out at ______ by noon, the climbers had reached the first camp.",
+  q:Q_CONV, c:["dawn, and","dawn,","dawn","dawn, which"],
+  e:"Two complete sentences can be joined with a comma plus \"and.\" A comma alone is a comma splice."},
+ {d:3,p:"The term \"Silk Road\" was coined in 1877 by the German geographer Ferdinand von ______ who used it to describe the network of trade routes linking China and the Mediterranean.",
+  q:Q_CONV, c:["Richthofen,","Richthofen;","Richthofen","Richthofen."],
+  e:"\"Who used it...\" is extra information about Richthofen, set off with a comma. It is not a complete sentence, so a semicolon or period is wrong."},
+ {d:3,p:"Two features make the building ______ its walls are made of rammed earth, and its roof collects rainwater for the garden below.",
+  q:Q_CONV, c:["unusual:","unusual","unusual,","unusual, and"],
+  e:"The colon introduces the two features that explain \"unusual.\" A comma alone would create a comma splice."},
+ {d:2,p:"The violinist practiced the difficult passage for ______ she still worried that she would stumble during the concert.",
+  q:Q_CONV, c:["hours, but","hours,","hours","hours but,"],
+  e:"Two complete sentences joined by \"but\" need a comma before \"but,\" not after it."},
+ {t:'tap', d:3, s:"Samarkand's Registan square is framed by three *madrasas,* each one is decorated with blue and gold tilework.",
+  e:"\"Each one is decorated...\" is a complete sentence, so a comma cannot join it to the first one. Use a semicolon, or drop \"is\": \"madrasas, each one decorated...\""},
+ {d:3,p:"The scientist's explanation—that the strange lights were caused by a rare type of ______ satisfied most of the people who had reported seeing them.",
+  q:Q_CONV, c:["lightning—","lightning,","lightning;","lightning"],
+  e:"The explanation opens with a dash, so it must close with a dash. Mixing a dash with a comma breaks the pair."},
+]],
+fss:[[
+ {d:2,p:"The list of ingredients on the jars ______ printed in three languages.",
+  q:Q_CONV, c:["is","are","were","have been"],
+  e:"The subject is \"list\" (singular), not \"ingredients\" or \"jars.\" Skip the prepositional phrases to find it."},
+ {d:2,p:"Last spring, the students ______ a small garden behind the school, and now it supplies vegetables for the cafeteria.",
+  q:Q_CONV, c:["planted","plant","will plant","are planting"],
+  e:"\"Last spring\" calls for the past tense."},
+ {d:3,p:"Having studied the ancient coins for months, ______",
+  q:Q_CONV, c:["the historian concluded that they had been minted in Bukhara.","the coins were found to have been minted in Bukhara.","Bukhara was where the historian concluded the coins were minted.","it was concluded by the historian that the coins had been minted in Bukhara."],
+  e:"The person who did the studying must come right after the comma. Only \"the historian\" can study coins."},
+ {d:3,p:"Each of the volunteers who cleaned the riverbank ______ given a certificate at the end of the day.",
+  q:Q_CONV, c:["was","were","are","have been"],
+  e:"The subject is \"Each,\" which is singular. The story is in the past, so \"was.\""},
+ {t:'tap', d:2, s:"The stork built *it's* nest on top of the old minaret.",
+  e:"\"It's\" means \"it is.\" The possessive form, with no apostrophe, is \"its.\""},
+ {d:3,p:"The architect's designs for the new library are more daring than ______",
+  q:Q_CONV, c:["those of her rivals.","her rivals.","her rivals are.","that of her rivals."],
+  e:"Compare designs with designs. \"Designs\" is plural, so the stand-in word is \"those,\" not \"that.\""},
+],[
+ {d:2,p:"The researchers ______ their results next month, after a second laboratory repeats the experiment.",
+  q:Q_CONV, c:["will publish","published","have published","had published"],
+  e:"\"Next month\" points to the future."},
+ {d:3,p:"Neither the manager nor her assistants ______ aware that the shipment had been delayed.",
+  q:Q_CONV, c:["were","was","is","has been"],
+  e:"With \"neither... nor,\" the verb agrees with the nearer subject, \"assistants,\" which is plural. The sentence is in the past, so \"were.\""},
+ {d:2,p:"The students handed in ______ essays before leaving for the trip.",
+  q:Q_CONV, c:["their","there","they're","its"],
+  e:"The essays belong to the students, so use the plural possessive \"their.\" \"There\" is a place and \"they're\" means \"they are.\""},
+ {d:3,p:"Known for its blue-tiled domes, ______",
+  q:Q_CONV, c:["Samarkand attracts visitors from around the world.","visitors from around the world are attracted to Samarkand.","many visitors from around the world come to Samarkand.","the world sends visitors to Samarkand."],
+  e:"The city, not the visitors, is known for its domes, so \"Samarkand\" must come right after the comma."},
+ {d:3,p:"The festival's organizers hope to attract more visitors, raise money for local schools, and ______",
+  q:Q_CONV, c:["promote traditional crafts.","promoting traditional crafts.","to promote traditional crafts.","traditional crafts will be promoted."],
+  e:"The list after \"hope to\" is attract, raise, and promote. Keep the same verb form for all three items."},
+ {t:'tap', d:3, s:"The number of students who signed up for the debate club *have* doubled since last year.",
+  e:"The subject is \"number\" (singular), not \"students.\" It should read \"has doubled.\""},
+]],
+};
+UNITS.forEach(u=>{ (MORE4[u.id]||[]).forEach(L=>u.lessons.push(L)); });
 
 /* Words that are too close in meaning are never offered as wrong choices for each other. */
 /* ---------- More word sets (Nov 2026) ---------- */
@@ -2820,7 +3251,7 @@ const LESSONS = []; const ITEM = {};
 UNITS.forEach((u,ui)=>{ u.n = ui; u.lessons.forEach((items,li)=>{
   const id = u.id+'-'+(li+1);
   items.forEach((it,k)=>{ it.id = id+'-'+(k+1); it.unit = u.id; ITEM[it.id]=it; });
-  LESSONS.push({id, unit:u, li, items, n:LESSONS.length});
+  LESSONS.push({id, unit:u, li, items, n:LESSONS.length, deep:li>=(u.core||u.lessons.length)});
 });});
 const VLESSONS = []; const CLOZE = {};
 VUNITS.forEach((u,ui)=>{ u.n = ui; u.lessons.forEach((items,li)=>{
@@ -2873,8 +3304,16 @@ function limitOf(it){ return it.t==='type'?45 : it.t==='mean'?30 : it.t==='tap'?
 const dBadge=it=>it.d?`<span class="dbadge d${it.d}">${DNAME[it.d]} · ${DR[it.d]}</span>`:'';
 function addXp(n){ const t=today(); let bumped=false; if(S.lastDay!==t){ const m=missedDays(S); if(S.lastDay && S.streak && m<=(S.freeze||0)){ if(m>0) S.freeze-=m; S.streak++; } else S.streak=1; S.lastDay=t; bumped=true; S.best=Math.max(S.best,S.streak); if(S.streak%7===0 && (S.freeze||0)<2) S.freeze=(S.freeze||0)+1; } S.xp+=n; S.hist[t]=(S.hist[t]||0)+n; return bumped; }
 function logEvent(e){ S.log.unshift(Object.assign({ts:Date.now()},e)); S.log=S.log.slice(0,60); }
-function unlocked(l){ if(l.vocab) return S.openAll || l.li===0 || !!S.lessons[VLESSONS[l.n-1].id]; return S.openAll || l.n===0 || !!S.lessons[LESSONS[l.n-1].id]; }
-function currentLesson(){ return LESSONS.find(l=>!S.lessons[l.id]) || null; }
+// Core lessons unlock one after another along the path. "More lessons" (deep) in a unit open once that unit's core lessons are done, then one after another.
+function coreOf(u){ return u.core||u.lessons.length; }
+function coreDone(u,st=S){ return LESSONS.filter(l=>l.unit===u&&!l.deep).every(l=>(st.lessons||{})[l.id]); }
+function prevCore(l){ for(let n=l.n-1;n>=0;n--) if(!LESSONS[n].deep) return LESSONS[n]; return null; }
+function unlocked(l){ if(l.vocab) return S.openAll || l.li===0 || !!S.lessons[VLESSONS[l.n-1].id];
+  if(S.openAll || S.lessons[l.id]) return true;
+  if(l.deep) return coreDone(l.unit) && (l.li===coreOf(l.unit) || !!S.lessons[l.unit.id+'-'+l.li]);
+  const p=prevCore(l); return !p || !!S.lessons[p.id]; }
+function lockWhy(l){ return l.deep && !coreDone(l.unit) ? `Finish Lessons 1–${coreOf(l.unit)} of ${l.unit.title} first.` : 'Finish the lessons before this one to unlock it.'; }
+function currentLesson(){ return LESSONS.find(l=>!l.deep&&!S.lessons[l.id]) || LESSONS.find(l=>l.deep&&!S.lessons[l.id]&&unlocked(l)) || null; }
 function mastered(st=S){ return Object.values(st.cards||{}).filter(c=>c.box>=4).length; }
 function accPct(r,n){ return n? Math.round(r/n*100) : null; }
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -3060,8 +3499,9 @@ function chestTile(o){ const pct=o.total?Math.round(o.done/o.total*100):0;
 function chestOpen(kind, id){ if(kind==='w') WCHEST=id; else CHEST=id; try{ history.pushState({qadamChest:1},''); CH_PUSHED=true; }catch(e){ CH_PUSHED=false; } render(); window.scrollTo(0,0); }
 function chestClose(){ if(CH_PUSHED){ CH_PUSHED=false; try{ history.back(); return; }catch(e){} } CHEST=WCHEST=null; render(); window.scrollTo(0,0); }
 window.addEventListener('popstate',()=>{ CH_PUSHED=false; if(CHEST||WCHEST){ CHEST=WCHEST=null; if(!modal.hidden) closeModal(); if(LS.hidden) render(); } });
-function unitInfo(u){ const ls=LESSONS.filter(l=>l.unit===u); const done=ls.filter(l=>S.lessons[l.id]).length; const open=unlocked(ls[0]);
-  return {ls, done, open, st:!open?'locked':done===ls.length?'open':'closed', lv:mLevel(u)}; }
+function unitInfo(u){ const ls=LESSONS.filter(l=>l.unit===u); const done=ls.filter(l=>S.lessons[l.id]).length; const open=ls.some(l=>S.lessons[l.id])||unlocked(ls[0]);
+  const fresh=coreDone(u)?ls.filter(l=>l.deep&&!S.lessons[l.id]).length:0;
+  return {ls, done, open, fresh, st:!open?'locked':done===ls.length?'open':'closed', lv:mLevel(u)}; }
 function continueCard(){ const l=currentLesson(); if(!l) return '';
   const t=toneOf(l.unit); const first=l.n===0;
   return `<button class="cont" id="contGo" style="--tone:var(--${t});--toned:var(--${t}d)"><span class="ci">${chestSvg('closed')}</span><span class="ct"><small>${first?'Start here':'Continue'}</small><b>${l.unit.title}</b><span>Lesson ${l.li+1} of ${l.unit.lessons.length} · ${l.items.length} questions</span></span><span class="cgo">${I.star}</span></button>`; }
@@ -3073,7 +3513,7 @@ function vLearn(){
       html+=`<div class="sechead"><h3>${s.name}</h3><span>${dn} of ${us.length} chests opened</span></div><div class="chests">`; }
     const f=unitInfo(u);
     html+=chestTile({id:u.id, attr:'data-chest', tone:toneOf(u), st:f.st, k:'Unit '+(u.n+1), title:u.title, done:f.done, total:f.ls.length, next:cur&&cur.unit===u,
-      meta:f.st==='locked'?`${I.lock}Locked`:f.lv?`${I.crown}Level ${f.lv}`:`${f.done}/${f.ls.length} lessons`});
+      meta:f.st==='locked'?`${I.lock}Locked`:f.lv?`${I.crown}Level ${f.lv}${f.fresh?` · ${f.fresh} new`:''}`:`${f.done}/${f.ls.length} lessons`});
   });
   html+=`</div>${climbCard()}${boardCard()}${wotdCard(true)}<p class="muted" style="text-align:center;font-size:14px">${UNITS.length} topic chests · ${LESSONS.length} lessons · ${Object.keys(ITEM).length} original SAT-style questions</p></div>`;
   view.innerHTML=html;
@@ -3097,9 +3537,10 @@ function vChest(u){
     sub:f.st==='locked'?'Finish the topics before this one to unlock it.':`${f.done} of ${f.ls.length} lessons done${st&&st.n?` · ${accPct(st.r,st.n)}% accuracy over ${st.n} questions`:''}`});
   h+=`<div class="tipbox"><b>Strategy</b>${u.tip}</div><p class="lbl" style="margin:4px 0 0">Lessons</p><div class="stack" style="gap:8px">`;
   f.ls.forEach(l=>{ const r=S.lessons[l.id], open=unlocked(l), isCur=cur&&cur.id===l.id;
-    h+=actRow({attr:`data-lesson="${l.id}"`, st:r?'done':open?(isCur?'cur':''):'locked', icon:r?I.check:open?I.star:I.lock, title:`Lesson ${l.li+1}`, sub:`${l.items.length} questions${r?` · best ${r.best}%`:open?' · +10 XP':' · finish the lesson before it'}`, pill:r?'Done':open?(isCur?'Start':'Open'):'Locked', good:!!r}); });
+    if(l.deep && l.li===coreOf(u)) h+=`</div><p class="lbl" style="margin:4px 0 0">More lessons</p><p class="muted" style="margin:0;font-size:14px">Harder, brand-new questions on the same skill. ${coreDone(u)?'Open now.':`They open after Lessons 1–${coreOf(u)}.`}</p><div class="stack" style="gap:8px">`;
+    h+=actRow({attr:`data-lesson="${l.id}"`, st:r?'done':open?(isCur?'cur':''):'locked', icon:r?I.check:open?I.star:I.lock, title:`Lesson ${l.li+1}`, sub:`${l.items.length} questions${r?` · best ${r.best}%`:open?' · +10 XP':l.deep&&!coreDone(u)?` · finish Lessons 1–${coreOf(u)} first`:' · finish the lesson before it'}`, pill:r?'Done':open?(isCur?'Start':(l.deep?'New':'Open')):'Locked', good:!!r}); });
   h+=`</div><p class="lbl" style="margin:4px 0 0">Level up</p><div class="stack" style="gap:8px">`;
-  h+=actRow({attr:`data-lv="${u.id}"`, st:f.lv?'gold':'locked', icon:I.crown, title:f.lv?`Skill level ${f.lv} · ${LVN[f.lv]}`:'Skill levels', sub:f.lv?(f.lv>=5?'Mastered. Replay the Master challenge any time.':lvLock(u,f.lv+1)?`Level ${f.lv+1} locked · ${lvLock(u,f.lv+1).why}`:`Level ${f.lv+1} challenge · 8 questions · no energy${m.tries?` · last ${m.last}/8`:''}`):`Finish all ${f.ls.length} lessons to reach Level 1`, pill:f.lv?`<span class="pips sm" style="--tone:var(--saffron)">${pipsHtml(f.lv)}</span>`:''});
+  h+=actRow({attr:`data-lv="${u.id}"`, st:f.lv?'gold':'locked', icon:I.crown, title:f.lv?`Skill level ${f.lv} · ${LVN[f.lv]}`:'Skill levels', sub:f.lv?(f.lv>=5?'Mastered. Replay the Master challenge any time.':lvLock(u,f.lv+1)?`Level ${f.lv+1} locked · ${lvLock(u,f.lv+1).why}`:`Level ${f.lv+1} challenge · 8 questions · no energy${m.tries?` · last ${m.last}/8`:''}`):`Finish Lessons 1–${coreOf(u)} to reach Level 1`, pill:f.lv?`<span class="pips sm" style="--tone:var(--saffron)">${pipsHtml(f.lv)}</span>`:''});
   h+=`</div><p class="lbl" style="margin:4px 0 0">Practice</p><div class="stack" style="gap:8px">`;
   h+=actRow({attr:'data-tp', st:f.done?'':'locked', icon:I.redo, title:'Topic practice', sub:f.done?'8 mixed questions on this skill · no energy · +5 energy':'Finish Lesson 1 to unlock practice'});
   if(mis.length) h+=actRow({attr:'data-tm', st:'bad', icon:I.target, title:'Fix my mistakes here', sub:`${mis.length} question${mis.length>1?'s':''} you missed in this topic`, pill:String(mis.length)});
@@ -3135,7 +3576,7 @@ function vWChest(u){
 }
 function lessonSheet(l){
   const done=!!S.lessons[l.id];
-  if(!unlocked(l)){ openModal(`<h2>Locked</h2><p class="muted">Finish the lessons before this one to unlock it.</p><button class="btn ghost" data-close>OK</button>`); return; }
+  if(!unlocked(l)){ openModal(`<h2>Locked</h2><p class="muted">${esc(lockWhy(l))}</p><button class="btn ghost" data-close>OK</button>`); return; }
   regen();
   if(S.energy<=0){ energySheet(); return; }
   const r=S.lessons[l.id];
@@ -3535,7 +3976,7 @@ function studentSheet(r){ if(!r) return; const s=r.s, st=r.st;
 const LVN=['Not started','Learned','Practiced','Skilled','Expert','Master'];
 const MLV={2:{mix:[2,4,2],pass:6,tf:1,txt:'a mix of Easy, Medium and Hard'},3:{mix:[0,4,4],pass:6,tf:.9,txt:'Medium and Hard, with 10% less time'},4:{mix:[0,2,6],pass:7,tf:.8,force:1,txt:'mostly Hard, with 20% less time'},5:{mix:[0,0,8],pass:7,tf:.75,force:1,txt:'all Hard, with 25% less time'}};
 const MAXLV=UNITS.length*5, GMAP={bd:[1], fss:[0,2]};
-function unitDone(u,st=S){ return LESSONS.filter(l=>l.unit===u).every(l=>(st.lessons||{})[l.id]); }
+function unitDone(u,st=S){ return coreDone(u,st); }
 function mLevel(u,st=S){ return unitDone(u,st) ? Math.max(1,((st.mast||{})[u.id]||{}).lv||0) : 0; }
 function totalLv(st=S){ return UNITS.reduce((a,u)=>a+mLevel(u,st),0); }
 /* In-order unlocking: Level 2 and 3 challenges go unit by unit in path order, and Level 3 opens only once every unit is at Level 2.
@@ -3567,7 +4008,7 @@ function masterySheet(u){ const lv=mLevel(u), m=(S.mast||{})[u.id]||{}; const nx
     ${unitDone(lk.u)?`<button class="btn" id="mvTo">Go to ${esc(lk.u.title)}</button>`:''}<button class="btn ghost" data-close>OK</button>`);
     const t=document.getElementById('mvTo'); if(t) t.onclick=()=>{ closeModal(); masterySheet(lk.u); }; return; }
   openModal(`<div style="${tone}"><div class="qtype">Unit ${u.n+1} · Skill level</div></div><h2>${u.title}</h2><div class="pips" style="${tone}">${pipsHtml(lv,true)}</div>
-   ${lv===0?`<p class="muted">Finish all ${u.lessons.length} lessons in this unit to reach Level 1. Then you can climb to Level 5 with harder challenges.</p><button class="btn ghost" data-close>OK</button>`:
+   ${lv===0?`<p class="muted">Finish Lessons 1–${coreOf(u)} in this unit to reach Level 1. Then you can climb to Level 5 with harder challenges.</p><button class="btn ghost" data-close>OK</button>`:
    `<p>${lv>=5?'You have mastered this skill. Replay the Master challenge any time to stay sharp.':`You are at <b>Level ${lv} · ${LVN[lv]}</b>. Pass a challenge to reach <b>Level ${nx} · ${LVN[nx]}</b>.`}</p>
     <div class="tipbox" style="${tone}"><b>Level ${nx} challenge</b>8 questions, ${spec.txt}. Get ${spec.pass} of 8 right on the first try${timed?', within the timer':''}.${spec.force&&S.relaxed?' The timer stays on at this level, even in Relaxed mode.':''} Costs no energy.</div>
     ${m.tries?`<p class="muted" style="font-size:14px">${m.tries} challenge${m.tries>1?'s':''} tried · last result ${m.last} of 8</p>`:''}
