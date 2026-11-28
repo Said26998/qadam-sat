@@ -438,7 +438,7 @@ const LESSONS = []; const ITEM = {};
 UNITS.forEach((u,ui)=>{ u.n = ui; u.lessons.forEach((items,li)=>{
   const id = u.id+'-'+(li+1);
   items.forEach((it,k)=>{ it.id = id+'-'+(k+1); it.unit = u.id; ITEM[it.id]=it; });
-  LESSONS.push({id, unit:u, li, items, n:LESSONS.length});
+  LESSONS.push({id, unit:u, li, items, n:LESSONS.length, deep:li>=(u.core||u.lessons.length)});
 });});
 const VLESSONS = []; const CLOZE = {};
 VUNITS.forEach((u,ui)=>{ u.n = ui; u.lessons.forEach((items,li)=>{
@@ -491,8 +491,16 @@ function limitOf(it){ return it.t==='type'?45 : it.t==='mean'?30 : it.t==='tap'?
 const dBadge=it=>it.d?`<span class="dbadge d${it.d}">${DNAME[it.d]} · ${DR[it.d]}</span>`:'';
 function addXp(n){ const t=today(); let bumped=false; if(S.lastDay!==t){ const m=missedDays(S); if(S.lastDay && S.streak && m<=(S.freeze||0)){ if(m>0) S.freeze-=m; S.streak++; } else S.streak=1; S.lastDay=t; bumped=true; S.best=Math.max(S.best,S.streak); if(S.streak%7===0 && (S.freeze||0)<2) S.freeze=(S.freeze||0)+1; } S.xp+=n; S.hist[t]=(S.hist[t]||0)+n; return bumped; }
 function logEvent(e){ S.log.unshift(Object.assign({ts:Date.now()},e)); S.log=S.log.slice(0,60); }
-function unlocked(l){ if(l.vocab) return S.openAll || l.li===0 || !!S.lessons[VLESSONS[l.n-1].id]; return S.openAll || l.n===0 || !!S.lessons[LESSONS[l.n-1].id]; }
-function currentLesson(){ return LESSONS.find(l=>!S.lessons[l.id]) || null; }
+// Core lessons unlock one after another along the path. "More lessons" (deep) in a unit open once that unit's core lessons are done, then one after another.
+function coreOf(u){ return u.core||u.lessons.length; }
+function coreDone(u,st=S){ return LESSONS.filter(l=>l.unit===u&&!l.deep).every(l=>(st.lessons||{})[l.id]); }
+function prevCore(l){ for(let n=l.n-1;n>=0;n--) if(!LESSONS[n].deep) return LESSONS[n]; return null; }
+function unlocked(l){ if(l.vocab) return S.openAll || l.li===0 || !!S.lessons[VLESSONS[l.n-1].id];
+  if(S.openAll || S.lessons[l.id]) return true;
+  if(l.deep) return coreDone(l.unit) && (l.li===coreOf(l.unit) || !!S.lessons[l.unit.id+'-'+l.li]);
+  const p=prevCore(l); return !p || !!S.lessons[p.id]; }
+function lockWhy(l){ return l.deep && !coreDone(l.unit) ? `Finish Lessons 1–${coreOf(l.unit)} of ${l.unit.title} first.` : 'Finish the lessons before this one to unlock it.'; }
+function currentLesson(){ return LESSONS.find(l=>!l.deep&&!S.lessons[l.id]) || LESSONS.find(l=>l.deep&&!S.lessons[l.id]&&unlocked(l)) || null; }
 function mastered(st=S){ return Object.values(st.cards||{}).filter(c=>c.box>=4).length; }
 function accPct(r,n){ return n? Math.round(r/n*100) : null; }
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -678,8 +686,9 @@ function chestTile(o){ const pct=o.total?Math.round(o.done/o.total*100):0;
 function chestOpen(kind, id){ if(kind==='w') WCHEST=id; else CHEST=id; try{ history.pushState({qadamChest:1},''); CH_PUSHED=true; }catch(e){ CH_PUSHED=false; } render(); window.scrollTo(0,0); }
 function chestClose(){ if(CH_PUSHED){ CH_PUSHED=false; try{ history.back(); return; }catch(e){} } CHEST=WCHEST=null; render(); window.scrollTo(0,0); }
 window.addEventListener('popstate',()=>{ CH_PUSHED=false; if(CHEST||WCHEST){ CHEST=WCHEST=null; if(!modal.hidden) closeModal(); if(LS.hidden) render(); } });
-function unitInfo(u){ const ls=LESSONS.filter(l=>l.unit===u); const done=ls.filter(l=>S.lessons[l.id]).length; const open=unlocked(ls[0]);
-  return {ls, done, open, st:!open?'locked':done===ls.length?'open':'closed', lv:mLevel(u)}; }
+function unitInfo(u){ const ls=LESSONS.filter(l=>l.unit===u); const done=ls.filter(l=>S.lessons[l.id]).length; const open=ls.some(l=>S.lessons[l.id])||unlocked(ls[0]);
+  const fresh=coreDone(u)?ls.filter(l=>l.deep&&!S.lessons[l.id]).length:0;
+  return {ls, done, open, fresh, st:!open?'locked':done===ls.length?'open':'closed', lv:mLevel(u)}; }
 function continueCard(){ const l=currentLesson(); if(!l) return '';
   const t=toneOf(l.unit); const first=l.n===0;
   return `<button class="cont" id="contGo" style="--tone:var(--${t});--toned:var(--${t}d)"><span class="ci">${chestSvg('closed')}</span><span class="ct"><small>${first?'Start here':'Continue'}</small><b>${l.unit.title}</b><span>Lesson ${l.li+1} of ${l.unit.lessons.length} · ${l.items.length} questions</span></span><span class="cgo">${I.star}</span></button>`; }
@@ -691,7 +700,7 @@ function vLearn(){
       html+=`<div class="sechead"><h3>${s.name}</h3><span>${dn} of ${us.length} chests opened</span></div><div class="chests">`; }
     const f=unitInfo(u);
     html+=chestTile({id:u.id, attr:'data-chest', tone:toneOf(u), st:f.st, k:'Unit '+(u.n+1), title:u.title, done:f.done, total:f.ls.length, next:cur&&cur.unit===u,
-      meta:f.st==='locked'?`${I.lock}Locked`:f.lv?`${I.crown}Level ${f.lv}`:`${f.done}/${f.ls.length} lessons`});
+      meta:f.st==='locked'?`${I.lock}Locked`:f.lv?`${I.crown}Level ${f.lv}${f.fresh?` · ${f.fresh} new`:''}`:`${f.done}/${f.ls.length} lessons`});
   });
   html+=`</div>${climbCard()}${boardCard()}${wotdCard(true)}<p class="muted" style="text-align:center;font-size:14px">${UNITS.length} topic chests · ${LESSONS.length} lessons · ${Object.keys(ITEM).length} original SAT-style questions</p></div>`;
   view.innerHTML=html;
@@ -715,9 +724,10 @@ function vChest(u){
     sub:f.st==='locked'?'Finish the topics before this one to unlock it.':`${f.done} of ${f.ls.length} lessons done${st&&st.n?` · ${accPct(st.r,st.n)}% accuracy over ${st.n} questions`:''}`});
   h+=`<div class="tipbox"><b>Strategy</b>${u.tip}</div><p class="lbl" style="margin:4px 0 0">Lessons</p><div class="stack" style="gap:8px">`;
   f.ls.forEach(l=>{ const r=S.lessons[l.id], open=unlocked(l), isCur=cur&&cur.id===l.id;
-    h+=actRow({attr:`data-lesson="${l.id}"`, st:r?'done':open?(isCur?'cur':''):'locked', icon:r?I.check:open?I.star:I.lock, title:`Lesson ${l.li+1}`, sub:`${l.items.length} questions${r?` · best ${r.best}%`:open?' · +10 XP':' · finish the lesson before it'}`, pill:r?'Done':open?(isCur?'Start':'Open'):'Locked', good:!!r}); });
+    if(l.deep && l.li===coreOf(u)) h+=`</div><p class="lbl" style="margin:4px 0 0">More lessons</p><p class="muted" style="margin:0;font-size:14px">Harder, brand-new questions on the same skill. ${coreDone(u)?'Open now.':`They open after Lessons 1–${coreOf(u)}.`}</p><div class="stack" style="gap:8px">`;
+    h+=actRow({attr:`data-lesson="${l.id}"`, st:r?'done':open?(isCur?'cur':''):'locked', icon:r?I.check:open?I.star:I.lock, title:`Lesson ${l.li+1}`, sub:`${l.items.length} questions${r?` · best ${r.best}%`:open?' · +10 XP':l.deep&&!coreDone(u)?` · finish Lessons 1–${coreOf(u)} first`:' · finish the lesson before it'}`, pill:r?'Done':open?(isCur?'Start':(l.deep?'New':'Open')):'Locked', good:!!r}); });
   h+=`</div><p class="lbl" style="margin:4px 0 0">Level up</p><div class="stack" style="gap:8px">`;
-  h+=actRow({attr:`data-lv="${u.id}"`, st:f.lv?'gold':'locked', icon:I.crown, title:f.lv?`Skill level ${f.lv} · ${LVN[f.lv]}`:'Skill levels', sub:f.lv?(f.lv>=5?'Mastered. Replay the Master challenge any time.':lvLock(u,f.lv+1)?`Level ${f.lv+1} locked · ${lvLock(u,f.lv+1).why}`:`Level ${f.lv+1} challenge · 8 questions · no energy${m.tries?` · last ${m.last}/8`:''}`):`Finish all ${f.ls.length} lessons to reach Level 1`, pill:f.lv?`<span class="pips sm" style="--tone:var(--saffron)">${pipsHtml(f.lv)}</span>`:''});
+  h+=actRow({attr:`data-lv="${u.id}"`, st:f.lv?'gold':'locked', icon:I.crown, title:f.lv?`Skill level ${f.lv} · ${LVN[f.lv]}`:'Skill levels', sub:f.lv?(f.lv>=5?'Mastered. Replay the Master challenge any time.':lvLock(u,f.lv+1)?`Level ${f.lv+1} locked · ${lvLock(u,f.lv+1).why}`:`Level ${f.lv+1} challenge · 8 questions · no energy${m.tries?` · last ${m.last}/8`:''}`):`Finish Lessons 1–${coreOf(u)} to reach Level 1`, pill:f.lv?`<span class="pips sm" style="--tone:var(--saffron)">${pipsHtml(f.lv)}</span>`:''});
   h+=`</div><p class="lbl" style="margin:4px 0 0">Practice</p><div class="stack" style="gap:8px">`;
   h+=actRow({attr:'data-tp', st:f.done?'':'locked', icon:I.redo, title:'Topic practice', sub:f.done?'8 mixed questions on this skill · no energy · +5 energy':'Finish Lesson 1 to unlock practice'});
   if(mis.length) h+=actRow({attr:'data-tm', st:'bad', icon:I.target, title:'Fix my mistakes here', sub:`${mis.length} question${mis.length>1?'s':''} you missed in this topic`, pill:String(mis.length)});
@@ -753,7 +763,7 @@ function vWChest(u){
 }
 function lessonSheet(l){
   const done=!!S.lessons[l.id];
-  if(!unlocked(l)){ openModal(`<h2>Locked</h2><p class="muted">Finish the lessons before this one to unlock it.</p><button class="btn ghost" data-close>OK</button>`); return; }
+  if(!unlocked(l)){ openModal(`<h2>Locked</h2><p class="muted">${esc(lockWhy(l))}</p><button class="btn ghost" data-close>OK</button>`); return; }
   regen();
   if(S.energy<=0){ energySheet(); return; }
   const r=S.lessons[l.id];
@@ -1153,7 +1163,7 @@ function studentSheet(r){ if(!r) return; const s=r.s, st=r.st;
 const LVN=['Not started','Learned','Practiced','Skilled','Expert','Master'];
 const MLV={2:{mix:[2,4,2],pass:6,tf:1,txt:'a mix of Easy, Medium and Hard'},3:{mix:[0,4,4],pass:6,tf:.9,txt:'Medium and Hard, with 10% less time'},4:{mix:[0,2,6],pass:7,tf:.8,force:1,txt:'mostly Hard, with 20% less time'},5:{mix:[0,0,8],pass:7,tf:.75,force:1,txt:'all Hard, with 25% less time'}};
 const MAXLV=UNITS.length*5, GMAP={bd:[1], fss:[0,2]};
-function unitDone(u,st=S){ return LESSONS.filter(l=>l.unit===u).every(l=>(st.lessons||{})[l.id]); }
+function unitDone(u,st=S){ return coreDone(u,st); }
 function mLevel(u,st=S){ return unitDone(u,st) ? Math.max(1,((st.mast||{})[u.id]||{}).lv||0) : 0; }
 function totalLv(st=S){ return UNITS.reduce((a,u)=>a+mLevel(u,st),0); }
 /* In-order unlocking: Level 2 and 3 challenges go unit by unit in path order, and Level 3 opens only once every unit is at Level 2.
@@ -1185,7 +1195,7 @@ function masterySheet(u){ const lv=mLevel(u), m=(S.mast||{})[u.id]||{}; const nx
     ${unitDone(lk.u)?`<button class="btn" id="mvTo">Go to ${esc(lk.u.title)}</button>`:''}<button class="btn ghost" data-close>OK</button>`);
     const t=document.getElementById('mvTo'); if(t) t.onclick=()=>{ closeModal(); masterySheet(lk.u); }; return; }
   openModal(`<div style="${tone}"><div class="qtype">Unit ${u.n+1} · Skill level</div></div><h2>${u.title}</h2><div class="pips" style="${tone}">${pipsHtml(lv,true)}</div>
-   ${lv===0?`<p class="muted">Finish all ${u.lessons.length} lessons in this unit to reach Level 1. Then you can climb to Level 5 with harder challenges.</p><button class="btn ghost" data-close>OK</button>`:
+   ${lv===0?`<p class="muted">Finish Lessons 1–${coreOf(u)} in this unit to reach Level 1. Then you can climb to Level 5 with harder challenges.</p><button class="btn ghost" data-close>OK</button>`:
    `<p>${lv>=5?'You have mastered this skill. Replay the Master challenge any time to stay sharp.':`You are at <b>Level ${lv} · ${LVN[lv]}</b>. Pass a challenge to reach <b>Level ${nx} · ${LVN[nx]}</b>.`}</p>
     <div class="tipbox" style="${tone}"><b>Level ${nx} challenge</b>8 questions, ${spec.txt}. Get ${spec.pass} of 8 right on the first try${timed?', within the timer':''}.${spec.force&&S.relaxed?' The timer stays on at this level, even in Relaxed mode.':''} Costs no energy.</div>
     ${m.tries?`<p class="muted" style="font-size:14px">${m.tries} challenge${m.tries>1?'s':''} tried · last result ${m.last} of 8</p>`:''}
