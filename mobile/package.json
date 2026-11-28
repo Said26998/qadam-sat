@@ -1,0 +1,21 @@
+{
+  "name": "qadam-sat-mobile",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Android and iOS app shell for Qadam SAT. It opens the live site, so every change to the site reaches the app without a new release.",
+  "scripts": {
+    "sync": "cap sync",
+    "icons": "capacitor-assets generate --android --ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.3",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.6.3",
+    "@capacitor/ios": "^8.6.3",
+    "@capacitor/splash-screen": "^8.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "^8.6.3"
+  }
+}
