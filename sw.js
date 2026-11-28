@@ -1,5 +1,5 @@
 // Network first, falling back to the cached copy so the app opens offline.
-const C = 'qadam-v2';
+const C = 'qadam-v3';
 const CORE = ['./', 'index.html', 'config.js', 'boot.js', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
 self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.open(C).then(c => c.addAll(CORE)).catch(() => {})); });
 self.addEventListener('activate', e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())));

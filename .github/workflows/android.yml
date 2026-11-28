@@ -1,0 +1,93 @@
+# Builds the Qadam SAT Android app (mobile/) and, on main, publishes the APK as the "Android app" release.
+name: Android app
+
+on:
+  push:
+    branches: [main]
+    paths: ['mobile/**', '.github/workflows/android.yml']
+  pull_request:
+    paths: ['mobile/**', '.github/workflows/android.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    env:
+      QADAM_VERSION_CODE: ${{ github.run_number }}
+      QADAM_VERSION_NAME: 1.0.${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install and copy web shell into the Android project
+        run: |
+          npm ci
+          npx cap sync android
+
+      - name: Load signing key (if the secrets are set)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.QADAM_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/qadam.jks"
+            echo "QADAM_KEYSTORE_FILE=$RUNNER_TEMP/qadam.jks" >> "$GITHUB_ENV"
+            echo "SIGNED=1" >> "$GITHUB_ENV"
+          else
+            echo "No signing key secret: building a debug-signed APK for testing."
+          fi
+
+      - name: Build
+        working-directory: mobile/android
+        env:
+          QADAM_KEYSTORE_PASSWORD: ${{ secrets.QADAM_KEYSTORE_PASSWORD }}
+          QADAM_KEY_PASSWORD: ${{ secrets.QADAM_KEYSTORE_PASSWORD }}
+          QADAM_KEY_ALIAS: qadam
+        run: |
+          chmod +x gradlew
+          mkdir -p ../out
+          if [ "$SIGNED" = "1" ]; then
+            ./gradlew --no-daemon assembleRelease bundleRelease
+            cp app/build/outputs/apk/release/app-release.apk ../out/qadam-sat.apk
+            cp app/build/outputs/bundle/release/app-release.aab ../out/qadam-sat-play-store.aab
+          else
+            ./gradlew --no-daemon assembleDebug
+            cp app/build/outputs/apk/debug/app-debug.apk ../out/qadam-sat.apk
+          fi
+          ls -la ../out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qadam-sat-android
+          path: mobile/out/*
+
+      - name: Publish the APK as the "Android app" release
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-latest
+          name: Qadam SAT Android app
+          make_latest: true
+          body: |
+            Download **qadam-sat.apk** below on an Android phone and open it to install Qadam SAT.
+            Android may ask you to allow installing apps from your browser or Files app; allow it once.
+            The app opens the live site, so new lessons appear without reinstalling.
+            Build ${{ github.run_number }} from ${{ github.sha }}.
+          files: mobile/out/*

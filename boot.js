@@ -4,6 +4,15 @@
   const cfg = window.QADAM_CONFIG || {};
   const $ = id => document.getElementById(id);
   const msg = (t, bad) => { const m = $('gMsg'); m.textContent = t || ''; m.className = 'gmsg' + (bad ? ' bad' : ''); };
+  // Running inside the Android/iOS app (mobile/ folder): Google blocks its sign-in page inside apps, so the app uses email or username.
+  const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  window.QADAM_NATIVE = NATIVE;
+  if (NATIVE) {
+    document.documentElement.classList.add('native');
+    $('gGoogle').hidden = true; $('gOr').hidden = true;
+    const n = $('gAppNote'); if (n) n.hidden = false;
+    nativeBack();
+  }
   const configured = cfg.firebase && cfg.firebase.apiKey && !/^PASTE/.test(cfg.firebase.apiKey);
   if (!configured || !window.firebase) {
     $('gForm').hidden = true; $('gGoogle').hidden = true; $('gOr').hidden = true;
@@ -98,6 +107,10 @@
     if (isUser(u.email)) window.QADAM_PROFILE.username = u.email.slice(6, -UDOM.length);
     window.QADAM_VERIFIED = !!u.emailVerified || isUser(u.email);
     window.QADAM_VERIFY = () => u.sendEmailVerification();
+    // A Google account can add a password, so the same account also signs in inside the mobile app.
+    const provs = (u.providerData || []).map(p => p && p.providerId);
+    window.QADAM_APP_PW = provs.includes('google.com') && !provs.includes('password') && u.email ? (pw => u.linkWithCredential(firebase.auth.EmailAuthProvider.credential(u.email, pw))
+      .then(() => { window.QADAM_APP_PW = null; }, e => { if (e && e.code === 'auth/requires-recent-login') throw new Error('For safety, sign out, sign in with Google again, then set the password.'); throw new Error(ERR[e && e.code] || (e && e.message) || 'Could not set the password.'); })) : null;
     window.QADAM_SIGNOUT = () => auth.signOut().then(() => location.reload());
     // The teacher is whoever the database rules let read the whole class list; no email is stored in the site.
     // Refresh the sign-in token first so a just-verified email counts.
@@ -120,6 +133,20 @@
     window.claude = { use: async n => n === 'user' ? userNs : n === 'db' ? dbNs : null };
     $('gate').hidden = true; $('app').hidden = false; document.querySelector('.nav').hidden = false;
     window.startQadam();
+  }
+  // Android back button inside the app: close a sheet, then the open lesson, then an open topic, then go to Learn, then leave the app.
+  function nativeBack() {
+    const A = window.Capacitor.Plugins && window.Capacitor.Plugins.App; if (!A || !A.addListener) return;
+    A.addListener('backButton', () => {
+      const vis = el => el && !el.hidden;
+      const modal = $('modal'), lesson = $('lesson');
+      if (vis(modal)) { const sc = modal.querySelector('[data-close-scrim]'); if (sc) sc.click(); else { modal.hidden = true; modal.innerHTML = ''; } return; }
+      if (vis(lesson)) { const x = lesson.querySelector('.hd .x'); if (x) x.click(); return; }
+      if (history.state && history.state.qadamChest) { history.back(); return; }
+      const nav = document.querySelector('.nav'), cur = nav && nav.querySelector('[aria-current="page"]');
+      if (vis(nav) && cur && cur.dataset.tab !== 'learn') { const l = nav.querySelector('[data-tab="learn"]'); if (l) { l.click(); return; } }
+      A.minimizeApp ? A.minimizeApp() : A.exitApp();
+    });
   }
   auth.onAuthStateChanged(u => {
     $('gLoading').hidden = true;

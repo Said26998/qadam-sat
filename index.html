@@ -8,6 +8,8 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Qadam">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Qadam SAT</title>
 <meta name="theme-color" content="#1F45C8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -430,6 +432,7 @@ textarea.field{resize:vertical;min-height:70px}
         <button class="btn" id="gSubmit" type="submit">Sign in</button>
         <div class="glinks"><button class="glink" id="gSwap" type="button">Create an account</button><button class="glink" id="gReset" type="button">Forgot password</button></div>
       </form>
+      <p class="muted" id="gAppNote" hidden style="margin:0;font-size:13px">Signed up with <b>Continue with Google</b> before? Open the Qadam website in your browser once, go to <b>My stats</b>, and tap <b>Set a password for the app</b>. Then sign in here with your Gmail address and that password.</p>
     </div>
     <p class="gmsg" id="gMsg" role="status"></p>
   </div>
@@ -3472,6 +3475,31 @@ function render(){ renderTop(); renderNav(); ({learn:vLearn,words:vWords,train:v
 const modal=document.getElementById('modal');
 function openModal(html){ modal.hidden=false; modal.innerHTML=`<div class="scrim" data-close-scrim><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`; const f=modal.querySelector('button'); if(f) f.focus(); }
 function closeModal(){ modal.hidden=true; modal.innerHTML=''; }
+// Mobile app: install sheet (website only) and app password for Google accounts.
+const APK_URL='https://github.com/Said26998/qadam-sat/releases/latest/download/qadam-sat.apk';
+let INSTALL_EVT=null; window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); INSTALL_EVT=e; });
+const IS_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const IS_ANDROID=/Android/i.test(navigator.userAgent);
+function isInstalled(){ try{ return !!window.QADAM_NATIVE||matchMedia('(display-mode: standalone)').matches||navigator.standalone===true; }catch(e){ return false; } }
+function canOfferApp(){ return !!window.QADAM_SIGNOUT && !isInstalled(); }
+function appSheet(){
+  const and=`<div class="stack" style="gap:10px"><h3 style="margin:0">Android</h3><a class="btn" id="apkDl" href="${APK_URL}" style="text-align:center;text-decoration:none">Download the Android app</a><p class="muted" style="margin:0;font-size:14px">Open the downloaded <b>qadam-sat.apk</b>. If Android asks, allow installing apps from your browser or Files app, then tap <b>Install</b>.</p>${INSTALL_EVT?'<button class="btn ghost" id="pwaInst">Or add it from Chrome</button>':''}</div>`;
+  const ios=`<div class="stack" style="gap:10px"><h3 style="margin:0">iPhone or iPad</h3><ol style="margin:0;padding-left:20px;line-height:1.7"><li>Open this page in <b>Safari</b>.</li><li>Tap the <b>Share</b> button (the square with an arrow).</li><li>Choose <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol><p class="muted" style="margin:0;font-size:14px">Qadam then opens full screen from your home screen, like an app.</p></div>`;
+  openModal(`<h2>Get the Qadam app</h2><p class="muted" style="margin-top:0">Same account, same progress. Sign in with the same email or username.</p>${IS_IOS?ios:IS_ANDROID?and:and+'<hr style="border:0;border-top:2px solid var(--line);margin:16px 0">'+ios}<button class="btn ghost" data-close style="margin-top:16px">Close</button>`);
+  const pi=document.getElementById('pwaInst'); if(pi) pi.onclick=()=>{ const e=INSTALL_EVT; INSTALL_EVT=null; closeModal(); try{ e.prompt(); }catch(x){} };
+}
+function appPwSheet(){
+  openModal(`<h2>Set a password for the app</h2><p>The Qadam app cannot use <b>Continue with Google</b>. Choose a password here, then sign in to the app with <b>${esc((window.QADAM_PROFILE||{}).email||'')}</b> and this password. Google sign-in on the website keeps working.</p><input class="field" id="apw" type="password" minlength="6" autocomplete="new-password" placeholder="At least 6 characters"><p class="gmsg" id="apwMsg" style="margin:8px 0"></p><div class="row"><button class="btn ghost" data-close>Cancel</button><button class="btn" id="apwGo">Save password</button></div>`);
+  const go=document.getElementById('apwGo'), m=document.getElementById('apwMsg');
+  go.onclick=()=>{ const pw=document.getElementById('apw').value; if(pw.length<6){ m.textContent='Use at least 6 characters.'; m.className='gmsg bad'; return; }
+    go.disabled=true; window.QADAM_APP_PW(pw).then(()=>{ m.textContent='Done. You can now sign in to the app with your email and this password.'; m.className='gmsg'; go.hidden=true; if(TAB==='me') vMe(); }, e=>{ m.textContent=e.message; m.className='gmsg bad'; go.disabled=false; }); };
+}
+function appCard(){
+  let off=false; try{ off=localStorage.getItem('qadam-appcard')==='off'; }catch(e){}
+  if(off||!canOfferApp()||!(IS_IOS||IS_ANDROID)) return '';
+  return `<div class="card" style="display:flex;align-items:center;gap:12px"><div style="flex:1"><p style="margin:0;font-weight:800">Get the Qadam app</p><p class="muted" style="margin:0;font-size:14px">Practice from your home screen in one tap.</p></div><button class="btn sm" id="appGet">Get it</button><button class="x" id="appOff" aria-label="Hide">${I.x}</button></div>`;
+}
+function wireAppCard(){ const g=document.getElementById('appGet'); if(g) g.onclick=appSheet; const o=document.getElementById('appOff'); if(o) o.onclick=()=>{ try{ localStorage.setItem('qadam-appcard','off'); }catch(e){} o.closest('.card').remove(); }; }
 modal.addEventListener('click',e=>{ if(e.target.hasAttribute('data-close-scrim')||e.target.closest('[data-close]')) closeModal(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !modal.hidden) closeModal(); });
 function energySheet(){ regen(); openModal(`<h2 style="color:var(--turq)">${S.energy} of ${MAXE} energy</h2><p>Each lesson question costs 1 energy. Answer it <b>correctly and within the time</b> and you get it back. Get 5 right in a row for a bonus of +2.</p><p class="muted">${S.energy<MAXE?`Energy refills by 1 every 6 minutes. Next one in about ${nextEnergyMin()} min.`:'Your energy is full.'} A practice round in Review costs nothing and refills 5.</p><div class="row"><button class="btn ghost" data-close>Close</button>${S.energy<MAXE?'<button class="btn" id="mPractice">Practice</button>':''}</div>`);
@@ -3507,7 +3535,7 @@ function continueCard(){ const l=currentLesson(); if(!l) return '';
   return `<button class="cont" id="contGo" style="--tone:var(--${t});--toned:var(--${t}d)"><span class="ci">${chestSvg('closed')}</span><span class="ct"><small>${first?'Start here':'Continue'}</small><b>${l.unit.title}</b><span>Lesson ${l.li+1} of ${l.unit.lessons.length} · ${l.items.length} questions</span></span><span class="cgo">${I.star}</span></button>`; }
 function vLearn(){
   if(CHEST && UNIT[CHEST]) return vChest(UNIT[CHEST]);
-  const cur=currentLesson(); let html=`<div class="wrap stack">${annCard()}${hwCard()}${goalCard()}${continueCard()}${dailyCard()}`; let lastSec=-1;
+  const cur=currentLesson(); let html=`<div class="wrap stack">${annCard()}${hwCard()}${goalCard()}${appCard()}${continueCard()}${dailyCard()}`; let lastSec=-1;
   UNITS.forEach(u=>{
     if(u.sec!==lastSec){ if(lastSec>=0) html+='</div>'; lastSec=u.sec; const s=SECTIONS[u.sec]; const us=UNITS.filter(x=>x.sec===u.sec); const dn=us.filter(x=>unitDone(x)).length;
       html+=`<div class="sechead"><h3>${s.name}</h3><span>${dn} of ${us.length} chests opened</span></div><div class="chests">`; }
@@ -3519,6 +3547,7 @@ function vLearn(){
   view.innerHTML=html;
   view.querySelectorAll('[data-chest]').forEach(b=>b.onclick=()=>chestOpen('u', b.dataset.chest));
   const lb=document.getElementById('lbAll'); if(lb) lb.onclick=()=>boardSheet('week');
+  wireAppCard();
   const on=(id,f)=>{ const e=document.getElementById(id); if(e) e.onclick=f; };
   on('contGo',()=>{ const l=currentLesson(); if(l) lessonSheet(l); });
   on('frz',freezeSheet); on('dcGo',startDaily); on('dcRes',dailySheet); on('hwGo',startHw); on('annOk',()=>{ S.annSeen=CLS.ann.at; save(); vLearn(); });
@@ -3897,6 +3926,7 @@ function vMe(){
     <label class="switch" for="snd"><span>Sound effects</span><input type="checkbox" id="snd" ${S.sound?'checked':''}></label>
     <label class="switch" for="rlx"><span>Relaxed mode (no question timer)</span><input type="checkbox" id="rlx" ${S.relaxed?'checked':''}></label>
     <label class="switch" for="opn"><span>Open all lessons (skip ahead)</span><input type="checkbox" id="opn" ${S.openAll?'checked':''}></label>
+    ${canOfferApp()?'<button class="btn ghost" id="appGet2">Get the Qadam app</button>':''}${window.QADAM_APP_PW?'<button class="btn ghost" id="appPw">Set a password for the app</button>':''}
     ${window.QADAM_SIGNOUT?`<p class="muted" style="margin:0;font-size:14px">Signed in as ${esc((window.QADAM_PROFILE||{}).email||('username '+((window.QADAM_PROFILE||{}).username||'')))}${window.QADAM_VERIFIED===false?' · email not verified yet':''}</p><p style="margin:0;font-size:14px;font-weight:700;color:${OWNER?'var(--good)':'var(--muted)'}">Teacher access: ${OWNER?'yes':'no'}${!OWNER&&window.QADAM_TEACHER_ERR?' ('+esc(window.QADAM_TEACHER_ERR)+')':''}</p>${window.QADAM_VERIFIED===false?'<button class="btn ghost" id="vfy">Send verification email</button>':''}<button class="btn ghost" id="sgo">Sign out</button>`:''}
     <button class="btn ghost" id="wlc">Why “Qadam”?</button>
     <button class="btn ghost" id="rst" style="color:var(--bad)">Reset my progress</button>
@@ -3912,6 +3942,7 @@ function vMe(){
   document.getElementById('rlx').onchange=e=>{ S.relaxed=e.target.checked; save(); };
   const vf=document.getElementById('vfy'); if(vf) vf.onclick=()=>{ window.QADAM_VERIFY().then(()=>{vf.textContent='Sent. Open the link in your inbox, then sign in again.';vf.disabled=true;},()=>{vf.textContent='Could not send. Try again in a few minutes.';}); };
   const sg=document.getElementById('sgo'); if(sg) sg.onclick=()=>window.QADAM_SIGNOUT();
+  const ag=document.getElementById('appGet2'); if(ag) ag.onclick=appSheet; const ap=document.getElementById('appPw'); if(ap) ap.onclick=appPwSheet;
   document.getElementById('rst').onclick=()=>{ openModal(`<h2>Reset all progress?</h2><p class="muted">This clears your XP, streak, lessons, words and stats, here and in your teacher's class view. It cannot be undone.</p><div class="row"><button class="btn ghost" data-close>Cancel</button><button class="btn bad" id="mR">Reset</button></div>`); document.getElementById('mR').onclick=()=>{ const keep={sound:S.sound, welcomed:true}; S=Object.assign(fresh(),keep); save(); closeModal(); TAB='learn'; render(); }; };
 }
 
@@ -4354,6 +4385,6 @@ connect();
 try{ if(window.top===window && location.protocol==='https:' && !/claude\.ai|claudeusercontent/.test(location.host)){ const l=document.createElement('link'); l.rel='manifest'; l.href='manifest.webmanifest'; document.head.appendChild(l); if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{}); } }catch(e){}
 };
 </script>
-<script src="boot.js?v=641ce74d"></script>
+<script src="boot.js?v=333a0da5"></script>
 </body>
 </html>
